@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="js/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="js/jquery-2.0.2.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var query="Star trek lk ml nlk nl kl k";
+      var encoded = encodeURIComponent(query);
+      //var encoded = $(query).serialize();
+      //console.log($(query).serialize());
+      //encodeURI(query);
+      document.write(encoded + "<br>");
+      //document.write(decodeURI(encoded));
+    </script>
+  </head>
+  <body>
+    <div class='container'>
+      <select name="rate_it" class='span1'>
+	<option>1</option>
+	<option>2</option>
+	<option>3</option>
+	<option>4</option>
+	<option>5</option>
+	<option>6</option>
+	<option>7</option>
+	<option>8</option>
+	<option>9</option>
+	<option>10</option>
+      </select>
+      <form id="commenting_form" action="" method="POST">
+	<textarea id="commenting_field"  class='span4' rows="5" cols="170" placeholder="Enter Your Comments Here"></textarea>
+	<br>
+	<input name = "submit_comment" type="submit" method = "POST" value="Submit">
+      </form>
+      <div name="comments">Comments:<br>
+	
+      </div>
+    </div>
+  </body>
+<html>

@@ -1,0 +1,26 @@
+<html>
+<head><title></title>
+<script type="text/javascript">
+$(document).ready(function() {
+	$.ajax({
+            url: "http://movies", // imdbapi.org/",
+            data: {
+                q: 'Star Trek',
+                limit: 10
+            },
+            dataType: "json",
+            success: function(data, textStatus, jqXHR) {
+                
+            },
+	    error: function(jqXHR, textStatus, errorThrown) {
+		
+	    }
+        });
+	
+});
+</script>
+</head>
+<body>
+
+</body>
+</html>
