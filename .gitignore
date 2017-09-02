@@ -1,0 +1,35 @@
+#ignore all temporary files
+~*
+
+#ignore the .git folder and its contents
+.git
+.git/**/*
+
+
+#ignore log files
+**/*.log
+zend_log.txt
+
+#ignore Eclipse project configuration
+.buildpath
+.project
+.settings
+.settings/**/*
+
+#ignore custom config settings
+config/customConfig.php
+
+#ignore temporary folders
+apache_logs
+apache_logs/**/*
+temp
+temp/**/*
+
+#ignore unrelated document formats (I sometimes keep supplementary information sources of this kind, i. e. images, doc tutorials etc)
+**/*.bmpr
+**/*.docx
+**/*.extra
+**/*.mp4
+**/*.pdf
+**/*.tmp
+**/*.txt

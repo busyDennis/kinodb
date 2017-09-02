@@ -1,21 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "4bd58bb27858f72439ce23befb98537a",
+    "hash": "e277f2a9960df43b8252969b4554cf18",
+    "content-hash": "77c68e90304bf1c5bd9ff30f5b609c86",
     "packages": [
         {
             "name": "zendframework/zendframework",
             "version": "2.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/zendframework/zf2.git",
-                "reference": "release-2.2.1"
+                "url": "https://github.com/zendframework/zendframework.git",
+                "reference": "25c837bfacb21c8edba5fc9da214fc6940f5e191"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zf2/zipball/release-2.2.1",
+                "url": "https://api.github.com/repos/zendframework/zendframework/zipball/25c837bfacb21c8edba5fc9da214fc6940f5e191",
                 "reference": "release-2.2.1",
                 "shasum": ""
             },
@@ -118,20 +120,14 @@
             "time": "2013-06-12 20:13:34"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "zendframework/zendframework": 5
-    },
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": {
         "php": ">=5.3.3"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }

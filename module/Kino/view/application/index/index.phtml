@@ -1,0 +1,114 @@
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<ul class="nav">
+				<li><a class="brand" id="brand" href="#">KinoDB</a></li>
+				<li>
+					<form id="form-search" class="navbar-search" action=""
+						method="POST">
+						<input type="text" id="search_string"
+							class="input-medium search-query" placeholder="Search"> <i
+							class="icon-loader"></i>
+					</form>
+				</li>
+				<li class="dropdown offset6"><a id="sort-by" class="dropdown-toggle"
+					data-toggle="dropdown" data-target="#" href="#">Sort by <b
+						class="caret"></b>
+				</a>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="sort-by">
+						<li id="byRating"><a tabindex="-1" href="#">Rating</a></li>
+						<li id="byYear"><a tabindex="-1" href="#">Year</a></li>
+						<li id="byTitle"><a tabindex="-1" href="#">Title</a></li>
+					</ul></li>
+				<li class="dropdown"><a id="sort-order" class="dropdown-toggle"
+					data-toggle="dropdown" href="#"><span id="order">Descending</span><b
+						class="caret"></b> </a>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="sort-order">
+						<li id="ascending"><a tabindex="-1" href="#">Ascending</a></li>
+						<li id="descending"><a tabindex="-1" href="#">Descending</a></li>
+					</ul></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+<div id="movies" class="container"></div>
+
+<script type="text/template" id="template-movie">
+      <div id="<%= imdbID %>" class='row'>
+      <div class='well well-small row'>
+        <div class='span3' style='width: 214px; height:317px; padding-right: 15px'>
+	  			<img src=<%= Poster %>>
+        </div>
+				<div class='span9'>
+        	<dl>
+          	<dt>
+	        		<h2>
+	          		<span class='text-left'><a href="#movie/<%= imdbID %>"><%= Title %></a></span>
+	          		<span><small><%= Year %></small></span>
+		    			</h2>
+          	</dt>
+          	<dd><%= Plot %></dd>
+          	<dt><h3>Casting</h3></dt>
+          	<dd><%= Actors %></dd>
+						<div class="row">
+							<div class="span6">
+          			<dt>
+									<h3>IMDB Rating</h3>
+								</dt>
+          			<dd>
+									<div id="hidden-rating" class="hidden hidden-rating"><%= rating %>
+									</div>
+									<span id="movie-rating" class="movie-rating">
+									</span>
+								</dd>
+							</div>
+							<div class="span3 kino-div hidden">
+            		<dt>
+									<h3>KinoDB Rating</h3>
+								</dt>
+           			<dd class="kino-rating"></dd>
+          		</div>
+						</div>
+        	</dl>
+				</div>
+      </div>
+      <div id="comments"></div>
+      </div>
+    </script>
+
+<script type="text/template" id="template-comments-form">
+      <h3>Leave a comment</h3>
+      <div>
+        <div>
+          <span><input class="span6" id="comment-heading" type="text" placeholder="Heading"></span>
+          <span style="float:right">Rate it!: <span id="rating"></span></span>
+        </div>
+        <div><textarea id="comment-field" rows="3" class="span12" placeholder="What'd you think?"></textarea></div>
+        <div style="padding-bottom:10px">
+          <button id="submit-comment" class="btn btn-inverse enableOnInput" disabled='disabled'>Submit</button>
+          <button id="submit-clear" class="btn enableClearOnInput" disabled="disabled">Clear</button>
+          <small class="text-error hidden"><strong>*</strong> fill in all fields</small>
+        </div>
+      </div>
+      <div style="padding-bottom:10px; text-align:center">
+        <a href="#" id="comment-toggle-visibility"><i Title="show comments" class="icon-chevron-down icon-large"></i></a>
+      </div>
+      <ul id="comments-list" class="media-list hidden"></ul>
+    </script>
+
+<script type="text/template" id="template-single-comment">
+      <div class='well well-small comment-single'>
+      <li class="media">
+        <a class="pull-left" href="#">
+          <img class="media-object" data-src="holder.js/64x64">
+        </a>
+        <div class="media-body">
+          <h4 class="media-heading"><%= heading %>  (rating: <%= rating %>/10)</h4>
+          <h5><small><%= created %></small></h5>
+          <div class="media"><%= comment %></div>
+        </div>
+      </li>
+      </div>
+    </script>

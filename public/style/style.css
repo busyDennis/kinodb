@@ -1,0 +1,74 @@
+body {
+	padding-top: 45px
+}
+
+.icon-refresh-animate {
+	animation-name: rotateThis;
+	animation-duration: .8s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+.icon-showcomments-animateUp {
+	animation-name: rotateUp;
+	animation-duration: .4s;
+	animation-iteration-count: 1;
+	animation-timing-function: linear;
+	animation-fill-mode: forwards;
+}
+
+.icon-showcomments-animateDown {
+	animation-name: rotateDown;
+	animation-duration: .4s;
+	animation-iteration-count: 1;
+	animation-timing-function: linear; //
+	animation-direction: reverse;
+}
+
+@keyframes "rotateThis " {
+  from {
+	 transform: scale(1) rotate(0 deg);
+	 opacity: 0.2;
+  }
+
+  50% {
+    transform: scale(1) rotate(180 deg);
+    opacity: 1.0;
+  }
+  to {
+	 transform: scale(1) rotate(360deg);
+	 opacity: 0.2;
+  }
+
+}
+
+@keyframes "rotateUp " {
+  
+  from {
+	 transform: scale(1) rotate(0deg);
+  }
+
+  to {
+	 transform: scale(1) rotate(180deg);
+  }
+
+}
+
+@keyframes "rotateDown " {from {
+	transform: scale(1) rotate(180deg);
+}
+
+to {
+	transform: scale(1) rotate(0deg);
+}
+
+}
+.icon-loader {
+	position: inline;
+	width: 10px;
+	height: 10px;
+	border: 2px solid #fff;
+	border-right-color: transparent;
+	border-radius: 50%;
+	box-shadow: 0 0 25px 2px #eee;
+}

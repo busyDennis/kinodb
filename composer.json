@@ -9,7 +9,7 @@
       "role":      "Developer"
     }
   ],
-  "description":   "Sophomore student project",
+  "description":   "Amateur movie database browser",
   "keywords": [
     "zf2"
   ],
@@ -17,7 +17,7 @@
   "name":          "KinoDB",
   "require": {
     "php":         ">=5.3.3",
-    "zendframework/zendframework": "2.2.0rc1"
+    "zendframework/zendframework": "2.2.1"
   },
   "time":          "2013-06-27"
 }
