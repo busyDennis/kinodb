@@ -4,20 +4,20 @@ namespace Kino\Model;
 class Rating
 {
 
-    public $imdb_id;
+    public $imdbID;
 
-    public $avg_rating;
+    public $avgRating;
 
-    public $total_rating;
+    public $totalRating;
 
-    public $times_rated;
+    public $timesRated;
 
     public function exchangeArray ($data)
     {
-        $this->imdb_id = (! empty($data['imdb_id'])) ? $data['imdb_id'] : null;
-        $this->avg_rating = (! empty($data['avg_rating'])) ? $data['avg_rating'] : null;
-        $this->total_rating = (! empty($data['total_rating'])) ? $data['total_rating'] : null;
-        $this->times_rated = (! empty($data['times_rated'])) ? $data['times_rated'] : null;
+        $this->imdbID = (! empty($data['imdbID'])) ? $data['imdbID'] : null;
+        $this->avgRating = (! empty($data['avgRating'])) ? $data['avgRating'] : null;
+        $this->totalRating = (! empty($data['totalRating'])) ? $data['totalRating'] : null;
+        $this->timesRated = (! empty($data['timesRated'])) ? $data['timesRated'] : null;
     }
 }
 ?>

@@ -1,18 +1,24 @@
+const DEFAULT_IMG_FNAME = "img/default_video.png";
+
 $(document)
 		.ready(
 				function() {
 
 					var Movie = Backbone.Model.extend({
 						defaults : {
+							imdbID : "",
 							Title : "",
-							Poster : "img/default_video.png",
+							Poster : DEFAULT_IMG_FNAME,
 							Plot : "",
 							Actors : "",
 							rating : "",
-							kino_rating : "0",
+							kinoRating : 0,
 							Year : ""
 						},
 						idAttribute : "imdbID",
+						url : function() {
+							return '/movie?id=' + this.get('imdbID');
+						},
 						updateKinoRating : function() {
 							var context = this;
 							$.ajax({
@@ -22,7 +28,7 @@ $(document)
 								success : function(data, textStatus, jqXHR) {
 									if (data.avg_rating != 0) {
 										context.set({
-											kino_rating : data.avg_rating
+											kinoRating : data.avgRating
 										});
 									}
 								},
@@ -36,8 +42,8 @@ $(document)
 					var Comment = Backbone.Model.extend({
 						defaults : {
 							imdbID : "",
-							heading : "",
-							comment : "",
+							commentHeading : "",
+							commentText : "",
 							rating : "",
 							created : "",
 							ip : ""
@@ -163,7 +169,7 @@ $(document)
 					var CommentList = Backbone.Collection.extend({
 						model : Comment,
 						url : function() {
-							return '/comments?id=' + this.imdbID;
+							return '/comment?id=' + this.imdbID;
 						},
 						imdbID : "",
 						initialize : function(models, options) {
@@ -178,15 +184,17 @@ $(document)
 								initialize : function() {
 									console
 											.log("Movie view initialized with imdbID: "
-													+ this.model.id);
+													+ this.model.attributes['imdbID']);
 									this.listenTo(this.model,
 											'change:kino_rating',
 											this.renderKinoRating);
 									this.template = _.template($(
 											'#template-movie').html());
-									this.commentList = new CommentList([], {
-										imdbID : this.model.id
-									});
+									this.commentList = new CommentList(
+											[],
+											{
+												imdbID : this.model.attributes['imdbID']
+											});
 									this.commentListView = new CommentListView(
 											{
 												collection : this.commentList
@@ -197,6 +205,9 @@ $(document)
 									// this.$el.hide();
 									this.$el.append(this
 											.template(this.model.attributes));
+
+									console.log("Movie attributes:"); //temporary
+									console.log(this.model.attributes); //temporary
 
 									this.commentListView.setElement("#"
 											+ this.model.attributes['imdbID']
@@ -225,7 +236,7 @@ $(document)
 																'9', '10' ]
 													});
 
-									this.model.attributes["kino_rating"] = 0;
+									this.model.attributes["kinoRating"] = 0;
 									this.model.updateKinoRating();
 									// this.renderKinoRating();
 									// this.$el.show();
@@ -235,7 +246,7 @@ $(document)
 								renderKinoRating : function() {
 									// this.$(".kino-div").removeClass('hidden');
 									// context.model.updateKinoRating();
-									if (this.model.attributes["kino_rating"] != 0) {
+									if (this.model.attributes["kinoRating"] != 0) {
 										if ($(
 												"#"
 														+ this.model.attributes['imdbID']
@@ -361,7 +372,7 @@ $(document)
 
 								submitKinoRating : function(imdbID, rating) {
 									$.ajax({
-										url : "http://kinodb/backend_ratings/",
+										url : "http://kinodb/rating",
 										type : "POST",
 										data : {
 											imdbID : imdbID,
@@ -541,9 +552,11 @@ $(document)
 						search_imdb : function(query) {
 							// console.log(query);
 							// if (!$("#form-search").val()) return;
-							$('html, body').animate({
-								scrollTop : 0
-							}, 'slow');
+
+							// $('html, body').animate({
+							// scrollTop : 0
+							// }, 'slow');
+
 							$('#movies').empty();
 							var icon = $(".icon-loader");
 							icon.addClass("icon-refresh-animate");
@@ -628,7 +641,7 @@ $(document)
 										console.log("inside else");
 
 										var movieModel = new Movie({}, {
-											url : "/backend_movies/" + imdbID
+											url : "/movie?id=" + imdbID
 										});
 										movieModel
 												.fetch({

@@ -18,24 +18,24 @@ class RatingTable
         return $resultSet;
     }
 
-    public function getRating ($imdb_id)
+    public function getRating ($imdbID)
     {
         $rowset = $this->tableGateway->select(
                 array(
-                        'imdb_id' => $imdb_id
+                        'imdbID' => $imdbID
                 ));
         $row = $rowset->current();
         if (! $row) {
-            throw new \Exception("Could not find row $imdb_id");
+            throw new \Exception("Could not find row $imdbID");
         }
         return $row;
     }
 
-    public function entryExists ($imdb_id)
+    public function entryExists ($imdbID)
     {
         if ($this->tableGateway->select(
                 array(
-                        'imdb_id' => $imdb_id
+                        'imdbID' => $imdbID
                 ))->current())
             return true;
         else
@@ -47,34 +47,34 @@ class RatingTable
 
     public function updateRating (Ratings $rating)
     {
-        $imdb_id = $rating->imdb_id;
+        $imdbID = $rating->imdbID;
         $entry = $this->tableGateway->select(
                 array(
-                        'imdb_id' => $imdb_id
+                        'imdbID' => $imdbID
                 ))->current();
-        
+
         $data = array();
-        $data['imdb_id'] = $rating->imdb_id;
+        $data['imdbID'] = $rating->imdbID;
         if ($entry) {
-            $data['total_rating'] = $rating->total_rating + $entry->total_rating;
-            $data['times_rated'] = $entry->times_rated + 1;
-            $data['avg_rating'] = round(
-                    ((float) $data['total_rating']) / $data['times_rated'], 1); // 1
+            $data['totalRating'] = $rating->totalRating + $entry->totalRating;
+            $data['timesRated'] = $entry->timesRated + 1;
+            $data['avgRating'] = round(
+                    ((float) $data['totalRating']) / $data['timesRated'], 1); // 1
                                                                                 // is
                                                                                 // the
                                                                                 // precision
-            $this->tableGateway->update($data, 
+            $this->tableGateway->update($data,
                     array(
-                            'imdb_id' => $imdb_id
+                            'imdbID' => $imdbID
                     ));
         } else {
-            $data['total_rating'] = $rating->total_rating;
-            $data['times_rated'] = '1';
-            $data['avg_rating'] = $rating->total_rating;
+            $data['totalRating'] = $rating->totalRating;
+            $data['timesRated'] = 1;
+            $data['avgRating'] = $rating->totalRating;
             $this->tableGateway->insert($data);
         }
     }
-    
+
     /*
      * public function updateRating(RatingsModule $rating)
      * {

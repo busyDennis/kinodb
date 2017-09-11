@@ -53,8 +53,9 @@ return array(
                                 'type' => 'segment',
                                 'options' => array(
                                         'route' => '/rating[/[:id]]',
-                                        'constraints' => array(),
-                                        // 'id' => 'tt[0-9]{7}',
+                                        'constraints' => array(
+                                            'id' => 'tt[0-9]{7}'
+                                        ),
                                         'defaults' => array(
                                                 '__NAMESPACE__' => 'Kino\Controller',
                                                 'controller' => 'Kino\Controller\RatingRestful'

@@ -1,16 +1,16 @@
 <?php
 namespace Kino\Model;
 
-class Movie
+class Comment
 {
 
     public $commentID;
 
     public $imdbID;
 
-    public $heading;
+    public $commentHeading;
 
-    public $comment;
+    public $commentText;
 
     public $rating;
 
@@ -22,8 +22,8 @@ class Movie
     {
         $this->commentID = (! empty($data['commentID'])) ? $data['commentID'] : null;
         $this->imdbID = (! empty($data['imdbID'])) ? $data['imdbID'] : null;
-        $this->heading = (! empty($data['heading'])) ? $data['heading'] : null;
-        $this->comment = (! empty($data['comment'])) ? $data['comment'] : null;
+        $this->commentHeading = (! empty($data['commentHeading'])) ? $data['commentHeading'] : null;
+        $this->commentText = (! empty($data['commentText'])) ? $data['commentText'] : null;
         $this->rating = (! empty($data['rating'])) ? $data['rating'] : null;
         $this->created = (! empty($data['created'])) ? $data['created'] : null;
         $this->ip = (! empty($data['ip'])) ? $data['ip'] : null;

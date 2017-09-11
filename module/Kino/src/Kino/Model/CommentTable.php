@@ -49,12 +49,12 @@ class CommentTable
         $data = array(
                 'imdbID' => $comment->imdbID,
                 'heading' => $comment->heading,
-                'comment' => $comment->comment,
+                'commentText' => $comment->comment,
                 'rating' => $comment->rating,
                 'created' => $comment->created,
                 'ip' => $_SERVER['REMOTE_ADDR']
         );
-        
+
         $commentID = (int) $comment->commentID;
         if ($commentID == 0) {
             $this->tableGateway->insert($data);
@@ -63,7 +63,7 @@ class CommentTable
                 ->getLastGeneratedValue();
         } else {
             if ($this->getComment($commentID)) {
-                $this->tableGateway->update($data, 
+                $this->tableGateway->update($data,
                         array(
                                 'commentID' => $commentID
                         ));

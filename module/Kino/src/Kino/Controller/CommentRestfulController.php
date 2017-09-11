@@ -5,7 +5,7 @@ use Zend\View\Model\JsonModel;
 class CommentRestfulController extends RestfulControllerTemplate
 {
 
-    protected $commentsTable;
+    protected $commentTable;
 
     /**
      * Return all comments
@@ -14,7 +14,7 @@ class CommentRestfulController extends RestfulControllerTemplate
      */
     public function getList ()
     {
-        $rset = $this->getCommentsTable()->fetchAll();
+        $rset = $this->getCommentTable()->fetchAll();
         $movies = array();
         foreach ($rset as $entry) {
             $movies[] = $entry;
@@ -30,7 +30,7 @@ class CommentRestfulController extends RestfulControllerTemplate
      */
     public function get ($id)
     {
-        $rset = $this->getCommentsTable()->getMovieComments($id);
+        $rset = $this->getCommentTable()->getMovieComments($id);
         $comments = array();
         foreach ($rset as $entry) {
             $comments[] = $entry;
@@ -48,7 +48,7 @@ class CommentRestfulController extends RestfulControllerTemplate
     {
         $comment = new Movie();
         $comment->exchangeArray($data);
-        $commentID = $this->getCommentsTable()->saveComment($comment);
+        $commentID = $this->getCommentTable()->saveComment($comment);
         $response = $this->getResponseWithHeader();
         $response->setContent(
                 json_encode(
@@ -78,13 +78,13 @@ class CommentRestfulController extends RestfulControllerTemplate
         return $response;
     }
 
-    public function getCommentsTable ()
+    public function getCommentTable ()
     {
-        if (! $this->commentsTable) {
+        if (! $this->commentTable) {
             $sm = $this->getServiceLocator();
-            $this->commentsTable = $sm->get('Kino\Model\CommentTable');
+            $this->commentTable = $sm->get('Kino\Model\CommentTable');
         }
-        return $this->commentsTable;
+        return $this->commentTable;
     }
 }
 ?>

@@ -1,15 +1,15 @@
 <?php
 namespace Kino;
-use Kino\Model\Kino;
+use Kino\Model\Comment;
 use Kino\Model\CommentTable;
 use Kino\Model\Rating;
 use Kino\Model\RatingTable;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Mvc\MvcEvent;
-use Zend\Mvc\ModuleRouteListener;
-use Zend\View\Model\JsonModel;
-use Zend\I18n\Translator\Translator;
+use \Zend\Db\ResultSet\ResultSet;
+use \Zend\Db\TableGateway\TableGateway;
+use \Zend\Mvc\MvcEvent;
+use \Zend\Mvc\ModuleRouteListener;
+use \Zend\View\Model\JsonModel;
+//use \Zend\I18n\Translator\Translator;
 
 class Module
 {
@@ -96,14 +96,13 @@ class Module
     {
         $app = $e->getTarget();
         $locator = $app->getServiceManager();
-        $view = $locator->get('Zend\View\View');
+        $view = $locator->get('\Zend\View\View');
         // $translator = null;
         // $pluginManager = $view->getHelperPluginManager();
         // $helper =
         // $pluginManager->get('Zend\I18n\View\Helper\AbstractTranslatorHelper');
 
         $jsonStrategy = $locator->get('ViewJsonStrategy');
-        // $view->addRenderingStrategy($jsonStrategy);
     }
 
     public function getAutoloaderConfig ()
@@ -127,7 +126,7 @@ class Module
     {
         return array(
                 'factories' => array(
-                        'Kino\Model\CommentTable' => function  ($sm)
+                        'Kino\Model\CommentTable' => function ($sm)
                         {
                             $tableGateway = $sm->get('CommentTableGateway');
                             $table = new CommentTable($tableGateway);
@@ -139,7 +138,7 @@ class Module
                             $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                             $resultSetPrototype = new ResultSet();
                             $resultSetPrototype->setArrayObjectPrototype(
-                                    new Kino());
+                                    new Comment());
                             return new TableGateway('comment', $dbAdapter, null,
                                     $resultSetPrototype);
                         },

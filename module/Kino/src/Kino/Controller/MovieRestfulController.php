@@ -50,19 +50,18 @@ class MovieRestfulController extends RestfulControllerTemplate
     }
 
     /**
-     * Get list of movie models retrieved by the pre-programmed search for "Star
-     * Trek"
+     * Get list of movie models
      */
     public function getList ()
     {
         $data = (array) $this->getRequest()->getQuery(); // return array
-        if (! array_key_exists('s', $data) /*&& ! array_key_exists('i', $data)*/ ) {
+        if (! array_key_exists('s', $data)) {
             $data = array(
                     "s" => "Star Trek",
                     "apikey" => $this->customConfig->OMDb_API->API_KEY
             );
         } else
-            $data["apikey"] = OMDb_API_KEY;
+            $data["apikey"] = $this->customConfig->OMDb_API->API_KEY;
 
         $this->client->setParameterGet($data);
         $this->client->send();
@@ -81,7 +80,7 @@ class MovieRestfulController extends RestfulControllerTemplate
     {
         $data = array(
                 "i" => $id,
-                "apikey" => $customConfig->OMDb_API->API_KEY
+                "apikey" => $this->customConfig->OMDb_API->API_KEY
         );
 
         $this->client->setParameterGet($data);

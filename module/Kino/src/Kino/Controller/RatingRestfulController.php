@@ -6,12 +6,7 @@ use Zend\View\Model\ViewModel;
 class RatingRestfulController extends RestfulControllerTemplate
 {
 
-    protected $ratingsTable;
-
-    public function __construct (Translator $translator)
-    {
-        $this->translator = $translator;
-    }
+    protected $ratingTable;
 
     public function indexAction ()
     {
@@ -25,13 +20,12 @@ class RatingRestfulController extends RestfulControllerTemplate
      */
     public function getList ()
     {
-        $rset = $this->getRatingsTable()->fetchAll();
+        $rset = $this->getRatingTable()->fetchAll();
         $ratings = array();
         foreach ($rset as $entry) {
             $ratings[] = $entry;
         }
         return new JsonModel($ratings);
-        // return new JsonModel();
     }
 
     /**
@@ -42,10 +36,10 @@ class RatingRestfulController extends RestfulControllerTemplate
      */
     public function get ($imdb_id)
     {
-        if (! $this->getRatingsTable()->entryExists($imdb_id))
+        if (! $this->getRatingTable()->entryExists($imdb_id))
             $response = array(
-                    'imdb_id' => $imdb_id,
-                    'avg_rating' => "0"
+                    'imdbID' => $imdb_id,
+                    'avgRating' => 0
             ); // ,
                    // 'total_rating'
                    // =>
@@ -54,11 +48,14 @@ class RatingRestfulController extends RestfulControllerTemplate
                    // =>
                    // "0");
         else {
-            $response = (array) $this->getRatingsTable()->getRating($imdb_id);
-            unset($response['total_rating']);
-            unset($response['times_rated']);
+            $response = (array) $this->getRatingTable()->getRating($imdb_id);
+            unset($response['totalRating']);
+            unset($response['timesRated']);
         }
-        return $this->getResponse()->setContent(json_encode($response));
+
+        // return $this->getResponse()->setContent(json_encode($response));
+
+        return new JsonModel($response);
     }
 
     /**
@@ -73,7 +70,7 @@ class RatingRestfulController extends RestfulControllerTemplate
 
         $rating = new Rating();
         $rating->exchangeArray($data); // json_decode(key($data), true));
-        $this->getRatingsTable()->updateRating($rating);
+        $this->getRatingTable()->updateRating($rating);
 
         $response = $this->getResponseWithHeader();
         return $response;
@@ -93,13 +90,13 @@ class RatingRestfulController extends RestfulControllerTemplate
         return $response;
     }
 
-    public function getRatingsTable ()
+    public function getRatingTable ()
     {
-        if (! $this->ratingsTable) {
+        if (! $this->ratingTable) {
             $sm = $this->getServiceLocator();
-            $this->ratingsTable = $sm->get('Kino\Model\RatingTable');
+            $this->ratingTable = $sm->get('Kino\Model\RatingTable');
         }
-        return $this->ratingsTable;
+        return $this->ratingTable;
     }
 }
 ?>

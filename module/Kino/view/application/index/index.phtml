@@ -78,7 +78,7 @@
       </div>
     </script>
 
-<script type="text/template" id="template-comments-form">
+    <script type="text/template" id="template-comments-form">
       <h3>Leave a comment</h3>
       <div>
         <div>
@@ -98,16 +98,16 @@
       <ul id="comments-list" class="media-list hidden"></ul>
     </script>
 
-<script type="text/template" id="template-single-comment">
+    <script type="text/template" id="template-single-comment">
       <div class='well well-small comment-single'>
       <li class="media">
         <a class="pull-left" href="#">
           <img class="media-object" data-src="holder.js/64x64">
         </a>
         <div class="media-body">
-          <h4 class="media-heading"><%= heading %>  (rating: <%= rating %>/10)</h4>
+          <h4 class="media-heading"><%= commentHeading %>  (rating: <%= rating %>/10)</h4>
           <h5><small><%= created %></small></h5>
-          <div class="media"><%= comment %></div>
+          <div class="media"><%= commentText %></div>
         </div>
       </li>
       </div>
