@@ -14,6 +14,8 @@ return array(
         'db' => array(
                 'driver' => 'Pdo',
                 'dsn' => 'mysql:dbname=kino_db;host=localhost',
+                'username' => 'kino_man',
+                'password' => 'nopainnogain',
                 'driver_options' => array(
                         PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
                 )

@@ -32,7 +32,7 @@ class CommentRestfulController extends RestfulControllerTemplate
     {
         $rset = $this->getCommentTable()->getMovieComments($id);
         $comments = array();
-        foreach ($rset as $entry) {
+        foreach ($rset as $entry) {            
             $comments[] = $entry;
         }
         return new JsonModel($comments);

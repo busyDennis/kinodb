@@ -1,14 +1,14 @@
-#ignore all temporary files
+#ignore temporary files
 ~*
+**/*.tmp
 
-#ignore the .git folder and its contents
+#ignore .git folder and the gitignore file
 .git
-.git/**/*
-
+#.git/**/*
+.gitignore
 
 #ignore log files
 **/*.log
-zend_log.txt
 
 #ignore Eclipse project configuration
 .buildpath
@@ -16,20 +16,16 @@ zend_log.txt
 .settings
 .settings/**/*
 
-#ignore custom config settings
-config/customConfig.php
+# ignore 'data' folder
+data
+#data/**/*
 
-#ignore temporary folders
-apache_logs
-apache_logs/**/*
-temp
-temp/**/*
+#ignore local OMDb API config file - it is required only in 'development' application environment
+module/Kino/config/omdb.api.config.php
 
-#ignore unrelated document formats (I sometimes keep supplementary information sources of this kind, i. e. images, doc tutorials etc)
-**/*.bmpr
-**/*.docx
-**/*.extra
-**/*.mp4
-**/*.pdf
-**/*.tmp
-**/*.txt
+#ignore 'aux' folder
+aux
+#aux/**/*
+
+
+
