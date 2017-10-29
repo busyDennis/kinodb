@@ -6,8 +6,15 @@ use \Zend\Http\Request;
 use \Zend\Log\Logger;
 use \Zend\View\Model\JsonModel;
 
+//error_reporting(E_ALL);
+//ini_set("display_errors", 1);
+
+
+if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
 define("FNAME_OMDb_API_CONFIG_DEV", "omdb.api.config.php");
 define("FNAME_CUSTOM_LOG", "custom.log");
+define("SAMPLE_SEARCH_STRING", "Star Trek");
+
 
 
 class MovieRestfulController extends RestfulControllerTemplate
@@ -25,33 +32,55 @@ class MovieRestfulController extends RestfulControllerTemplate
         // retreive application environment variable and store locally
         $this->env = getenv('APPLICATION_ENV');
         
-        // OMDb API config full name
-        $this->omdbApiConfig = $_SERVER['DOCUMENT_ROOT'].'/..'.'/module/Kino/config/'.constant("FNAME_OMDb_API_CONFIG_DEV");
+        // logging
+        fwrite(constant('STDERR'), "Current application environment setting is:");
+        fwrite(constant('STDERR'), $this->env);
         
-        // ad hoc Eclipse logger setup
+        if ($this->env == 'production') {
+            fwrite(constant('STDERR'), 'env variable \'OMDb_API_ROOT\' takes value:  ');
+            fwrite(constant('STDERR'), getenv('OMDb_API_ROOT'));
+            fwrite(constant('STDERR'), 'env variable \'OMDb_API_KEY\' takes value:  ');
+            fwrite(constant('STDERR'), getenv('OMDb_API_KEY'));
+            
+            
+        }
+        
+        // ad hoc Eclipse IDE logger setup
         $this->logger = new Logger();
-        $outputFileHandle = fopen($_SERVER['DOCUMENT_ROOT'].'/..'.'/log/'.constant("FNAME_CUSTOM_LOG"), "w+");
+        
+        $logDir = $_SERVER['DOCUMENT_ROOT'].'/..'.'/log/';
+        // check if the log dir exists
+        if (!file_exists($logDir)) {
+            mkdir($logDir, 0777, true);
+        }
+        
+        $logWriteStream = fopen($logDir.constant("FNAME_CUSTOM_LOG"), "w+", false);
         $this->logger->addWriter('stream', null,
                 array(
-                        'stream' => $outputFileHandle
+                        'stream' => $logWriteStream
                     )
             );
         
         // verifying that the logger is functional
-        $this->logger->debug("Logger successfully configured with custom output file 'custom.log'.");
+        $this->logger->debug("Logger successfully configured with custom output file '".constant("FNAME_CUSTOM_LOG")."'.");
         $this->logger->debug("Currently using environment '".$this->env."'.");
         
+        
         if ($this->env == 'production') { // customized for Heroku deployment - using Heroku app config variables
-            $this->omdbApiConfig = array(
-                OMDb_API => getenv('OMDb_API'),
-                API_KEY  => getenv('API_KEY')
-            );
+            $this->omdbApiConfig = new Config(array(
+                'OMDb_API' => array(
+                        'OMDb_API_ROOT' => getenv('OMDb_API_ROOT'),
+                        'OMDb_API_KEY'  => getenv('OMDb_API_KEY')
+                    )
+                ));
         } else if ($this->env == 'development') { // using local config file in 'development'
-            $this->omdbApiConfig = new Config(include($this->omdbApiConfig));
+            // OMDb API config full name
+            $omdbApiConfigPath = $_SERVER['DOCUMENT_ROOT'].'/..'.'/module/Kino/config/'.constant("FNAME_OMDb_API_CONFIG_DEV");
+            $this->omdbApiConfig = new Config(include $omdbApiConfigPath);
         }       
         
         // HTTP client setup
-        $this->client = new Client($this->omdbApiConfig->OMDb_API->URL_ROOT,
+        $this->client = new Client($this->omdbApiConfig->OMDb_API->OMDb_API_ROOT,
                 array(
                         'maxredirects' => 0,
                         'timeout' => 30
@@ -73,11 +102,11 @@ class MovieRestfulController extends RestfulControllerTemplate
         $data = (array) $this->getRequest()->getQuery(); // return array
         if (! array_key_exists('s', $data)) {
             $data = array(
-                    "s" => "Star Trek",
-                    "apikey" => $this->omdbApiConfig->OMDb_API->API_KEY
+                "s" => constant("SAMPLE_SEARCH_STRING"),
+                "apikey" => $this->omdbApiConfig->OMDb_API->OMDb_API_KEY
             );
         } else
-            $data["apikey"] = $this->omdbApiConfig->OMDb_API->API_KEY;
+            $data["apikey"] = $this->omdbApiConfig->OMDb_API->OMDb_API_KEY;
 
         $this->client->setParameterGet($data);
         $this->client->send();
@@ -109,8 +138,8 @@ class MovieRestfulController extends RestfulControllerTemplate
     public function get ($id)
     {
         $data = array(
-                "i" => $id,
-                "apikey" => $this->omdbApiConfig->OMDb_API->API_KEY
+            "i" => $id,
+            "apikey" => $this->omdbApiConfig->OMDb_API->OMDb_API_KEY
         );
 
         $this->client->setParameterGet($data);
