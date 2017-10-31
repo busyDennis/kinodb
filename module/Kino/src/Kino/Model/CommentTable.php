@@ -2,6 +2,9 @@
 namespace Kino\Model;
 use Zend\Db\TableGateway\TableGateway;
 
+
+if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
+
 class CommentTable
 {
 
@@ -20,16 +23,21 @@ class CommentTable
 
     public function getComment ($commentID)
     {
-        $commentID = (int) $commentID;
-        $rowset = $this->tableGateway->select(
+        $resultSet = $this->tableGateway->select(
                 array(
                         'commentID' => $commentID
                 ));
-        $row = $rowset->current();
-        if (! $row) {
-            throw new \Exception("Could not find row $id");
+        
+        if ($resultSet->count() == 0)
+            return false;
+        else {
+            $row = $resultSet->current();
+        
+            if (! $row) {
+                throw new \Exception("Could not find row $commentID");
+            }
+            return $row;
         }
-        return $row;
     }
 
     public function getMovieComments ($imdbID)
@@ -44,33 +52,32 @@ class CommentTable
         return $rowset;
     }
 
-    public function saveComment (Movies $comment)
+    public function saveComment (Comment $comment)
     {
         $data = array(
                 'imdbID' => $comment->imdbID,
-                'heading' => $comment->heading,
-                'commentText' => $comment->comment,
+                'commentHeading' => $comment->commentHeading,
+                'commentText' => $comment->commentText,
                 'rating' => $comment->rating,
                 'created' => $comment->created,
                 'ip' => $_SERVER['REMOTE_ADDR']
         );
 
-        $commentID = (int) $comment->commentID;
-        if ($commentID == 0) {
-            $this->tableGateway->insert($data);
-            $commentID = $this->tableGateway->getAdapter()
-                ->getDriver()
-                ->getLastGeneratedValue();
-        } else {
-            if ($this->getComment($commentID)) {
-                $this->tableGateway->update($data,
-                        array(
-                                'commentID' => $commentID
-                        ));
-            } else {
-                throw new \Exception('Form id does not exist');
-            }
+        if(array_key_exists('commentID', $data)) {
+            $sqlUpdateRetVal = $this->tableGateway->update($data,
+                array(
+                        'commentID' => $commentID
+                    ));
+            
+            if ($sqlUpdateRetVal == 0)
+                throw new \Exception('Aborting - comment with the provided commentID value was not found in the database');
+        } else { // comment model has no commentID assigned - generate it and save the model
+            $commentID = $data['commentID'] = uniqid();
+            
+            if($this->tableGateway->insert($data) == 0)
+                throw new \Exception('Insert operation did not succeed.');
         }
+
         return $commentID;
     }
 
