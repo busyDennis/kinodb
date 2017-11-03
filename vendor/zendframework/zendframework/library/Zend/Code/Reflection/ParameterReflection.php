@@ -3,18 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Code\Reflection;
+
 use ReflectionParameter;
 
-class ParameterReflection extends ReflectionParameter implements 
-        ReflectionInterface
+class ParameterReflection extends ReflectionParameter implements ReflectionInterface
 {
-
     /**
-     *
      * @var bool
      */
     protected $isFromMethod = false;
@@ -24,12 +23,12 @@ class ParameterReflection extends ReflectionParameter implements
      *
      * @return ClassReflection
      */
-    public function getDeclaringClass ()
+    public function getDeclaringClass()
     {
-        $phpReflection = parent::getDeclaringClass();
+        $phpReflection  = parent::getDeclaringClass();
         $zendReflection = new ClassReflection($phpReflection->getName());
         unset($phpReflection);
-        
+
         return $zendReflection;
     }
 
@@ -38,16 +37,16 @@ class ParameterReflection extends ReflectionParameter implements
      *
      * @return ClassReflection
      */
-    public function getClass ()
+    public function getClass()
     {
         $phpReflection = parent::getClass();
-        if ($phpReflection == null) {
-            return null;
+        if ($phpReflection === null) {
+            return;
         }
-        
+
         $zendReflection = new ClassReflection($phpReflection->getName());
         unset($phpReflection);
-        
+
         return $zendReflection;
     }
 
@@ -56,18 +55,16 @@ class ParameterReflection extends ReflectionParameter implements
      *
      * @return FunctionReflection|MethodReflection
      */
-    public function getDeclaringFunction ()
+    public function getDeclaringFunction()
     {
         $phpReflection = parent::getDeclaringFunction();
         if ($phpReflection instanceof \ReflectionMethod) {
-            $zendReflection = new MethodReflection(
-                    $this->getDeclaringClass()->getName(), 
-                    $phpReflection->getName());
+            $zendReflection = new MethodReflection($this->getDeclaringClass()->getName(), $phpReflection->getName());
         } else {
             $zendReflection = new FunctionReflection($phpReflection->getName());
         }
         unset($phpReflection);
-        
+
         return $zendReflection;
     }
 
@@ -76,37 +73,43 @@ class ParameterReflection extends ReflectionParameter implements
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         if ($this->isArray()) {
             return 'array';
         } elseif (method_exists($this, 'isCallable') && $this->isCallable()) {
             return 'callable';
         }
-        
+
         if (($class = $this->getClass()) instanceof \ReflectionClass) {
             return $class->getName();
         }
-        
+
         $docBlock = $this->getDeclaringFunction()->getDocBlock();
-        if (! $docBlock instanceof DocBlockReflection) {
-            return null;
+        if (!$docBlock instanceof DocBlockReflection) {
+            return;
         }
-        
+
         $params = $docBlock->getTags('param');
         if (isset($params[$this->getPosition()])) {
             return $params[$this->getPosition()]->getType();
         }
-        
-        return null;
+
+        return;
     }
 
-    public function toString ()
+    /**
+     * @return string
+     */
+    public function toString()
     {
         return parent::__toString();
     }
 
-    public function __toString ()
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         return parent::__toString();
     }

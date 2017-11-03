@@ -3,11 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Helper;
-use Zend\Authentication\AuthenticationService;
+
+use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\View\Exception;
 
 /**
@@ -15,11 +17,10 @@ use Zend\View\Exception;
  */
 class Identity extends AbstractHelper
 {
-
     /**
      * AuthenticationService instance
      *
-     * @var AuthenticationService
+     * @var AuthenticationServiceInterface
      */
     protected $authenticationService;
 
@@ -31,28 +32,26 @@ class Identity extends AbstractHelper
      * @throws Exception\RuntimeException
      * @return mixed|null
      */
-    public function __invoke ()
+    public function __invoke()
     {
-        if (! $this->authenticationService instanceof AuthenticationService) {
-            throw new Exception\RuntimeException(
-                    'No AuthenticationService instance provided');
+        if (!$this->authenticationService instanceof AuthenticationServiceInterface) {
+            throw new Exception\RuntimeException('No AuthenticationServiceInterface instance provided');
         }
-        
-        if (! $this->authenticationService->hasIdentity()) {
-            return null;
+
+        if (!$this->authenticationService->hasIdentity()) {
+            return;
         }
-        
+
         return $this->authenticationService->getIdentity();
     }
 
     /**
      * Set AuthenticationService instance
      *
-     * @param AuthenticationService $authenticationService            
+     * @param AuthenticationServiceInterface $authenticationService
      * @return Identity
      */
-    public function setAuthenticationService (
-            AuthenticationService $authenticationService)
+    public function setAuthenticationService(AuthenticationServiceInterface $authenticationService)
     {
         $this->authenticationService = $authenticationService;
         return $this;
@@ -61,9 +60,9 @@ class Identity extends AbstractHelper
     /**
      * Get AuthenticationService instance
      *
-     * @return AuthenticationService
+     * @return AuthenticationServiceInterface
      */
-    public function getAuthenticationService ()
+    public function getAuthenticationService()
     {
         return $this->authenticationService;
     }

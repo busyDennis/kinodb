@@ -3,40 +3,37 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http;
+
 use ArrayIterator;
 use Countable;
 use Iterator;
 use Traversable;
-use Zend\Http\HeaderLoader;
 use Zend\Loader\PluginClassLocator;
 
 /**
  * Basic HTTP headers collection functionality
  * Handles aggregation of headers
  *
- * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+ * @see        http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
  */
 class Headers implements Countable, Iterator
 {
-
     /**
-     *
-     * @var PluginClassLoader
+     * @var PluginClassLocator
      */
     protected $pluginClassLoader = null;
 
     /**
-     *
      * @var array key names for $headers array
      */
     protected $headersKeys = array();
 
     /**
-     *
      * @var array Array of header array information or Header instances
      */
     protected $headers = array();
@@ -48,47 +45,63 @@ class Headers implements Countable, Iterator
      * current instance, primarily as strings until they are needed (they
      * will be lazy loaded)
      *
-     * @param string $string            
+     * @param  string $string
      * @return Headers
      * @throws Exception\RuntimeException
      */
-    public static function fromString ($string)
+    public static function fromString($string)
     {
-        $headers = new static();
-        $current = array();
-        
+        $headers   = new static();
+        $current   = array();
+        $emptyLine = 0;
+
         // iterate the header lines, some might be continuations
         foreach (explode("\r\n", $string) as $line) {
-            
+            // CRLF*2 is end of headers; an empty line by itself or between header lines
+            // is an attempt at CRLF injection.
+            if (preg_match('/^\s*$/', $line)) {
+                // empty line indicates end of headers
+                $emptyLine += 1;
+                if ($emptyLine > 2) {
+                    throw new Exception\RuntimeException('Malformed header detected');
+                }
+                continue;
+            }
+
+            if ($emptyLine) {
+                throw new Exception\RuntimeException('Malformed header detected');
+            }
+
             // check if a header name is present
-            if (preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?=}{ \t]+):.*$/', 
-                    $line, $matches)) {
+            if (preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?={} \t]+):.*$/', $line, $matches)) {
                 if ($current) {
-                    // a header name was present, then store the current
-                    // complete line
-                    $headers->headersKeys[] = static::createKey(
-                            $current['name']);
-                    $headers->headers[] = $current;
+                    // a header name was present, then store the current complete line
+                    $headers->headersKeys[] = static::createKey($current['name']);
+                    $headers->headers[]     = $current;
                 }
                 $current = array(
-                        'name' => $matches['name'],
-                        'line' => trim($line)
+                    'name' => $matches['name'],
+                    'line' => trim($line)
                 );
-            } elseif (preg_match('/^\s+.*$/', $line, $matches)) {
+
+                continue;
+            }
+
+            if (preg_match("/^[ \t][^\r\n]*$/", $line, $matches)) {
                 // continuation: append to current line
                 $current['line'] .= trim($line);
-            } elseif (preg_match('/^\s*$/', $line)) {
-                // empty line indicates end of headers
-                break;
-            } else {
-                // Line does not match header format!
-                throw new Exception\RuntimeException(
-                        sprintf('Line "%s"does not match header format!', $line));
+                continue;
             }
+
+            // Line does not match header format!
+            throw new Exception\RuntimeException(sprintf(
+                'Line "%s" does not match header format!',
+                $line
+            ));
         }
         if ($current) {
             $headers->headersKeys[] = static::createKey($current['name']);
-            $headers->headers[] = $current;
+            $headers->headers[]     = $current;
         }
         return $headers;
     }
@@ -96,22 +109,21 @@ class Headers implements Countable, Iterator
     /**
      * Set an alternate implementation for the PluginClassLoader
      *
-     * @param \Zend\Loader\PluginClassLocator $pluginClassLoader            
+     * @param \Zend\Loader\PluginClassLocator $pluginClassLoader
      * @return Headers
      */
-    public function setPluginClassLoader (PluginClassLocator $pluginClassLoader)
+    public function setPluginClassLoader(PluginClassLocator $pluginClassLoader)
     {
         $this->pluginClassLoader = $pluginClassLoader;
         return $this;
     }
 
     /**
-     * Return an instance of a PluginClassLocator, lazyload and inject map if
-     * necessary
+     * Return an instance of a PluginClassLocator, lazyload and inject map if necessary
      *
      * @return PluginClassLocator
      */
-    public function getPluginClassLoader ()
+    public function getPluginClassLoader()
     {
         if ($this->pluginClassLoader === null) {
             $this->pluginClassLoader = new HeaderLoader();
@@ -124,19 +136,19 @@ class Headers implements Countable, Iterator
      *
      * Expects an array (or Traversable object) of type/value pairs.
      *
-     * @param array|Traversable $headers            
+     * @param  array|Traversable $headers
      * @return Headers
      * @throws Exception\InvalidArgumentException
      */
-    public function addHeaders ($headers)
+    public function addHeaders($headers)
     {
-        if (! is_array($headers) && ! $headers instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf('Expected array or Traversable; received "%s"', 
-                            (is_object($headers) ? get_class($headers) : gettype(
-                                    $headers))));
+        if (!is_array($headers) && !$headers instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Expected array or Traversable; received "%s"',
+                (is_object($headers) ? get_class($headers) : gettype($headers))
+            ));
         }
-        
+
         foreach ($headers as $name => $value) {
             if (is_int($name)) {
                 if (is_string($value)) {
@@ -152,82 +164,74 @@ class Headers implements Countable, Iterator
                 $this->addHeaderLine($name, $value);
             }
         }
-        
+
         return $this;
     }
 
     /**
-     * Add a raw header line, either in name => value, or as a single string
-     * 'name: value'
+     * Add a raw header line, either in name => value, or as a single string 'name: value'
      *
-     * This method allows for lazy-loading in that the parsing and instantiation
-     * of Header object
+     * This method allows for lazy-loading in that the parsing and instantiation of Header object
      * will be delayed until they are retrieved by either get() or current()
      *
      * @throws Exception\InvalidArgumentException
-     * @param string $headerFieldNameOrLine            
-     * @param string $fieldValue
-     *            optional
+     * @param string $headerFieldNameOrLine
+     * @param string $fieldValue optional
      * @return Headers
      */
-    public function addHeaderLine ($headerFieldNameOrLine, $fieldValue = null)
+    public function addHeaderLine($headerFieldNameOrLine, $fieldValue = null)
     {
         $matches = null;
-        if (preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?=}{ \t]+):.*$/', 
-                $headerFieldNameOrLine, $matches) && $fieldValue === null) {
+        if (preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?=}{ \t]+):.*$/', $headerFieldNameOrLine, $matches)
+            && $fieldValue === null) {
             // is a header
             $headerName = $matches['name'];
-            $headerKey = static::createKey($matches['name']);
+            $headerKey  = static::createKey($matches['name']);
             $line = $headerFieldNameOrLine;
         } elseif ($fieldValue === null) {
-            throw new Exception\InvalidArgumentException(
-                    'A field name was provided without a field value');
+            throw new Exception\InvalidArgumentException('A field name was provided without a field value');
         } else {
             $headerName = $headerFieldNameOrLine;
-            $headerKey = static::createKey($headerFieldNameOrLine);
+            $headerKey  = static::createKey($headerFieldNameOrLine);
             if (is_array($fieldValue)) {
                 $fieldValue = implode(', ', $fieldValue);
             }
             $line = $headerFieldNameOrLine . ': ' . $fieldValue;
         }
-        
+
         $this->headersKeys[] = $headerKey;
-        $this->headers[] = array(
-                'name' => $headerName,
-                'line' => $line
-        );
-        
+        $this->headers[]     = array('name' => $headerName, 'line' => $line);
+
         return $this;
     }
 
     /**
-     * Add a Header to this container, for raw values @see addHeaderLine() and
-     * addHeaders()
+     * Add a Header to this container, for raw values @see addHeaderLine() and addHeaders()
      *
-     * @param Header\HeaderInterface $header            
+     * @param  Header\HeaderInterface $header
      * @return Headers
      */
-    public function addHeader (Header\HeaderInterface $header)
+    public function addHeader(Header\HeaderInterface $header)
     {
         $this->headersKeys[] = static::createKey($header->getFieldName());
-        $this->headers[] = $header;
-        
+        $this->headers[]     = $header;
+
         return $this;
     }
 
     /**
      * Remove a Header from the container
      *
-     * @param Header\HeaderInterface $header            
+     * @param Header\HeaderInterface $header
      * @return bool
      */
-    public function removeHeader (Header\HeaderInterface $header)
+    public function removeHeader(Header\HeaderInterface $header)
     {
         $index = array_search($header, $this->headers, true);
         if ($index !== false) {
             unset($this->headersKeys[$index]);
             unset($this->headers[$index]);
-            
+
             return true;
         }
         return false;
@@ -240,7 +244,7 @@ class Headers implements Countable, Iterator
      *
      * @return Headers
      */
-    public function clearHeaders ()
+    public function clearHeaders()
     {
         $this->headers = $this->headersKeys = array();
         return $this;
@@ -249,20 +253,19 @@ class Headers implements Countable, Iterator
     /**
      * Get all headers of a certain name/type
      *
-     * @param string $name            
+     * @param  string $name
      * @return bool|Header\HeaderInterface|ArrayIterator
      */
-    public function get ($name)
+    public function get($name)
     {
         $key = static::createKey($name);
-        if (! in_array($key, $this->headersKeys)) {
+        if (!in_array($key, $this->headersKeys)) {
             return false;
         }
-        
-        $class = ($this->getPluginClassLoader()->load($key)) ?  : 'Zend\Http\Header\GenericHeader';
-        
-        if (in_array('Zend\Http\Header\MultipleHeaderInterface', 
-                class_implements($class, true))) {
+
+        $class = ($this->getPluginClassLoader()->load($key)) ?: 'Zend\Http\Header\GenericHeader';
+
+        if (in_array('Zend\Http\Header\MultipleHeaderInterface', class_implements($class, true))) {
             $headers = array();
             foreach (array_keys($this->headersKeys, $key) as $index) {
                 if (is_array($this->headers[$index])) {
@@ -274,12 +277,12 @@ class Headers implements Countable, Iterator
             }
             return new ArrayIterator($headers);
         }
-        
+
         $index = array_search($key, $this->headersKeys);
         if ($index === false) {
             return false;
         }
-        
+
         if (is_array($this->headers[$index])) {
             return $this->lazyLoadHeader($index);
         }
@@ -289,10 +292,10 @@ class Headers implements Countable, Iterator
     /**
      * Test for existence of a type of header
      *
-     * @param string $name            
+     * @param  string $name
      * @return bool
      */
-    public function has ($name)
+    public function has($name)
     {
         return (in_array(static::createKey($name), $this->headersKeys));
     }
@@ -302,7 +305,7 @@ class Headers implements Countable, Iterator
      *
      * @return void
      */
-    public function next ()
+    public function next()
     {
         next($this->headers);
     }
@@ -312,7 +315,7 @@ class Headers implements Countable, Iterator
      *
      * @return mixed
      */
-    public function key ()
+    public function key()
     {
         return (key($this->headers));
     }
@@ -322,7 +325,7 @@ class Headers implements Countable, Iterator
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return (current($this->headers) !== false);
     }
@@ -332,7 +335,7 @@ class Headers implements Countable, Iterator
      *
      * @return void
      */
-    public function rewind ()
+    public function rewind()
     {
         reset($this->headers);
     }
@@ -342,7 +345,7 @@ class Headers implements Countable, Iterator
      *
      * @return array|Header\HeaderInterface
      */
-    public function current ()
+    public function current()
     {
         $current = current($this->headers);
         if (is_array($current)) {
@@ -352,14 +355,12 @@ class Headers implements Countable, Iterator
     }
 
     /**
-     * Return the number of headers in this contain, if all headers have not
-     * been parsed, actual count could
-     * increase if MultipleHeader objects exist in the Request/Response.
-     * If you need an exact count, iterate
+     * Return the number of headers in this contain, if all headers have not been parsed, actual count could
+     * increase if MultipleHeader objects exist in the Request/Response.  If you need an exact count, iterate
      *
      * @return int count of currently known headers
      */
-    public function count ()
+    public function count()
     {
         return count($this->headers);
     }
@@ -372,7 +373,7 @@ class Headers implements Countable, Iterator
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         $headers = '';
         foreach ($this->toArray() as $fieldName => $fieldValue) {
@@ -395,14 +396,14 @@ class Headers implements Countable, Iterator
      * @todo determine how to produce single line headers, if they are supported
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         $headers = array();
         /* @var $header Header\HeaderInterface */
         foreach ($this->headers as $header) {
             if ($header instanceof Header\MultipleHeaderInterface) {
                 $name = $header->getFieldName();
-                if (! isset($headers[$name])) {
+                if (!isset($headers[$name])) {
                     $headers[$name] = array();
                 }
                 $headers[$name][] = $header->getFieldValue();
@@ -410,9 +411,7 @@ class Headers implements Countable, Iterator
                 $headers[$header->getFieldName()] = $header->getFieldValue();
             } else {
                 $matches = null;
-                preg_match(
-                        '/^(?P<name>[^()><@,;:\"\\/\[\]?=}{ \t]+):\s*(?P<value>.*)$/', 
-                        $header['line'], $matches);
+                preg_match('/^(?P<name>[^()><@,;:\"\\/\[\]?=}{ \t]+):\s*(?P<value>.*)$/', $header['line'], $matches);
                 if ($matches) {
                     $headers[$matches['name']] = $matches['value'];
                 }
@@ -422,12 +421,11 @@ class Headers implements Countable, Iterator
     }
 
     /**
-     * By calling this, it will force parsing and loading of all headers, after
-     * this count() will be accurate
+     * By calling this, it will force parsing and loading of all headers, after this count() will be accurate
      *
      * @return bool
      */
-    public function forceLoading ()
+    public function forceLoading()
     {
         foreach ($this as $item) {
             // $item should now be loaded
@@ -436,29 +434,27 @@ class Headers implements Countable, Iterator
     }
 
     /**
-     *
-     * @param
-     *            $index
+     * @param $index
      * @return mixed|void
      */
-    protected function lazyLoadHeader ($index)
+    protected function lazyLoadHeader($index)
     {
         $current = $this->headers[$index];
-        
+
         $key = $this->headersKeys[$index];
         /* @var $class Header\HeaderInterface */
-        $class = ($this->getPluginClassLoader()->load($key)) ?  : 'Zend\Http\Header\GenericHeader';
-        
+        $class = ($this->getPluginClassLoader()->load($key)) ?: 'Zend\Http\Header\GenericHeader';
+
         $headers = $class::fromString($current['line']);
         if (is_array($headers)) {
             $this->headers[$index] = $current = array_shift($headers);
             foreach ($headers as $header) {
                 $this->headersKeys[] = $key;
-                $this->headers[] = $header;
+                $this->headers[]     = $header;
             }
             return $current;
         }
-        
+
         $this->headers[$index] = $current = $headers;
         return $current;
     }
@@ -466,17 +462,11 @@ class Headers implements Countable, Iterator
     /**
      * Create array key from header name
      *
-     * @param string $name            
+     * @param string $name
      * @return string
      */
-    protected static function createKey ($name)
+    protected static function createKey($name)
     {
-        return str_replace(
-                array(
-                        '-',
-                        '_',
-                        ' ',
-                        '.'
-                ), '', strtolower($name));
+        return str_replace(array('-', '_', ' ', '.'), '', strtolower($name));
     }
 }

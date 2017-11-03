@@ -3,16 +3,23 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mail\Header;
 
+use Zend\Mime\Mime;
+
+/**
+ * Subject header class methods.
+ *
+ * @see https://tools.ietf.org/html/rfc2822 RFC 2822
+ * @see https://tools.ietf.org/html/rfc2047 RFC 2047
+ */
 class Subject implements UnstructuredInterface
 {
-
     /**
-     *
      * @var string
      */
     protected $subject = '';
@@ -20,66 +27,73 @@ class Subject implements UnstructuredInterface
     /**
      * Header encoding
      *
-     * @var string
+     * @var null|string
      */
-    protected $encoding = 'ASCII';
+    protected $encoding;
 
-    public static function fromString ($headerLine)
+    public static function fromString($headerLine)
     {
-        $decodedLine = iconv_mime_decode($headerLine, 
-                ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
-        list ($name, $value) = explode(':', $decodedLine, 2);
-        $value = ltrim($value);
-        
+        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
+        $value = HeaderWrap::mimeDecodeValue($value);
+
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'subject') {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid header line for Subject string');
+            throw new Exception\InvalidArgumentException('Invalid header line for Subject string');
         }
-        
+
         $header = new static();
-        if ($decodedLine != $headerLine) {
-            $header->setEncoding('UTF-8');
-        }
         $header->setSubject($value);
-        
+
         return $header;
     }
 
-    public function getFieldName ()
+    public function getFieldName()
     {
         return 'Subject';
     }
 
-    public function getFieldValue ($format = HeaderInterface::FORMAT_RAW)
+    public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
     {
         if (HeaderInterface::FORMAT_ENCODED === $format) {
             return HeaderWrap::wrap($this->subject, $this);
         }
-        
+
         return $this->subject;
     }
 
-    public function setEncoding ($encoding)
+    public function setEncoding($encoding)
     {
         $this->encoding = $encoding;
         return $this;
     }
 
-    public function getEncoding ()
+    public function getEncoding()
     {
+        if (! $this->encoding) {
+            $this->encoding = Mime::isPrintable($this->subject) ? 'ASCII' : 'UTF-8';
+        }
+
         return $this->encoding;
     }
 
-    public function setSubject ($subject)
+    public function setSubject($subject)
     {
-        $this->subject = (string) $subject;
+        $subject = (string) $subject;
+
+        if (! HeaderWrap::canBeEncoded($subject)) {
+            throw new Exception\InvalidArgumentException(
+                'Subject value must be composed of printable US-ASCII or UTF-8 characters.'
+            );
+        }
+
+        $this->subject  = $subject;
+        $this->encoding = null;
+
         return $this;
     }
 
-    public function toString ()
+    public function toString()
     {
-        return 'Subject: ' .
-                 $this->getFieldValue(HeaderInterface::FORMAT_ENCODED);
+        return 'Subject: ' . $this->getFieldValue(HeaderInterface::FORMAT_ENCODED);
     }
 }

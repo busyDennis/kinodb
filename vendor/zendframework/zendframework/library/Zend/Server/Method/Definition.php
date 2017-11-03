@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Method;
+
 use Zend\Server;
 
 /**
@@ -14,39 +16,32 @@ use Zend\Server;
  */
 class Definition
 {
-
     /**
-     *
      * @var \Zend\Server\Method\Callback
      */
     protected $callback;
 
     /**
-     *
      * @var array
      */
     protected $invokeArguments = array();
 
     /**
-     *
      * @var string
      */
     protected $methodHelp = '';
 
     /**
-     *
      * @var string
      */
     protected $name;
 
     /**
-     *
      * @var null|object
      */
     protected $object;
 
     /**
-     *
      * @var array Array of \Zend\Server\Method\Prototype objects
      */
     protected $prototypes = array();
@@ -54,9 +49,9 @@ class Definition
     /**
      * Constructor
      *
-     * @param null|array $options            
+     * @param  null|array $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if ((null !== $options) && is_array($options)) {
             $this->setOptions($options);
@@ -66,10 +61,10 @@ class Definition
     /**
      * Set object state from options
      *
-     * @param array $options            
+     * @param  array $options
      * @return \Zend\Server\Method\Definition
      */
-    public function setOptions (array $options)
+    public function setOptions(array $options)
     {
         foreach ($options as $key => $value) {
             $method = 'set' . ucfirst($key);
@@ -83,10 +78,10 @@ class Definition
     /**
      * Set method name
      *
-     * @param string $name            
+     * @param  string $name
      * @return \Zend\Server\Method\Definition
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = (string) $name;
         return $this;
@@ -97,7 +92,7 @@ class Definition
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -105,17 +100,16 @@ class Definition
     /**
      * Set method callback
      *
-     * @param array|\Zend\Server\Method\Callback $callback            
+     * @param  array|\Zend\Server\Method\Callback $callback
      * @throws Server\Exception\InvalidArgumentException
      * @return \Zend\Server\Method\Definition
      */
-    public function setCallback ($callback)
+    public function setCallback($callback)
     {
         if (is_array($callback)) {
             $callback = new Callback($callback);
-        } elseif (! $callback instanceof Callback) {
-            throw new Server\Exception\InvalidArgumentException(
-                    'Invalid method callback provided');
+        } elseif (!$callback instanceof Callback) {
+            throw new Server\Exception\InvalidArgumentException('Invalid method callback provided');
         }
         $this->callback = $callback;
         return $this;
@@ -126,7 +120,7 @@ class Definition
      *
      * @return \Zend\Server\Method\Callback
      */
-    public function getCallback ()
+    public function getCallback()
     {
         return $this->callback;
     }
@@ -134,17 +128,16 @@ class Definition
     /**
      * Add prototype to method definition
      *
-     * @param array|\Zend\Server\Method\Prototype $prototype            
+     * @param  array|\Zend\Server\Method\Prototype $prototype
      * @throws Server\Exception\InvalidArgumentException
      * @return \Zend\Server\Method\Definition
      */
-    public function addPrototype ($prototype)
+    public function addPrototype($prototype)
     {
         if (is_array($prototype)) {
             $prototype = new Prototype($prototype);
-        } elseif (! $prototype instanceof Prototype) {
-            throw new Server\Exception\InvalidArgumentException(
-                    'Invalid method prototype provided');
+        } elseif (!$prototype instanceof Prototype) {
+            throw new Server\Exception\InvalidArgumentException('Invalid method prototype provided');
         }
         $this->prototypes[] = $prototype;
         return $this;
@@ -153,11 +146,10 @@ class Definition
     /**
      * Add multiple prototypes at once
      *
-     * @param array $prototypes
-     *            Array of \Zend\Server\Method\Prototype objects or arrays
+     * @param  array $prototypes Array of \Zend\Server\Method\Prototype objects or arrays
      * @return \Zend\Server\Method\Definition
      */
-    public function addPrototypes (array $prototypes)
+    public function addPrototypes(array $prototypes)
     {
         foreach ($prototypes as $prototype) {
             $this->addPrototype($prototype);
@@ -168,11 +160,10 @@ class Definition
     /**
      * Set all prototypes at once (overwrites)
      *
-     * @param array $prototypes
-     *            Array of \Zend\Server\Method\Prototype objects or arrays
+     * @param  array $prototypes Array of \Zend\Server\Method\Prototype objects or arrays
      * @return \Zend\Server\Method\Definition
      */
-    public function setPrototypes (array $prototypes)
+    public function setPrototypes(array $prototypes)
     {
         $this->prototypes = array();
         $this->addPrototypes($prototypes);
@@ -182,10 +173,9 @@ class Definition
     /**
      * Get all prototypes
      *
-     * @return array $prototypes Array of \Zend\Server\Method\Prototype objects
-     *         or arrays
+     * @return array $prototypes Array of \Zend\Server\Method\Prototype objects or arrays
      */
-    public function getPrototypes ()
+    public function getPrototypes()
     {
         return $this->prototypes;
     }
@@ -193,10 +183,10 @@ class Definition
     /**
      * Set method help
      *
-     * @param string $methodHelp            
+     * @param  string $methodHelp
      * @return \Zend\Server\Method\Definition
      */
-    public function setMethodHelp ($methodHelp)
+    public function setMethodHelp($methodHelp)
     {
         $this->methodHelp = (string) $methodHelp;
         return $this;
@@ -207,7 +197,7 @@ class Definition
      *
      * @return string
      */
-    public function getMethodHelp ()
+    public function getMethodHelp()
     {
         return $this->methodHelp;
     }
@@ -215,15 +205,14 @@ class Definition
     /**
      * Set object to use with method calls
      *
-     * @param object $object            
+     * @param  object $object
      * @throws Server\Exception\InvalidArgumentException
      * @return \Zend\Server\Method\Definition
      */
-    public function setObject ($object)
+    public function setObject($object)
     {
-        if (! is_object($object) && (null !== $object)) {
-            throw new Server\Exception\InvalidArgumentException(
-                    'Invalid object passed to ' . __CLASS__ . '::' . __METHOD__);
+        if (!is_object($object) && (null !== $object)) {
+            throw new Server\Exception\InvalidArgumentException('Invalid object passed to ' . __CLASS__ . '::' . __METHOD__);
         }
         $this->object = $object;
         return $this;
@@ -234,7 +223,7 @@ class Definition
      *
      * @return null|object
      */
-    public function getObject ()
+    public function getObject()
     {
         return $this->object;
     }
@@ -242,10 +231,10 @@ class Definition
     /**
      * Set invoke arguments
      *
-     * @param array $invokeArguments            
+     * @param  array $invokeArguments
      * @return \Zend\Server\Method\Definition
      */
-    public function setInvokeArguments (array $invokeArguments)
+    public function setInvokeArguments(array $invokeArguments)
     {
         $this->invokeArguments = $invokeArguments;
         return $this;
@@ -256,7 +245,7 @@ class Definition
      *
      * @return array
      */
-    public function getInvokeArguments ()
+    public function getInvokeArguments()
     {
         return $this->invokeArguments;
     }
@@ -266,21 +255,21 @@ class Definition
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         $prototypes = $this->getPrototypes();
         $signatures = array();
         foreach ($prototypes as $prototype) {
             $signatures[] = $prototype->toArray();
         }
-        
+
         return array(
-                'name' => $this->getName(),
-                'callback' => $this->getCallback()->toArray(),
-                'prototypes' => $signatures,
-                'methodHelp' => $this->getMethodHelp(),
-                'invokeArguments' => $this->getInvokeArguments(),
-                'object' => $this->getObject()
+            'name'            => $this->getName(),
+            'callback'        => $this->getCallback()->toArray(),
+            'prototypes'      => $signatures,
+            'methodHelp'      => $this->getMethodHelp(),
+            'invokeArguments' => $this->getInvokeArguments(),
+            'object'          => $this->getObject(),
         );
     }
 }

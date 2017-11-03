@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Metadata\Object;
 
 class ColumnObject
 {
-
     /**
      *
      * @var string
@@ -32,7 +32,6 @@ class ColumnObject
     /**
      *
      * @var
-     *
      */
     protected $ordinalPosition = null;
 
@@ -93,11 +92,11 @@ class ColumnObject
     /**
      * Constructor
      *
-     * @param string $name            
-     * @param string $tableName            
-     * @param string $schemaName            
+     * @param string $name
+     * @param string $tableName
+     * @param string $schemaName
      */
-    public function __construct ($name, $tableName, $schemaName = null)
+    public function __construct($name, $tableName, $schemaName = null)
     {
         $this->setName($name);
         $this->setTableName($tableName);
@@ -107,9 +106,9 @@ class ColumnObject
     /**
      * Set name
      *
-     * @param string $name            
+     * @param string $name
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = $name;
     }
@@ -119,7 +118,7 @@ class ColumnObject
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -129,7 +128,7 @@ class ColumnObject
      *
      * @return string
      */
-    public function getTableName ()
+    public function getTableName()
     {
         return $this->tableName;
     }
@@ -137,10 +136,10 @@ class ColumnObject
     /**
      * Set table name
      *
-     * @param string $tableName            
+     * @param string $tableName
      * @return ColumnObject
      */
-    public function setTableName ($tableName)
+    public function setTableName($tableName)
     {
         $this->tableName = $tableName;
         return $this;
@@ -149,9 +148,9 @@ class ColumnObject
     /**
      * Set schema name
      *
-     * @param string $schemaName            
+     * @param string $schemaName
      */
-    public function setSchemaName ($schemaName)
+    public function setSchemaName($schemaName)
     {
         $this->schemaName = $schemaName;
     }
@@ -161,232 +160,202 @@ class ColumnObject
      *
      * @return string
      */
-    public function getSchemaName ()
+    public function getSchemaName()
     {
         return $this->schemaName;
     }
 
     /**
-     *
      * @return int $ordinalPosition
      */
-    public function getOrdinalPosition ()
+    public function getOrdinalPosition()
     {
         return $this->ordinalPosition;
     }
 
     /**
-     *
-     * @param int $ordinalPosition
-     *            to set
+     * @param int $ordinalPosition to set
      * @return ColumnObject
      */
-    public function setOrdinalPosition ($ordinalPosition)
+    public function setOrdinalPosition($ordinalPosition)
     {
         $this->ordinalPosition = $ordinalPosition;
         return $this;
     }
 
     /**
-     *
      * @return null|string the $columnDefault
      */
-    public function getColumnDefault ()
+    public function getColumnDefault()
     {
         return $this->columnDefault;
     }
 
     /**
-     *
-     * @param mixed $columnDefault
-     *            to set
+     * @param mixed $columnDefault to set
      * @return ColumnObject
      */
-    public function setColumnDefault ($columnDefault)
+    public function setColumnDefault($columnDefault)
     {
         $this->columnDefault = $columnDefault;
         return $this;
     }
 
     /**
-     *
      * @return bool $isNullable
      */
-    public function getIsNullable ()
+    public function getIsNullable()
     {
         return $this->isNullable;
     }
 
     /**
-     *
-     * @param bool $isNullable
-     *            to set
+     * @param bool $isNullable to set
      * @return ColumnObject
      */
-    public function setIsNullable ($isNullable)
+    public function setIsNullable($isNullable)
     {
         $this->isNullable = $isNullable;
         return $this;
     }
 
     /**
-     *
      * @return bool $isNullable
      */
-    public function isNullable ()
+    public function isNullable()
     {
         return $this->isNullable;
     }
 
     /**
-     *
      * @return null|string the $dataType
      */
-    public function getDataType ()
+    public function getDataType()
     {
         return $this->dataType;
     }
 
     /**
-     *
-     * @param string $dataType
-     *            the $dataType to set
+     * @param string $dataType the $dataType to set
      * @return ColumnObject
      */
-    public function setDataType ($dataType)
+    public function setDataType($dataType)
     {
         $this->dataType = $dataType;
         return $this;
     }
 
     /**
-     *
      * @return int|null the $characterMaximumLength
      */
-    public function getCharacterMaximumLength ()
+    public function getCharacterMaximumLength()
     {
         return $this->characterMaximumLength;
     }
 
     /**
-     *
-     * @param int $characterMaximumLength
-     *            the $characterMaximumLength to set
+     * @param int $characterMaximumLength the $characterMaximumLength to set
      * @return ColumnObject
      */
-    public function setCharacterMaximumLength ($characterMaximumLength)
+    public function setCharacterMaximumLength($characterMaximumLength)
     {
         $this->characterMaximumLength = $characterMaximumLength;
         return $this;
     }
 
     /**
-     *
      * @return int|null the $characterOctetLength
      */
-    public function getCharacterOctetLength ()
+    public function getCharacterOctetLength()
     {
         return $this->characterOctetLength;
     }
 
     /**
-     *
-     * @param int $characterOctetLength
-     *            the $characterOctetLength to set
+     * @param int $characterOctetLength the $characterOctetLength to set
      * @return ColumnObject
      */
-    public function setCharacterOctetLength ($characterOctetLength)
+    public function setCharacterOctetLength($characterOctetLength)
     {
         $this->characterOctetLength = $characterOctetLength;
         return $this;
     }
 
     /**
-     *
      * @return int the $numericPrecision
      */
-    public function getNumericPrecision ()
+    public function getNumericPrecision()
     {
         return $this->numericPrecision;
     }
 
     /**
-     *
-     * @param int $numericPrecision
-     *            the $numericPrevision to set
+     * @param int $numericPrecision the $numericPrevision to set
      * @return ColumnObject
      */
-    public function setNumericPrecision ($numericPrecision)
+    public function setNumericPrecision($numericPrecision)
     {
         $this->numericPrecision = $numericPrecision;
         return $this;
     }
 
     /**
-     *
      * @return int the $numericScale
      */
-    public function getNumericScale ()
+    public function getNumericScale()
     {
         return $this->numericScale;
     }
 
     /**
-     *
-     * @param int $numericScale
-     *            the $numericScale to set
+     * @param int $numericScale the $numericScale to set
      * @return ColumnObject
      */
-    public function setNumericScale ($numericScale)
+    public function setNumericScale($numericScale)
     {
         $this->numericScale = $numericScale;
         return $this;
     }
 
     /**
-     *
      * @return bool
      */
-    public function getNumericUnsigned ()
+    public function getNumericUnsigned()
     {
         return $this->numericUnsigned;
     }
 
     /**
-     *
-     * @param bool $numericUnsigned            
+     * @param  bool $numericUnsigned
      * @return ColumnObject
      */
-    public function setNumericUnsigned ($numericUnsigned)
+    public function setNumericUnsigned($numericUnsigned)
     {
         $this->numericUnsigned = $numericUnsigned;
         return $this;
     }
 
     /**
-     *
      * @return bool
      */
-    public function isNumericUnsigned ()
+    public function isNumericUnsigned()
     {
         return $this->numericUnsigned;
     }
 
     /**
-     *
      * @return array the $errata
      */
-    public function getErratas ()
+    public function getErratas()
     {
         return $this->errata;
     }
 
     /**
-     *
-     * @param array $erratas            
+     * @param array $erratas
      * @return ColumnObject
      */
-    public function setErratas (array $erratas)
+    public function setErratas(array $erratas)
     {
         foreach ($erratas as $name => $value) {
             $this->setErrata($name, $value);
@@ -395,25 +364,23 @@ class ColumnObject
     }
 
     /**
-     *
-     * @param string $errataName            
+     * @param string $errataName
      * @return mixed
      */
-    public function getErrata ($errataName)
+    public function getErrata($errataName)
     {
         if (array_key_exists($errataName, $this->errata)) {
             return $this->errata[$errataName];
         }
-        return null;
+        return;
     }
 
     /**
-     *
-     * @param string $errataName            
-     * @param mixed $errataValue            
+     * @param string $errataName
+     * @param mixed $errataValue
      * @return ColumnObject
      */
-    public function setErrata ($errataName, $errataValue)
+    public function setErrata($errataName, $errataValue)
     {
         $this->errata[$errataName] = $errataValue;
         return $this;

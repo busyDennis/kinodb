@@ -3,33 +3,32 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Filter;
+
 use Traversable;
 
 class StringTrim extends AbstractFilter
 {
-
     /**
-     *
      * @var array
      */
     protected $options = array(
-            'charlist' => null
+        'charlist' => null,
     );
 
     /**
      * Sets filter options
      *
-     * @param string|array|Traversable $charlistOrOptions            
+     * @param  string|array|Traversable $charlistOrOptions
      */
-    public function __construct ($charlistOrOptions = null)
+    public function __construct($charlistOrOptions = null)
     {
         if ($charlistOrOptions !== null) {
-            if (! is_array($charlistOrOptions) &&
-                     ! $charlistOrOptions instanceof Traversable) {
+            if (!is_array($charlistOrOptions) && !$charlistOrOptions  instanceof Traversable) {
                 $this->setCharList($charlistOrOptions);
             } else {
                 $this->setOptions($charlistOrOptions);
@@ -40,15 +39,17 @@ class StringTrim extends AbstractFilter
     /**
      * Sets the charList option
      *
-     * @param string $charList            
-     * @return StringTrim Provides a fluent interface
+     * @param  string $charList
+     * @return self Provides a fluent interface
      */
-    public function setCharList ($charList)
+    public function setCharList($charList)
     {
-        if (empty($charList)) {
+        if (! strlen($charList)) {
             $charList = null;
         }
+
         $this->options['charlist'] = $charList;
+
         return $this;
     }
 
@@ -57,7 +58,7 @@ class StringTrim extends AbstractFilter
      *
      * @return string|null
      */
-    public function getCharList ()
+    public function getCharList()
     {
         return $this->options['charlist'];
     }
@@ -65,50 +66,43 @@ class StringTrim extends AbstractFilter
     /**
      * Defined by Zend\Filter\FilterInterface
      *
-     * Returns the string $value with characters stripped from the beginning and
-     * end
+     * Returns the string $value with characters stripped from the beginning and end
      *
-     * @param string $value            
+     * @param  string $value
      * @return string
      */
-    public function filter ($value)
+    public function filter($value)
     {
-        // Do not filter non-string values
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             return $value;
         }
-        
+        $value = (string) $value;
+
         if (null === $this->options['charlist']) {
-            return $this->unicodeTrim((string) $value);
+            return $this->unicodeTrim($value);
         }
-        
-        return $this->unicodeTrim((string) $value, $this->options['charlist']);
+
+        return $this->unicodeTrim($value, $this->options['charlist']);
     }
 
     /**
      * Unicode aware trim method
      * Fixes a PHP problem
      *
-     * @param string $value            
-     * @param string $charlist            
+     * @param string $value
+     * @param string $charlist
      * @return string
      */
-    protected function unicodeTrim ($value, $charlist = '\\\\s')
+    protected function unicodeTrim($value, $charlist = '\\\\s')
     {
         $chars = preg_replace(
-                array(
-                        '/[\^\-\]\\\]/S',
-                        '/\\\{4}/S',
-                        '/\//'
-                ), 
-                array(
-                        '\\\\\\0',
-                        '\\',
-                        '\/'
-                ), $charlist);
-        
+            array('/[\^\-\]\\\]/S', '/\\\{4}/S', '/\//'),
+            array('\\\\\\0', '\\', '\/'),
+            $charlist
+        );
+
         $pattern = '/^[' . $chars . ']+|[' . $chars . ']+$/usSD';
-        
+
         return preg_replace($pattern, '', $value);
     }
 }

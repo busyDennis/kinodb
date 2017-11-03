@@ -3,19 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Filter;
-use Zend\Filter\AbstractFilter;
-use Zend\Filter\Exception\InvalidArgumentException;
+
 use Zend\Uri\Exception\ExceptionInterface as UriException;
 use Zend\Uri\UriFactory;
 use Zend\Uri\Uri;
 
 class UriNormalize extends AbstractFilter
 {
-
     /**
      * The default scheme to use when parsing scheme-less URIs
      *
@@ -24,8 +23,7 @@ class UriNormalize extends AbstractFilter
     protected $defaultScheme = null;
 
     /**
-     * Enforced scheme for scheme-less URIs.
-     * See setEnforcedScheme docs for info
+     * Enforced scheme for scheme-less URIs. See setEnforcedScheme docs for info
      *
      * @var string
      */
@@ -34,9 +32,9 @@ class UriNormalize extends AbstractFilter
     /**
      * Sets filter options
      *
-     * @param array|\Traversable|null $options            
+     * @param array|\Traversable|null $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if ($options) {
             $this->setOptions($options);
@@ -49,10 +47,10 @@ class UriNormalize extends AbstractFilter
      * The scheme used when parsing URIs may affect the specific object used to
      * normalize the URI and thus may affect the resulting normalize URI.
      *
-     * @param string $defaultScheme            
-     * @return \Zend\Filter\UriNormalize
+     * @param  string $defaultScheme
+     * @return self
      */
-    public function setDefaultScheme ($defaultScheme)
+    public function setDefaultScheme($defaultScheme)
     {
         $this->defaultScheme = $defaultScheme;
         return $this;
@@ -69,10 +67,10 @@ class UriNormalize extends AbstractFilter
      * not host part of the URI. While this option can assist in solving
      * real-world user mishaps, it may yield unexpected results at times.
      *
-     * @param string $enforcedScheme            
-     * @return \Zend\Filter\UriNormalize
+     * @param  string $enforcedScheme
+     * @return self
      */
-    public function setEnforcedScheme ($enforcedScheme)
+    public function setEnforcedScheme($enforcedScheme)
     {
         $this->enforcedScheme = $enforcedScheme;
         return $this;
@@ -81,35 +79,39 @@ class UriNormalize extends AbstractFilter
     /**
      * Filter the URL by normalizing it and applying a default scheme if set
      *
-     * @param string $value            
+     * @param  string $value
      * @return string
      */
-    public function filter ($value)
+    public function filter($value)
     {
-        $defaultScheme = $this->defaultScheme ?  : $this->enforcedScheme;
-        
+        if (!is_scalar($value)) {
+            return $value;
+        }
+        $value = (string) $value;
+
+        $defaultScheme = $this->defaultScheme ?: $this->enforcedScheme;
+
         // Reset default scheme if it is not a known scheme
-        if (! UriFactory::getRegisteredSchemeClass($defaultScheme)) {
+        if (!UriFactory::getRegisteredSchemeClass($defaultScheme)) {
             $defaultScheme = null;
         }
-        
+
         try {
             $uri = UriFactory::factory($value, $defaultScheme);
-            if ($this->enforcedScheme && (! $uri->getScheme())) {
+            if ($this->enforcedScheme && (!$uri->getScheme())) {
                 $this->enforceScheme($uri);
             }
         } catch (UriException $ex) {
-            // We are unable to parse / enfore scheme with the given config and
-            // input
+            // We are unable to parse / enfore scheme with the given config and input
             return $value;
         }
-        
+
         $uri->normalize();
-        
-        if (! $uri->isValid()) {
+
+        if (!$uri->isValid()) {
             return $value;
         }
-        
+
         return $uri->toString();
     }
 
@@ -119,24 +121,24 @@ class UriNormalize extends AbstractFilter
      * This will also adjust the host and path parts of the URI as expected in
      * the case of scheme-less network URIs
      *
-     * @param Uri $uri            
+     * @param Uri $uri
      */
-    protected function enforceScheme (Uri $uri)
+    protected function enforceScheme(Uri $uri)
     {
         $path = $uri->getPath();
         if (strpos($path, '/') !== false) {
-            list ($host, $path) = explode('/', $path, 2);
+            list($host, $path) = explode('/', $path, 2);
             $path = '/' . $path;
         } else {
             $host = $path;
             $path = '';
         }
-        
+
         // We have nothing to do if we have no host
-        if (! $host) {
+        if (!$host) {
             return;
         }
-        
+
         $uri->setScheme($this->enforcedScheme)
             ->setHost($host)
             ->setPath($path);

@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Memory\Container;
 
 /**
@@ -15,7 +16,6 @@ namespace Zend\Memory\Container;
  */
 class Locked extends AbstractContainer
 {
-
     /**
      * Value object
      *
@@ -26,9 +26,9 @@ class Locked extends AbstractContainer
     /**
      * Object constructor
      *
-     * @param string $value            
+     * @param string $value
      */
-    public function __construct ($value)
+    public function __construct($value)
     {
         $this->value = $value;
     }
@@ -36,7 +36,7 @@ class Locked extends AbstractContainer
     /**
      * Lock object in memory.
      */
-    public function lock ()
+    public function lock()
     {
         /* Do nothing */
     }
@@ -44,7 +44,7 @@ class Locked extends AbstractContainer
     /**
      * Unlock object
      */
-    public function unlock ()
+    public function unlock()
     {
         /* Do nothing */
     }
@@ -54,7 +54,7 @@ class Locked extends AbstractContainer
      *
      * @return bool
      */
-    public function isLocked ()
+    public function isLocked()
     {
         return true;
     }
@@ -67,7 +67,7 @@ class Locked extends AbstractContainer
      *
      * @return &string
      */
-    public function &getRef ()
+    public function &getRef()
     {
         return $this->value;
     }
@@ -77,7 +77,7 @@ class Locked extends AbstractContainer
      *
      * Should be used together with getRef()
      */
-    public function touch ()
+    public function touch()
     {
         /* Do nothing */
     }
@@ -85,7 +85,7 @@ class Locked extends AbstractContainer
     /**
      * Destroy memory container and remove it from memory manager list
      */
-    public function destroy ()
+    public function destroy()
     {
         /* Do nothing */
     }

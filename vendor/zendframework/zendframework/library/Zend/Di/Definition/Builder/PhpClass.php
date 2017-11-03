@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Di\Definition\Builder;
 
 /**
@@ -13,47 +14,41 @@ namespace Zend\Di\Definition\Builder;
  */
 class PhpClass
 {
-
     /**
-     *
      * @var string
      */
     protected $defaultMethodBuilder = 'Zend\Di\Definition\Builder\InjectionMethod';
 
     /**
-     *
      * @var null|string
      */
-    protected $name = null;
+    protected $name                 = null;
 
     /**
-     *
      * @var string|\Callable|array
      */
-    protected $instantiator = '__construct';
+    protected $instantiator         = '__construct';
 
     /**
-     *
      * @var InjectionMethod[]
      */
-    protected $injectionMethods = array();
+    protected $injectionMethods     = array();
 
     /**
-     *
      * @var array
      */
-    protected $superTypes = array();
+    protected $superTypes           = array();
 
     /**
      * Set name
      *
-     * @param string $name            
+     * @param  string   $name
      * @return PhpClass
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = $name;
-        
+
         return $this;
     }
 
@@ -62,41 +57,38 @@ class PhpClass
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
 
     /**
-     *
-     * @param string|\Callable|array $instantiator            
+     * @param  string|\Callable|array $instantiator
      * @return PhpClass
      */
-    public function setInstantiator ($instantiator)
+    public function setInstantiator($instantiator)
     {
         $this->instantiator = $instantiator;
-        
+
         return $this;
     }
 
     /**
-     *
      * @return array|\Callable|string
      */
-    public function getInstantiator ()
+    public function getInstantiator()
     {
         return $this->instantiator;
     }
 
     /**
-     *
-     * @param string $superType            
+     * @param  string   $superType
      * @return PhpClass
      */
-    public function addSuperType ($superType)
+    public function addSuperType($superType)
     {
         $this->superTypes[] = $superType;
-        
+
         return $this;
     }
 
@@ -105,7 +97,7 @@ class PhpClass
      *
      * @return array
      */
-    public function getSuperTypes ()
+    public function getSuperTypes()
     {
         return $this->superTypes;
     }
@@ -113,13 +105,13 @@ class PhpClass
     /**
      * Add injection method
      *
-     * @param InjectionMethod $injectionMethod            
+     * @param  InjectionMethod $injectionMethod
      * @return PhpClass
      */
-    public function addInjectionMethod (InjectionMethod $injectionMethod)
+    public function addInjectionMethod(InjectionMethod $injectionMethod)
     {
         $this->injectionMethods[] = $injectionMethod;
-        
+
         return $this;
     }
 
@@ -132,32 +124,32 @@ class PhpClass
      * order to provide a more fluent interface for building classes with
      * injection methods.
      *
-     * @param null|string $name            
+     * @param  null|string     $name
      * @return InjectionMethod
      */
-    public function createInjectionMethod ($name = null)
+    public function createInjectionMethod($name = null)
     {
         $builder = $this->defaultMethodBuilder;
         /* @var $method InjectionMethod */
-        $method = new $builder();
+        $method  = new $builder();
         if (null !== $name) {
             $method->setName($name);
         }
         $this->addInjectionMethod($method);
-        
+
         return $method;
     }
 
     /**
      * Override which class will be used by {@link createInjectionMethod()}
      *
-     * @param string $class            
+     * @param  string   $class
      * @return PhpClass
      */
-    public function setMethodBuilder ($class)
+    public function setMethodBuilder($class)
     {
         $this->defaultMethodBuilder = $class;
-        
+
         return $this;
     }
 
@@ -168,16 +160,15 @@ class PhpClass
      *
      * @return string
      */
-    public function getMethodBuilder ()
+    public function getMethodBuilder()
     {
         return $this->defaultMethodBuilder;
     }
 
     /**
-     *
      * @return InjectionMethod[]
      */
-    public function getInjectionMethods ()
+    public function getInjectionMethods()
     {
         return $this->injectionMethods;
     }

@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Uri;
+
 use Zend\Validator\EmailAddress as EmailValidator;
 use Zend\Validator\ValidatorInterface;
 
@@ -17,14 +19,10 @@ use Zend\Validator\ValidatorInterface;
  */
 class Mailto extends Uri
 {
-
-    protected static $validSchemes = array(
-            'mailto'
-    );
+    protected static $validSchemes = array('mailto');
 
     /**
      * Validator for use when validating email address
-     *
      * @var ValidatorInterface
      */
     protected $emailValidator;
@@ -36,22 +34,22 @@ class Mailto extends Uri
      * required by the generic URI syntax
      *
      * @return bool
-     * @see Uri::isValid()
+     * @see    Uri::isValid()
      */
-    public function isValid ()
+    public function isValid()
     {
         if ($this->host || $this->userInfo || $this->port) {
             return false;
         }
-        
+
         if (empty($this->path)) {
             return false;
         }
-        
+
         if (0 === strpos($this->path, '/')) {
             return false;
         }
-        
+
         $validator = $this->getValidator();
         return $validator->isValid($this->path);
     }
@@ -59,13 +57,12 @@ class Mailto extends Uri
     /**
      * Set the email address
      *
-     * This is in fact equivalent to setPath() - but provides a more clear
-     * interface
+     * This is in fact equivalent to setPath() - but provides a more clear interface
      *
-     * @param string $email            
+     * @param  string $email
      * @return Mailto
      */
-    public function setEmail ($email)
+    public function setEmail($email)
     {
         return $this->setPath($email);
     }
@@ -73,12 +70,11 @@ class Mailto extends Uri
     /**
      * Get the email address
      *
-     * This is infact equivalent to getPath() - but provides a more clear
-     * interface
+     * This is infact equivalent to getPath() - but provides a more clear interface
      *
      * @return string
      */
-    public function getEmail ()
+    public function getEmail()
     {
         return $this->getPath();
     }
@@ -86,10 +82,10 @@ class Mailto extends Uri
     /**
      * Set validator to use when validating email address
      *
-     * @param ValidatorInterface $validator            
+     * @param  ValidatorInterface $validator
      * @return Mailto
      */
-    public function setValidator (ValidatorInterface $validator)
+    public function setValidator(ValidatorInterface $validator)
     {
         $this->emailValidator = $validator;
         return $this;
@@ -103,7 +99,7 @@ class Mailto extends Uri
      *
      * @return ValidatorInterface
      */
-    public function getValidator ()
+    public function getValidator()
     {
         if (null === $this->emailValidator) {
             $this->setValidator(new EmailValidator());

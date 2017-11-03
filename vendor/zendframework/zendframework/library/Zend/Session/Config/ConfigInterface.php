@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Session\Config;
 
 /**
@@ -13,52 +14,39 @@ namespace Zend\Session\Config;
  */
 interface ConfigInterface
 {
+    public function setOptions($options);
+    public function getOptions();
 
-    public function setOptions ($options);
+    public function setOption($option, $value);
+    public function getOption($option);
+    public function hasOption($option);
 
-    public function getOptions ();
+    public function toArray();
 
-    public function setOption ($option, $value);
+    public function setName($name);
+    public function getName();
 
-    public function getOption ($option);
+    public function setSavePath($savePath);
+    public function getSavePath();
 
-    public function hasOption ($option);
+    public function setCookieLifetime($cookieLifetime);
+    public function getCookieLifetime();
 
-    public function toArray ();
+    public function setCookiePath($cookiePath);
+    public function getCookiePath();
 
-    public function setName ($name);
+    public function setCookieDomain($cookieDomain);
+    public function getCookieDomain();
 
-    public function getName ();
+    public function setCookieSecure($cookieSecure);
+    public function getCookieSecure();
 
-    public function setSavePath ($savePath);
+    public function setCookieHttpOnly($cookieHttpOnly);
+    public function getCookieHttpOnly();
 
-    public function getSavePath ();
+    public function setUseCookies($useCookies);
+    public function getUseCookies();
 
-    public function setCookieLifetime ($cookieLifetime);
-
-    public function getCookieLifetime ();
-
-    public function setCookiePath ($cookiePath);
-
-    public function getCookiePath ();
-
-    public function setCookieDomain ($cookieDomain);
-
-    public function getCookieDomain ();
-
-    public function setCookieSecure ($cookieSecure);
-
-    public function getCookieSecure ();
-
-    public function setCookieHttpOnly ($cookieHttpOnly);
-
-    public function getCookieHttpOnly ();
-
-    public function setUseCookies ($useCookies);
-
-    public function getUseCookies ();
-
-    public function setRememberMeSeconds ($rememberMeSeconds);
-
-    public function getRememberMeSeconds ();
+    public function setRememberMeSeconds($rememberMeSeconds);
+    public function getRememberMeSeconds();
 }

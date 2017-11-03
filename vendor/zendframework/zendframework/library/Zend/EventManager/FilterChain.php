@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\EventManager;
+
 use Zend\Stdlib\CallbackHandler;
 
 /**
@@ -14,9 +16,7 @@ use Zend\Stdlib\CallbackHandler;
  */
 class FilterChain implements Filter\FilterInterface
 {
-
     /**
-     *
      * @var Filter\FilterIterator All filters
      */
     protected $filters;
@@ -26,7 +26,7 @@ class FilterChain implements Filter\FilterInterface
      *
      * Initializes Filter\FilterIterator in which filters will be aggregated
      */
-    public function __construct ()
+    public function __construct()
     {
         $this->filters = new Filter\FilterIterator();
     }
@@ -36,48 +36,40 @@ class FilterChain implements Filter\FilterInterface
      *
      * Begins iteration of the filters.
      *
-     * @param mixed $context
-     *            Object under observation
-     * @param mixed $argv
-     *            Associative array of arguments
+     * @param  mixed $context Object under observation
+     * @param  mixed $argv Associative array of arguments
      * @return mixed
      */
-    public function run ($context, array $argv = array())
+    public function run($context, array $argv = array())
     {
         $chain = clone $this->getFilters();
-        
+
         if ($chain->isEmpty()) {
             return;
         }
-        
+
         $next = $chain->extract();
-        if (! $next instanceof CallbackHandler) {
+        if (!$next instanceof CallbackHandler) {
             return;
         }
-        
+
         return call_user_func($next->getCallback(), $context, $argv, $chain);
     }
 
     /**
      * Connect a filter to the chain
      *
-     * @param callable $callback
-     *            PHP Callback
-     * @param int $priority
-     *            Priority in the queue at which to execute; defaults to 1
-     *            (higher numbers == higher priority)
+     * @param  callable $callback PHP Callback
+     * @param  int $priority Priority in the queue at which to execute; defaults to 1 (higher numbers == higher priority)
      * @return CallbackHandler (to allow later unsubscribe)
      * @throws Exception\InvalidCallbackException
      */
-    public function attach ($callback, $priority = 1)
+    public function attach($callback, $priority = 1)
     {
         if (empty($callback)) {
             throw new Exception\InvalidCallbackException('No callback provided');
         }
-        $filter = new CallbackHandler($callback, 
-                array(
-                        'priority' => $priority
-                ));
+        $filter = new CallbackHandler($callback, array('priority' => $priority));
         $this->filters->insert($filter, $priority);
         return $filter;
     }
@@ -85,11 +77,10 @@ class FilterChain implements Filter\FilterInterface
     /**
      * Detach a filter from the chain
      *
-     * @param CallbackHandler $filter            
-     * @return bool Returns true if filter found and unsubscribed; returns false
-     *         otherwise
+     * @param  CallbackHandler $filter
+     * @return bool Returns true if filter found and unsubscribed; returns false otherwise
      */
-    public function detach (CallbackHandler $filter)
+    public function detach(CallbackHandler $filter)
     {
         return $this->filters->remove($filter);
     }
@@ -99,7 +90,7 @@ class FilterChain implements Filter\FilterInterface
      *
      * @return Filter\FilterIterator
      */
-    public function getFilters ()
+    public function getFilters()
     {
         return $this->filters;
     }
@@ -109,7 +100,7 @@ class FilterChain implements Filter\FilterInterface
      *
      * @return void
      */
-    public function clearFilters ()
+    public function clearFilters()
     {
         $this->filters = new Filter\FilterIterator();
     }
@@ -122,8 +113,8 @@ class FilterChain implements Filter\FilterInterface
      *
      * @return null|ResponseCollection
      */
-    public function getResponses ()
+    public function getResponses()
     {
-        return null;
+        return;
     }
 }

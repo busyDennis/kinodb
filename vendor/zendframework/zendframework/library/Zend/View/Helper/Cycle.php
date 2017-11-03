@@ -3,17 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Helper;
+
+use Iterator;
 
 /**
  * Helper for alternating between set of values
  */
-class Cycle extends AbstractHelper implements \Iterator
+class Cycle extends AbstractHelper implements Iterator
 {
-
     /**
      * Default name
      *
@@ -26,9 +28,7 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @var array
      */
-    protected $data = array(
-            self::DEFAULT_NAME => array()
-    );
+    protected $data = array(self::DEFAULT_NAME=>array());
 
     /**
      * Actual name of cycle
@@ -42,23 +42,21 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @var array
      */
-    protected $pointers = array(
-            self::DEFAULT_NAME => - 1
-    );
+    protected $pointers = array(self::DEFAULT_NAME =>-1);
 
     /**
      * Add elements to alternate
      *
-     * @param array $data            
-     * @param string $name            
+     * @param  array $data
+     * @param  string $name
      * @return Cycle
      */
-    public function __invoke (array $data = array(), $name = self::DEFAULT_NAME)
+    public function __invoke(array $data = array(), $name = self::DEFAULT_NAME)
     {
-        if (! empty($data)) {
+        if (!empty($data)) {
             $this->data[$name] = $data;
         }
-        
+
         $this->setName($name);
         return $this;
     }
@@ -68,7 +66,7 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return $this->toString();
     }
@@ -78,7 +76,7 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return (string) $this->data[$this->name][$this->key()];
     }
@@ -86,11 +84,11 @@ class Cycle extends AbstractHelper implements \Iterator
     /**
      * Add elements to alternate
      *
-     * @param array $data            
-     * @param string $name            
+     * @param  array $data
+     * @param  string $name
      * @return Cycle
      */
-    public function assign (Array $data, $name = self::DEFAULT_NAME)
+    public function assign(array $data, $name = self::DEFAULT_NAME)
     {
         $this->setName($name);
         $this->data[$name] = $data;
@@ -101,22 +99,21 @@ class Cycle extends AbstractHelper implements \Iterator
     /**
      * Sets actual name of cycle
      *
-     * @param
-     *            $name
+     * @param  $name
      * @return Cycle
      */
-    public function setName ($name = self::DEFAULT_NAME)
+    public function setName($name = self::DEFAULT_NAME)
     {
         $this->name = $name;
-        
-        if (! isset($this->data[$this->name])) {
+
+        if (!isset($this->data[$this->name])) {
             $this->data[$this->name] = array();
         }
-        
-        if (! isset($this->pointers[$this->name])) {
+
+        if (!isset($this->pointers[$this->name])) {
             $this->rewind();
         }
-        
+
         return $this;
     }
 
@@ -125,7 +122,7 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -135,7 +132,7 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return array
      */
-    public function getAll ()
+    public function getAll()
     {
         return $this->data[$this->name];
     }
@@ -145,16 +142,16 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return Cycle
      */
-    public function next ()
+    public function next()
     {
         $count = count($this->data[$this->name]);
-        
+
         if ($this->pointers[$this->name] == ($count - 1)) {
             $this->pointers[$this->name] = 0;
         } else {
-            $this->pointers[$this->name] = ++ $this->pointers[$this->name];
+            $this->pointers[$this->name] = ++$this->pointers[$this->name];
         }
-        
+
         return $this;
     }
 
@@ -163,16 +160,16 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return Cycle
      */
-    public function prev ()
+    public function prev()
     {
         $count = count($this->data[$this->name]);
-        
+
         if ($this->pointers[$this->name] <= 0) {
             $this->pointers[$this->name] = $count - 1;
         } else {
-            $this->pointers[$this->name] = -- $this->pointers[$this->name];
+            $this->pointers[$this->name] = --$this->pointers[$this->name];
         }
-        
+
         return $this;
     }
 
@@ -181,13 +178,13 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return int
      */
-    public function key ()
+    public function key()
     {
         if ($this->pointers[$this->name] < 0) {
             return 0;
-        } else {
-            return $this->pointers[$this->name];
         }
+
+        return $this->pointers[$this->name];
     }
 
     /**
@@ -195,9 +192,9 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return Cycle
      */
-    public function rewind ()
+    public function rewind()
     {
-        $this->pointers[$this->name] = - 1;
+        $this->pointers[$this->name] = -1;
         return $this;
     }
 
@@ -206,17 +203,17 @@ class Cycle extends AbstractHelper implements \Iterator
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return isset($this->data[$this->name][$this->key()]);
     }
 
     /**
-     * Return current element
+     * Return  current element
      *
      * @return mixed
      */
-    public function current ()
+    public function current()
     {
         return $this->data[$this->name][$this->key()];
     }

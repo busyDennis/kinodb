@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Code\Annotation;
+
 use Zend\Code\Annotation\Parser\ParserInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManager;
@@ -24,11 +26,9 @@ use Zend\EventManager\EventManagerInterface;
  */
 class AnnotationManager implements EventManagerAwareInterface
 {
-
     const EVENT_CREATE_ANNOTATION = 'createAnnotation';
 
     /**
-     *
      * @var EventManagerInterface
      */
     protected $events;
@@ -36,18 +36,17 @@ class AnnotationManager implements EventManagerAwareInterface
     /**
      * Set the event manager instance
      *
-     * @param EventManagerInterface $events            
+     * @param  EventManagerInterface $events
      * @return AnnotationManager
      */
-    public function setEventManager (EventManagerInterface $events)
+    public function setEventManager(EventManagerInterface $events)
     {
-        $events->setIdentifiers(
-                array(
-                        __CLASS__,
-                        get_class($this)
-                ));
+        $events->setIdentifiers(array(
+            __CLASS__,
+            get_class($this),
+        ));
         $this->events = $events;
-        
+
         return $this;
     }
 
@@ -58,59 +57,53 @@ class AnnotationManager implements EventManagerAwareInterface
      *
      * @return EventManagerInterface
      */
-    public function getEventManager ()
+    public function getEventManager()
     {
         if (null === $this->events) {
             $this->setEventManager(new EventManager());
         }
-        
+
         return $this->events;
     }
 
     /**
      * Attach a parser to listen to the createAnnotation event
      *
-     * @param ParserInterface $parser            
+     * @param  ParserInterface $parser
      * @return AnnotationManager
      */
-    public function attach (ParserInterface $parser)
+    public function attach(ParserInterface $parser)
     {
-        $this->getEventManager()->attach(self::EVENT_CREATE_ANNOTATION, 
-                array(
-                        $parser,
-                        'onCreateAnnotation'
-                ));
-        
+        $this->getEventManager()
+             ->attach(self::EVENT_CREATE_ANNOTATION, array($parser, 'onCreateAnnotation'));
+
         return $this;
     }
 
     /**
      * Create Annotation
      *
-     * @param array $annotationData            
+     * @param  string[] $annotationData
      * @return false|\stdClass
      */
-    public function createAnnotation (array $annotationData)
+    public function createAnnotation(array $annotationData)
     {
         $event = new Event();
         $event->setName(self::EVENT_CREATE_ANNOTATION);
         $event->setTarget($this);
-        $event->setParams(
-                array(
-                        'class' => $annotationData[0],
-                        'content' => $annotationData[1],
-                        'raw' => $annotationData[2]
-                ));
-        
+        $event->setParams(array(
+            'class'   => $annotationData[0],
+            'content' => $annotationData[1],
+            'raw'     => $annotationData[2],
+        ));
+
         $eventManager = $this->getEventManager();
-        $results = $eventManager->trigger($event, 
-                function  ($r)
-                {
-                    return (is_object($r));
-                });
-        
+        $results = $eventManager->trigger($event, function ($r) {
+            return (is_object($r));
+        });
+
         $annotation = $results->last();
-        
+
         return (is_object($annotation) ? $annotation : false);
     }
 }

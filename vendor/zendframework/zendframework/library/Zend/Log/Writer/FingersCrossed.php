@@ -3,10 +3,11 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Log\Writer;
+
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Log\Exception;
@@ -14,18 +15,15 @@ use Zend\Log\Filter\FilterInterface;
 use Zend\Log\Filter\Priority as PriorityFilter;
 use Zend\Log\Formatter\FormatterInterface;
 use Zend\Log\Logger;
-use Zend\Log\Writer\AbstractWriter;
-use Zend\Log\Writer\WriterInterface;
 use Zend\Log\WriterPluginManager;
 
 /**
  * Buffers all events until the strategy determines to flush them.
  *
- * @see http://packages.python.org/Logbook/api/handlers.html#logbook.FingersCrossedHandler
+ * @see        http://packages.python.org/Logbook/api/handlers.html#logbook.FingersCrossedHandler
  */
 class FingersCrossed extends AbstractWriter
 {
-
     /**
      * The wrapped writer
      *
@@ -65,33 +63,30 @@ class FingersCrossed extends AbstractWriter
     /**
      * Constructor
      *
-     * @param WriterInterface|string|array|Traversable $writer
-     *            Wrapped writer or array of configuration options
-     * @param FilterInterface|int $filterOrPriority
-     *            Filter or log priority which determines buffering of events
-     * @param int $bufferSize
-     *            Maximum buffer size
+     * @param WriterInterface|string|array|Traversable $writer Wrapped writer or array of configuration options
+     * @param FilterInterface|int $filterOrPriority Filter or log priority which determines buffering of events
+     * @param int $bufferSize Maximum buffer size
      */
-    public function __construct ($writer, $filterOrPriority = null, $bufferSize = 0)
+    public function __construct($writer, $filterOrPriority = null, $bufferSize = 0)
     {
         $this->writer = $writer;
-        
+
         if ($writer instanceof Traversable) {
             $writer = ArrayUtils::iteratorToArray($writer);
         }
-        
+
         if (is_array($writer)) {
             $filterOrPriority = isset($writer['priority']) ? $writer['priority'] : null;
-            $bufferSize = isset($writer['bufferSize']) ? $writer['bufferSize'] : null;
-            $writer = isset($writer['writer']) ? $writer['writer'] : null;
+            $bufferSize       = isset($writer['bufferSize']) ? $writer['bufferSize'] : null;
+            $writer           = isset($writer['writer']) ? $writer['writer'] : null;
         }
-        
+
         if (null === $filterOrPriority) {
             $filterOrPriority = new PriorityFilter(Logger::WARN);
-        } elseif (! $filterOrPriority instanceof FilterInterface) {
+        } elseif (!$filterOrPriority instanceof FilterInterface) {
             $filterOrPriority = new PriorityFilter($filterOrPriority);
         }
-        
+
         if (is_array($writer) && isset($writer['name'])) {
             $this->setWriter($writer['name'], $writer['options']);
         } else {
@@ -104,26 +99,25 @@ class FingersCrossed extends AbstractWriter
     /**
      * Set a new writer
      *
-     * @param string|WriterInterface $writer            
-     * @param array|null $options            
+     * @param  string|WriterInterface $writer
+     * @param  array|null $options
      * @return self
      * @throws Exception\InvalidArgumentException
      */
-    public function setWriter ($writer, array $options = null)
+    public function setWriter($writer, array $options = null)
     {
         if (is_string($writer)) {
             $writer = $this->writerPlugin($writer, $options);
         }
-        
-        if (! $writer instanceof WriterInterface) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Writer must implement %s\WriterInterface; received "%s"', 
-                            __NAMESPACE__, 
-                            is_object($writer) ? get_class($writer) : gettype(
-                                    $writer)));
+
+        if (!$writer instanceof WriterInterface) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Writer must implement %s\WriterInterface; received "%s"',
+                __NAMESPACE__,
+                is_object($writer) ? get_class($writer) : gettype($writer)
+            ));
         }
-        
+
         $this->writer = $writer;
         return $this;
     }
@@ -133,7 +127,7 @@ class FingersCrossed extends AbstractWriter
      *
      * @return WriterPluginManager
      */
-    public function getWriterPluginManager ()
+    public function getWriterPluginManager()
     {
         if (null === $this->writerPlugins) {
             $this->setWriterPluginManager(new WriterPluginManager());
@@ -144,24 +138,23 @@ class FingersCrossed extends AbstractWriter
     /**
      * Set writer plugin manager
      *
-     * @param string|WriterPluginManager $plugins            
+     * @param  string|WriterPluginManager $plugins
      * @return FingersCrossed
      * @throws Exception\InvalidArgumentException
      */
-    public function setWriterPluginManager ($plugins)
+    public function setWriterPluginManager($plugins)
     {
         if (is_string($plugins)) {
-            $plugins = new $plugins();
+            $plugins = new $plugins;
         }
-        if (! $plugins instanceof WriterPluginManager) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Writer plugin manager must extend %s\WriterPluginManager; received %s', 
-                            __NAMESPACE__, 
-                            is_object($plugins) ? get_class($plugins) : gettype(
-                                    $plugins)));
+        if (!$plugins instanceof WriterPluginManager) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Writer plugin manager must extend %s\WriterPluginManager; received %s',
+                __NAMESPACE__,
+                is_object($plugins) ? get_class($plugins) : gettype($plugins)
+            ));
         }
-        
+
         $this->writerPlugins = $plugins;
         return $this;
     }
@@ -169,11 +162,11 @@ class FingersCrossed extends AbstractWriter
     /**
      * Get writer instance
      *
-     * @param string $name            
-     * @param array|null $options            
+     * @param string $name
+     * @param array|null $options
      * @return WriterInterface
      */
-    public function writerPlugin ($name, array $options = null)
+    public function writerPlugin($name, array $options = null)
     {
         return $this->getWriterPluginManager()->get($name, $options);
     }
@@ -181,11 +174,10 @@ class FingersCrossed extends AbstractWriter
     /**
      * Log a message to this writer.
      *
-     * @param array $event
-     *            log data event
+     * @param array $event log data event
      * @return void
      */
-    public function write (array $event)
+    public function write(array $event)
     {
         $this->doWrite($event);
     }
@@ -193,14 +185,13 @@ class FingersCrossed extends AbstractWriter
     /**
      * Check if buffered data should be flushed
      *
-     * @param array $event
-     *            event data
+     * @param array $event event data
      * @return bool true if buffered data should be flushed
      */
-    protected function isActivated (array $event)
+    protected function isActivated(array $event)
     {
         foreach ($this->filters as $filter) {
-            if (! $filter->filter($event)) {
+            if (!$filter->filter($event)) {
                 return false;
             }
         }
@@ -210,29 +201,28 @@ class FingersCrossed extends AbstractWriter
     /**
      * Write message to buffer or delegate event data to the wrapped writer
      *
-     * @param array $event
-     *            event data
+     * @param array $event event data
      * @return void
      */
-    protected function doWrite (array $event)
+    protected function doWrite(array $event)
     {
-        if (! $this->buffering) {
+        if (!$this->buffering) {
             $this->writer->write($event);
             return;
         }
-        
+
         $this->buffer[] = $event;
-        
+
         if ($this->bufferSize > 0 && count($this->buffer) > $this->bufferSize) {
             array_shift($this->buffer);
         }
-        
-        if (! $this->isActivated($event)) {
+
+        if (!$this->isActivated($event)) {
             return;
         }
-        
+
         $this->buffering = false;
-        
+
         foreach ($this->buffer as $bufferedEvent) {
             $this->writer->write($bufferedEvent);
         }
@@ -242,7 +232,7 @@ class FingersCrossed extends AbstractWriter
      * Resets the state of the handler.
      * Stops forwarding records to the wrapped writer
      */
-    public function reset ()
+    public function reset()
     {
         $this->buffering = true;
     }
@@ -251,10 +241,10 @@ class FingersCrossed extends AbstractWriter
      * Stub in accordance to parent method signature.
      * Fomatters must be set on the wrapped writer.
      *
-     * @param string|FormatterInterface $formatter            
+     * @param string|FormatterInterface $formatter
      * @return WriterInterface
      */
-    public function setFormatter ($formatter)
+    public function setFormatter($formatter)
     {
         return $this->writer;
     }
@@ -264,7 +254,7 @@ class FingersCrossed extends AbstractWriter
      *
      * @return void
      */
-    public function shutdown ()
+    public function shutdown()
     {
         $this->writer->shutdown();
         $this->buffer = null;

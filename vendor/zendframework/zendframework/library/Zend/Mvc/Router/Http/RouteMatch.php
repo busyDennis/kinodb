@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\Router\Http;
+
 use Zend\Mvc\Router\RouteMatch as BaseRouteMatch;
 
 /**
@@ -14,7 +16,6 @@ use Zend\Mvc\Router\RouteMatch as BaseRouteMatch;
  */
 class RouteMatch extends BaseRouteMatch
 {
-
     /**
      * Length of the matched path.
      *
@@ -25,47 +26,47 @@ class RouteMatch extends BaseRouteMatch
     /**
      * Create a part RouteMatch with given parameters and length.
      *
-     * @param array $params            
-     * @param int $length            
+     * @param  array   $params
+     * @param  int $length
      */
-    public function __construct (array $params, $length = 0)
+    public function __construct(array $params, $length = 0)
     {
         parent::__construct($params);
-        
+
         $this->length = $length;
     }
 
     /**
      * setMatchedRouteName(): defined by BaseRouteMatch.
      *
-     * @see BaseRouteMatch::setMatchedRouteName()
-     * @param string $name            
+     * @see    BaseRouteMatch::setMatchedRouteName()
+     * @param  string $name
      * @return RouteMatch
      */
-    public function setMatchedRouteName ($name)
+    public function setMatchedRouteName($name)
     {
         if ($this->matchedRouteName === null) {
             $this->matchedRouteName = $name;
         } else {
             $this->matchedRouteName = $name . '/' . $this->matchedRouteName;
         }
-        
+
         return $this;
     }
 
     /**
      * Merge parameters from another match.
      *
-     * @param RouteMatch $match            
+     * @param  RouteMatch $match
      * @return RouteMatch
      */
-    public function merge (RouteMatch $match)
+    public function merge(RouteMatch $match)
     {
-        $this->params = array_merge($this->params, $match->getParams());
+        $this->params  = array_merge($this->params, $match->getParams());
         $this->length += $match->getLength();
-        
+
         $this->matchedRouteName = $match->getMatchedRouteName();
-        
+
         return $this;
     }
 
@@ -74,7 +75,7 @@ class RouteMatch extends BaseRouteMatch
      *
      * @return int
      */
-    public function getLength ()
+    public function getLength()
     {
         return $this->length;
     }

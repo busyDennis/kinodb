@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Barcode\Object;
 
 /**
@@ -13,36 +14,32 @@ namespace Zend\Barcode\Object;
  */
 class Error extends AbstractObject
 {
-
     /**
      * All texts are accepted
-     *
-     * @param string $value            
+     * @param string $value
      * @return bool
      */
-    public function validateText ($value)
+    public function validateText($value)
     {
         return true;
     }
 
     /**
      * Height is forced
-     *
-     * @param bool $recalculate            
+     * @param bool $recalculate
      * @return int
      */
-    public function getHeight ($recalculate = false)
+    public function getHeight($recalculate = false)
     {
         return 40;
     }
 
     /**
      * Width is forced
-     *
-     * @param bool $recalculate            
+     * @param bool $recalculate
      * @return int
      */
-    public function getWidth ($recalculate = false)
+    public function getWidth($recalculate = false)
     {
         return 400;
     }
@@ -50,46 +47,37 @@ class Error extends AbstractObject
     /**
      * Reset precedent instructions
      * and draw the error message
-     *
      * @return array
      */
-    public function draw ()
+    public function draw()
     {
         $this->instructions = array();
-        $this->addText('ERROR:', 10, 
-                array(
-                        5,
-                        18
-                ), $this->font, 0, 'left');
-        $this->addText($this->text, 10, 
-                array(
-                        5,
-                        32
-                ), $this->font, 0, 'left');
+        $this->addText('ERROR:', 10, array(5, 18), $this->font, 0, 'left');
+        $this->addText($this->text, 10, array(5, 32), $this->font, 0, 'left');
         return $this->instructions;
     }
 
     /**
      * For compatibility reason
-     *
      * @return void
      */
-    protected function prepareBarcode ()
-    {}
+    protected function prepareBarcode()
+    {
+    }
 
     /**
      * For compatibility reason
-     *
      * @return void
      */
-    protected function checkSpecificParams ()
-    {}
+    protected function checkSpecificParams()
+    {
+    }
 
     /**
      * For compatibility reason
-     *
      * @return void
      */
-    protected function calculateBarcodeWidth ()
-    {}
+    protected function calculateBarcodeWidth()
+    {
+    }
 }

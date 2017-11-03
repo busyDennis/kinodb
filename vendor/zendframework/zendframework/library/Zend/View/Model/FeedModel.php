@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Model;
+
 use Zend\Feed\Writer\Feed;
 use Zend\Feed\Writer\FeedFactory;
 
@@ -15,15 +17,12 @@ use Zend\Feed\Writer\FeedFactory;
  */
 class FeedModel extends ViewModel
 {
-
     /**
-     *
      * @var Feed
      */
     protected $feed;
 
     /**
-     *
      * @var false|string
      */
     protected $type = false;
@@ -36,36 +35,35 @@ class FeedModel extends ViewModel
     protected $terminate = true;
 
     /**
-     *
      * @return \Zend\Feed\Writer\Feed
      */
-    public function getFeed ()
+    public function getFeed()
     {
         if ($this->feed instanceof Feed) {
             return $this->feed;
         }
-        
-        if (! $this->type) {
-            $options = $this->getOptions();
+
+        if (!$this->type) {
+            $options   = $this->getOptions();
             if (isset($options['feed_type'])) {
                 $this->type = $options['feed_type'];
             }
         }
-        
+
         $variables = $this->getVariables();
-        $feed = FeedFactory::factory($variables);
+        $feed      = FeedFactory::factory($variables);
         $this->setFeed($feed);
-        
+
         return $this->feed;
     }
 
     /**
      * Set the feed object
      *
-     * @param Feed $feed            
+     * @param  Feed $feed
      * @return FeedModel
      */
-    public function setFeed (Feed $feed)
+    public function setFeed(Feed $feed)
     {
         $this->feed = $feed;
         return $this;
@@ -76,13 +74,13 @@ class FeedModel extends ViewModel
      *
      * @return false|string
      */
-    public function getFeedType ()
+    public function getFeedType()
     {
         if ($this->type) {
             return $this->type;
         }
-        
-        $options = $this->getOptions();
+
+        $options   = $this->getOptions();
         if (isset($options['feed_type'])) {
             $this->type = $options['feed_type'];
         }

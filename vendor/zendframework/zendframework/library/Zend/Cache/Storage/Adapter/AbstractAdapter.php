@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
+
 use ArrayObject;
 use SplObjectStorage;
 use stdClass;
@@ -22,10 +24,8 @@ use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventsCapableInterface;
 
-abstract class AbstractAdapter implements StorageInterface, 
-        EventsCapableInterface
+abstract class AbstractAdapter implements StorageInterface, EventsCapableInterface
 {
-
     /**
      * The used EventManager if any
      *
@@ -35,7 +35,6 @@ abstract class AbstractAdapter implements StorageInterface,
 
     /**
      * Event handles of this adapter
-     *
      * @var array
      */
     protected $eventHandles = array();
@@ -71,10 +70,10 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Constructor
      *
-     * @param null|array|Traversable|AdapterOptions $options            
+     * @param  null|array|Traversable|AdapterOptions $options
      * @throws Exception\ExceptionInterface
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if ($options) {
             $this->setOptions($options);
@@ -89,12 +88,12 @@ abstract class AbstractAdapter implements StorageInterface,
      *
      * @return void
      */
-    public function __destruct ()
+    public function __destruct()
     {
         foreach ($this->getPluginRegistry() as $plugin) {
             $this->removePlugin($plugin);
         }
-        
+
         if ($this->eventHandles) {
             $events = $this->getEventManager();
             foreach ($this->eventHandles as $handle) {
@@ -104,29 +103,28 @@ abstract class AbstractAdapter implements StorageInterface,
     }
 
     /* configuration */
-    
+
     /**
      * Set options.
      *
-     * @param array|Traversable|AdapterOptions $options            
+     * @param  array|Traversable|AdapterOptions $options
      * @return AbstractAdapter
-     * @see getOptions()
+     * @see    getOptions()
      */
-    public function setOptions ($options)
+    public function setOptions($options)
     {
         if ($this->options !== $options) {
-            if (! $options instanceof AdapterOptions) {
+            if (!$options instanceof AdapterOptions) {
                 $options = new AdapterOptions($options);
             }
-            
+
             if ($this->options) {
                 $this->options->setAdapter(null);
             }
             $options->setAdapter($this);
             $this->options = $options;
-            
-            $event = new Event('option', $this, 
-                    new ArrayObject($options->toArray()));
+
+            $event = new Event('option', $this, new ArrayObject($options->toArray()));
             $this->getEventManager()->trigger($event);
         }
         return $this;
@@ -138,9 +136,9 @@ abstract class AbstractAdapter implements StorageInterface,
      * @return AdapterOptions
      * @see setOptions()
      */
-    public function getOptions ()
+    public function getOptions()
     {
-        if (! $this->options) {
+        if (!$this->options) {
             $this->setOptions(new AdapterOptions());
         }
         return $this->options;
@@ -151,14 +149,14 @@ abstract class AbstractAdapter implements StorageInterface,
      *
      * Alias of setWritable and setReadable.
      *
-     * @see setWritable()
-     * @see setReadable()
-     * @param bool $flag            
+     * @see    setWritable()
+     * @see    setReadable()
+     * @param  bool $flag
      * @return AbstractAdapter
      */
-    public function setCaching ($flag)
+    public function setCaching($flag)
     {
-        $flag = (bool) $flag;
+        $flag    = (bool) $flag;
         $options = $this->getOptions();
         $options->setWritable($flag);
         $options->setReadable($flag);
@@ -170,65 +168,59 @@ abstract class AbstractAdapter implements StorageInterface,
      *
      * Alias of getWritable and getReadable.
      *
-     * @see getWritable()
-     * @see getReadable()
+     * @see    getWritable()
+     * @see    getReadable()
      * @return bool
      */
-    public function getCaching ()
+    public function getCaching()
     {
         $options = $this->getOptions();
         return ($options->getWritable() && $options->getReadable());
     }
 
     /* Event/Plugin handling */
-    
+
     /**
      * Get the event manager
      *
      * @return EventManagerInterface
      */
-    public function getEventManager ()
+    public function getEventManager()
     {
         if ($this->events === null) {
-            $this->events = new EventManager(
-                    array(
-                            __CLASS__,
-                            get_class($this)
-                    ));
+            $this->events = new EventManager(array(__CLASS__, get_class($this)));
         }
         return $this->events;
     }
 
     /**
-     * Trigger an pre event and return the event response collection
+     * Trigger a pre event and return the event response collection
      *
-     * @param string $eventName            
-     * @param ArrayObject $args            
+     * @param  string $eventName
+     * @param  ArrayObject $args
      * @return \Zend\EventManager\ResponseCollection All handler return values
      */
-    protected function triggerPre ($eventName, ArrayObject $args)
+    protected function triggerPre($eventName, ArrayObject $args)
     {
-        return $this->getEventManager()->trigger(
-                new Event($eventName . '.pre', $this, $args));
+        return $this->getEventManager()->trigger(new Event($eventName . '.pre', $this, $args));
     }
 
     /**
      * Triggers the PostEvent and return the result value.
      *
-     * @param string $eventName            
-     * @param ArrayObject $args            
-     * @param mixed $result            
+     * @param  string      $eventName
+     * @param  ArrayObject $args
+     * @param  mixed       $result
      * @return mixed
      */
-    protected function triggerPost ($eventName, ArrayObject $args, & $result)
+    protected function triggerPost($eventName, ArrayObject $args, & $result)
     {
         $postEvent = new PostEvent($eventName . '.post', $this, $args, $result);
-        $eventRs = $this->getEventManager()->trigger($postEvent);
-        if ($eventRs->stopped()) {
-            return $eventRs->last();
-        }
-        
-        return $postEvent->getResult();
+        $eventRs   = $this->getEventManager()->trigger($postEvent);
+
+        return $eventRs->stopped()
+            ? $eventRs->last()
+            : $postEvent->getResult();
     }
 
     /**
@@ -237,38 +229,34 @@ abstract class AbstractAdapter implements StorageInterface,
      * If the ExceptionEvent has the flag "throwException" enabled throw the
      * exception after trigger else return the result.
      *
-     * @param string $eventName            
-     * @param ArrayObject $args            
-     * @param mixed $result            
-     * @param \Exception $exception            
+     * @param  string      $eventName
+     * @param  ArrayObject $args
+     * @param  mixed       $result
+     * @param  \Exception  $exception
      * @throws Exception\ExceptionInterface
      * @return mixed
      */
-    protected function triggerException ($eventName, ArrayObject $args, 
-            & $result, \Exception $exception)
+    protected function triggerException($eventName, ArrayObject $args, & $result, \Exception $exception)
     {
-        $exceptionEvent = new ExceptionEvent($eventName . '.exception', $this, 
-                $args, $result, $exception);
-        $eventRs = $this->getEventManager()->trigger($exceptionEvent);
-        
+        $exceptionEvent = new ExceptionEvent($eventName . '.exception', $this, $args, $result, $exception);
+        $eventRs        = $this->getEventManager()->trigger($exceptionEvent);
+
         if ($exceptionEvent->getThrowException()) {
             throw $exceptionEvent->getException();
         }
-        
-        if ($eventRs->stopped()) {
-            return $eventRs->last();
-        }
-        
-        return $exceptionEvent->getResult();
+
+        return $eventRs->stopped()
+            ? $eventRs->last()
+            : $exceptionEvent->getResult();
     }
 
     /**
      * Check if a plugin is registered
      *
-     * @param Plugin\PluginInterface $plugin            
+     * @param  Plugin\PluginInterface $plugin
      * @return bool
      */
-    public function hasPlugin (Plugin\PluginInterface $plugin)
+    public function hasPlugin(Plugin\PluginInterface $plugin)
     {
         $registry = $this->getPluginRegistry();
         return $registry->contains($plugin);
@@ -277,34 +265,35 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Register a plugin
      *
-     * @param Plugin\PluginInterface $plugin            
-     * @param int $priority            
+     * @param  Plugin\PluginInterface $plugin
+     * @param  int                    $priority
      * @return AbstractAdapter Fluent interface
      * @throws Exception\LogicException
      */
-    public function addPlugin (Plugin\PluginInterface $plugin, $priority = 1)
+    public function addPlugin(Plugin\PluginInterface $plugin, $priority = 1)
     {
         $registry = $this->getPluginRegistry();
         if ($registry->contains($plugin)) {
-            throw new Exception\LogicException(
-                    sprintf('Plugin of type "%s" already registered', 
-                            get_class($plugin)));
+            throw new Exception\LogicException(sprintf(
+                'Plugin of type "%s" already registered',
+                get_class($plugin)
+            ));
         }
-        
+
         $plugin->attach($this->getEventManager(), $priority);
         $registry->attach($plugin);
-        
+
         return $this;
     }
 
     /**
      * Unregister an already registered plugin
      *
-     * @param Plugin\PluginInterface $plugin            
+     * @param  Plugin\PluginInterface $plugin
      * @return AbstractAdapter Fluent interface
      * @throws Exception\LogicException
      */
-    public function removePlugin (Plugin\PluginInterface $plugin)
+    public function removePlugin(Plugin\PluginInterface $plugin)
     {
         $registry = $this->getPluginRegistry();
         if ($registry->contains($plugin)) {
@@ -319,39 +308,41 @@ abstract class AbstractAdapter implements StorageInterface,
      *
      * @return SplObjectStorage
      */
-    public function getPluginRegistry ()
+    public function getPluginRegistry()
     {
-        if (! $this->pluginRegistry instanceof SplObjectStorage) {
+        if (!$this->pluginRegistry instanceof SplObjectStorage) {
             $this->pluginRegistry = new SplObjectStorage();
         }
         return $this->pluginRegistry;
     }
 
     /* reading */
-    
+
     /**
      * Get an item.
      *
-     * @param string $key            
-     * @param bool $success            
-     * @param mixed $casToken            
+     * @param  string  $key
+     * @param  bool $success
+     * @param  mixed   $casToken
      * @return mixed Data on success, null on failure
-     * @throws Exception\ExceptionInterface @triggers getItem.pre(PreEvent)
-     *         @triggers getItem.post(PostEvent)
-     *         @triggers getItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers getItem.pre(PreEvent)
+     * @triggers getItem.post(PostEvent)
+     * @triggers getItem.exception(ExceptionEvent)
      */
-    public function getItem ($key, & $success = null, & $casToken = null)
+    public function getItem($key, & $success = null, & $casToken = null)
     {
-        if (! $this->getOptions()->getReadable()) {
+        if (!$this->getOptions()->getReadable()) {
             $success = false;
-            return null;
+            return;
         }
-        
+
         $this->normalizeKey($key);
-        
+
         $argn = func_num_args();
         $args = array(
-                'key' => & $key
+            'key' => & $key,
         );
         if ($argn > 1) {
             $args['success'] = & $success;
@@ -360,25 +351,24 @@ abstract class AbstractAdapter implements StorageInterface,
             $args['casToken'] = & $casToken;
         }
         $args = new ArrayObject($args);
-        
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
+
             if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            if ($args->offsetExists('success') && $args->offsetExists(
-                    'casToken')) {
-                $result = $this->internalGetItem($args['key'], $args['success'], 
-                        $args['casToken']);
+                $result = $eventRs->last();
+            } elseif ($args->offsetExists('success') && $args->offsetExists('casToken')) {
+                $result = $this->internalGetItem($args['key'], $args['success'], $args['casToken']);
             } elseif ($args->offsetExists('success')) {
                 $result = $this->internalGetItem($args['key'], $args['success']);
             } else {
                 $result = $this->internalGetItem($args['key']);
             }
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
-            $result = false;
+            $result = null;
+            $success = false;
             return $this->triggerException(__FUNCTION__, $args, $result, $e);
         }
     }
@@ -386,43 +376,43 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to get an item.
      *
-     * @param string $normalizedKey            
-     * @param bool $success            
-     * @param mixed $casToken            
+     * @param  string  $normalizedKey
+     * @param  bool $success
+     * @param  mixed   $casToken
      * @return mixed Data on success, null on failure
      * @throws Exception\ExceptionInterface
      */
-    abstract protected function internalGetItem (& $normalizedKey, 
-            & $success = null, & $casToken = null);
+    abstract protected function internalGetItem(& $normalizedKey, & $success = null, & $casToken = null);
 
     /**
      * Get multiple items.
      *
-     * @param array $keys            
+     * @param  array $keys
      * @return array Associative array of keys and values
-     * @throws Exception\ExceptionInterface @triggers getItems.pre(PreEvent)
-     *         @triggers getItems.post(PostEvent)
-     *         @triggers getItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers getItems.pre(PreEvent)
+     * @triggers getItems.post(PostEvent)
+     * @triggers getItems.exception(ExceptionEvent)
      */
-    public function getItems (array $keys)
+    public function getItems(array $keys)
     {
-        if (! $this->getOptions()->getReadable()) {
+        if (!$this->getOptions()->getReadable()) {
             return array();
         }
-        
+
         $this->normalizeKeys($keys);
-        $args = new ArrayObject(
-                array(
-                        'keys' => & $keys
-                ));
-        
+        $args = new ArrayObject(array(
+            'keys' => & $keys,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalGetItems($args['keys']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalGetItems($args['keys']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array();
@@ -433,51 +423,53 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to get multiple items.
      *
-     * @param array $normalizedKeys            
+     * @param  array $normalizedKeys
      * @return array Associative array of keys and values
      * @throws Exception\ExceptionInterface
      */
-    protected function internalGetItems (array & $normalizedKeys)
+    protected function internalGetItems(array & $normalizedKeys)
     {
         $success = null;
-        $result = array();
+        $result  = array();
         foreach ($normalizedKeys as $normalizedKey) {
             $value = $this->internalGetItem($normalizedKey, $success);
             if ($success) {
                 $result[$normalizedKey] = $value;
             }
         }
-        
+
         return $result;
     }
 
     /**
      * Test if an item exists.
      *
-     * @param string $key            
+     * @param  string $key
      * @return bool
-     * @throws Exception\ExceptionInterface @triggers hasItem.pre(PreEvent)
-     *         @triggers hasItem.post(PostEvent)
-     *         @triggers hasItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers hasItem.pre(PreEvent)
+     * @triggers hasItem.post(PostEvent)
+     * @triggers hasItem.exception(ExceptionEvent)
      */
-    public function hasItem ($key)
+    public function hasItem($key)
     {
-        if (! $this->getOptions()->getReadable()) {
+        if (!$this->getOptions()->getReadable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
         $args = new ArrayObject(array(
-                'key' => & $key
+            'key' => & $key,
         ));
-        
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalHasItem($args['key']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalHasItem($args['key']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -488,11 +480,11 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to test if an item exists.
      *
-     * @param string $normalizedKey            
+     * @param  string $normalizedKey
      * @return bool
      * @throws Exception\ExceptionInterface
      */
-    protected function internalHasItem (& $normalizedKey)
+    protected function internalHasItem(& $normalizedKey)
     {
         $success = null;
         $this->internalGetItem($normalizedKey, $success);
@@ -502,31 +494,32 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Test multiple items.
      *
-     * @param array $keys            
+     * @param  array $keys
      * @return array Array of found keys
-     * @throws Exception\ExceptionInterface @triggers hasItems.pre(PreEvent)
-     *         @triggers hasItems.post(PostEvent)
-     *         @triggers hasItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers hasItems.pre(PreEvent)
+     * @triggers hasItems.post(PostEvent)
+     * @triggers hasItems.exception(ExceptionEvent)
      */
-    public function hasItems (array $keys)
+    public function hasItems(array $keys)
     {
-        if (! $this->getOptions()->getReadable()) {
+        if (!$this->getOptions()->getReadable()) {
             return array();
         }
-        
+
         $this->normalizeKeys($keys);
-        $args = new ArrayObject(
-                array(
-                        'keys' => & $keys
-                ));
-        
+        $args = new ArrayObject(array(
+            'keys' => & $keys,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalHasItems($args['keys']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalHasItems($args['keys']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array();
@@ -537,11 +530,11 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to test multiple items.
      *
-     * @param array $normalizedKeys            
+     * @param  array $normalizedKeys
      * @return array Array of found keys
      * @throws Exception\ExceptionInterface
      */
-    protected function internalHasItems (array & $normalizedKeys)
+    protected function internalHasItems(array & $normalizedKeys)
     {
         $result = array();
         foreach ($normalizedKeys as $normalizedKey) {
@@ -555,30 +548,32 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Get metadata of an item.
      *
-     * @param string $key            
+     * @param  string $key
      * @return array|bool Metadata on success, false on failure
-     * @throws Exception\ExceptionInterface @triggers getMetadata.pre(PreEvent)
-     *         @triggers getMetadata.post(PostEvent)
-     *         @triggers getMetadata.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers getMetadata.pre(PreEvent)
+     * @triggers getMetadata.post(PostEvent)
+     * @triggers getMetadata.exception(ExceptionEvent)
      */
-    public function getMetadata ($key)
+    public function getMetadata($key)
     {
-        if (! $this->getOptions()->getReadable()) {
+        if (!$this->getOptions()->getReadable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
         $args = new ArrayObject(array(
-                'key' => & $key
+            'key' => & $key,
         ));
-        
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalGetMetadata($args['key']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalGetMetadata($args['key']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -589,47 +584,48 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to get metadata of an item.
      *
-     * @param string $normalizedKey            
+     * @param  string $normalizedKey
      * @return array|bool Metadata on success, false on failure
      * @throws Exception\ExceptionInterface
      */
-    protected function internalGetMetadata (& $normalizedKey)
+    protected function internalGetMetadata(& $normalizedKey)
     {
-        if (! $this->internalHasItem($normalizedKey)) {
+        if (!$this->internalHasItem($normalizedKey)) {
             return false;
         }
-        
+
         return array();
     }
 
     /**
      * Get multiple metadata
      *
-     * @param array $keys            
+     * @param  array $keys
      * @return array Associative array of keys and metadata
-     * @throws Exception\ExceptionInterface @triggers getMetadatas.pre(PreEvent)
-     *         @triggers getMetadatas.post(PostEvent)
-     *         @triggers getMetadatas.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers getMetadatas.pre(PreEvent)
+     * @triggers getMetadatas.post(PostEvent)
+     * @triggers getMetadatas.exception(ExceptionEvent)
      */
-    public function getMetadatas (array $keys)
+    public function getMetadatas(array $keys)
     {
-        if (! $this->getOptions()->getReadable()) {
+        if (!$this->getOptions()->getReadable()) {
             return array();
         }
-        
+
         $this->normalizeKeys($keys);
-        $args = new ArrayObject(
-                array(
-                        'keys' => & $keys
-                ));
-        
+        $args = new ArrayObject(array(
+            'keys' => & $keys,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalGetMetadatas($args['keys']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalGetMetadatas($args['keys']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array();
@@ -640,11 +636,11 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to get multiple metadata
      *
-     * @param array $normalizedKeys            
+     * @param  array $normalizedKeys
      * @return array Associative array of keys and metadata
      * @throws Exception\ExceptionInterface
      */
-    protected function internalGetMetadatas (array & $normalizedKeys)
+    protected function internalGetMetadatas(array & $normalizedKeys)
     {
         $result = array();
         foreach ($normalizedKeys as $normalizedKey) {
@@ -657,37 +653,38 @@ abstract class AbstractAdapter implements StorageInterface,
     }
 
     /* writing */
-    
+
     /**
      * Store an item.
      *
-     * @param string $key            
-     * @param mixed $value            
+     * @param  string $key
+     * @param  mixed  $value
      * @return bool
-     * @throws Exception\ExceptionInterface @triggers setItem.pre(PreEvent)
-     *         @triggers setItem.post(PostEvent)
-     *         @triggers setItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers setItem.pre(PreEvent)
+     * @triggers setItem.post(PostEvent)
+     * @triggers setItem.exception(ExceptionEvent)
      */
-    public function setItem ($key, $value)
+    public function setItem($key, $value)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
-        $args = new ArrayObject(
-                array(
-                        'key' => & $key,
-                        'value' => & $value
-                ));
-        
+        $args = new ArrayObject(array(
+            'key'   => & $key,
+            'value' => & $value,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalSetItem($args['key'], $args['value']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalSetItem($args['key'], $args['value']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -698,41 +695,42 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to store an item.
      *
-     * @param string $normalizedKey            
-     * @param mixed $value            
+     * @param  string $normalizedKey
+     * @param  mixed  $value
      * @return bool
      * @throws Exception\ExceptionInterface
      */
-    abstract protected function internalSetItem (& $normalizedKey, & $value);
+    abstract protected function internalSetItem(& $normalizedKey, & $value);
 
     /**
      * Store multiple items.
      *
-     * @param array $keyValuePairs            
+     * @param  array $keyValuePairs
      * @return array Array of not stored keys
-     * @throws Exception\ExceptionInterface @triggers setItems.pre(PreEvent)
-     *         @triggers setItems.post(PostEvent)
-     *         @triggers setItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers setItems.pre(PreEvent)
+     * @triggers setItems.post(PostEvent)
+     * @triggers setItems.exception(ExceptionEvent)
      */
-    public function setItems (array $keyValuePairs)
+    public function setItems(array $keyValuePairs)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return array_keys($keyValuePairs);
         }
-        
+
         $this->normalizeKeyValuePairs($keyValuePairs);
-        $args = new ArrayObject(
-                array(
-                        'keyValuePairs' => & $keyValuePairs
-                ));
-        
+        $args = new ArrayObject(array(
+            'keyValuePairs' => & $keyValuePairs,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalSetItems($args['keyValuePairs']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalSetItems($args['keyValuePairs']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array_keys($keyValuePairs);
@@ -743,15 +741,15 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to store multiple items.
      *
-     * @param array $normalizedKeyValuePairs            
+     * @param  array $normalizedKeyValuePairs
      * @return array Array of not stored keys
      * @throws Exception\ExceptionInterface
      */
-    protected function internalSetItems (array & $normalizedKeyValuePairs)
+    protected function internalSetItems(array & $normalizedKeyValuePairs)
     {
         $failedKeys = array();
         foreach ($normalizedKeyValuePairs as $normalizedKey => $value) {
-            if (! $this->internalSetItem($normalizedKey, $value)) {
+            if (!$this->internalSetItem($normalizedKey, $value)) {
                 $failedKeys[] = $normalizedKey;
             }
         }
@@ -761,33 +759,34 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Add an item.
      *
-     * @param string $key            
-     * @param mixed $value            
+     * @param  string $key
+     * @param  mixed  $value
      * @return bool
-     * @throws Exception\ExceptionInterface @triggers addItem.pre(PreEvent)
-     *         @triggers addItem.post(PostEvent)
-     *         @triggers addItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers addItem.pre(PreEvent)
+     * @triggers addItem.post(PostEvent)
+     * @triggers addItem.exception(ExceptionEvent)
      */
-    public function addItem ($key, $value)
+    public function addItem($key, $value)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
-        $args = new ArrayObject(
-                array(
-                        'key' => & $key,
-                        'value' => & $value
-                ));
-        
+        $args = new ArrayObject(array(
+            'key'   => & $key,
+            'value' => & $value,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalAddItem($args['key'], $args['value']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalAddItem($args['key'], $args['value']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -798,12 +797,12 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to add an item.
      *
-     * @param string $normalizedKey            
-     * @param mixed $value            
+     * @param  string $normalizedKey
+     * @param  mixed  $value
      * @return bool
      * @throws Exception\ExceptionInterface
      */
-    protected function internalAddItem (& $normalizedKey, & $value)
+    protected function internalAddItem(& $normalizedKey, & $value)
     {
         if ($this->internalHasItem($normalizedKey)) {
             return false;
@@ -814,31 +813,32 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Add multiple items.
      *
-     * @param array $keyValuePairs            
+     * @param  array $keyValuePairs
      * @return array Array of not stored keys
-     * @throws Exception\ExceptionInterface @triggers addItems.pre(PreEvent)
-     *         @triggers addItems.post(PostEvent)
-     *         @triggers addItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers addItems.pre(PreEvent)
+     * @triggers addItems.post(PostEvent)
+     * @triggers addItems.exception(ExceptionEvent)
      */
-    public function addItems (array $keyValuePairs)
+    public function addItems(array $keyValuePairs)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return array_keys($keyValuePairs);
         }
-        
+
         $this->normalizeKeyValuePairs($keyValuePairs);
-        $args = new ArrayObject(
-                array(
-                        'keyValuePairs' => & $keyValuePairs
-                ));
-        
+        $args = new ArrayObject(array(
+            'keyValuePairs' => & $keyValuePairs,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalAddItems($args['keyValuePairs']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalAddItems($args['keyValuePairs']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array_keys($keyValuePairs);
@@ -849,15 +849,15 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to add multiple items.
      *
-     * @param array $normalizedKeyValuePairs            
+     * @param  array $normalizedKeyValuePairs
      * @return array Array of not stored keys
      * @throws Exception\ExceptionInterface
      */
-    protected function internalAddItems (array & $normalizedKeyValuePairs)
+    protected function internalAddItems(array & $normalizedKeyValuePairs)
     {
         $result = array();
         foreach ($normalizedKeyValuePairs as $normalizedKey => $value) {
-            if (! $this->internalAddItem($normalizedKey, $value)) {
+            if (!$this->internalAddItem($normalizedKey, $value)) {
                 $result[] = $normalizedKey;
             }
         }
@@ -867,33 +867,34 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Replace an existing item.
      *
-     * @param string $key            
-     * @param mixed $value            
+     * @param  string $key
+     * @param  mixed  $value
      * @return bool
-     * @throws Exception\ExceptionInterface @triggers replaceItem.pre(PreEvent)
-     *         @triggers replaceItem.post(PostEvent)
-     *         @triggers replaceItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers replaceItem.pre(PreEvent)
+     * @triggers replaceItem.post(PostEvent)
+     * @triggers replaceItem.exception(ExceptionEvent)
      */
-    public function replaceItem ($key, $value)
+    public function replaceItem($key, $value)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
-        $args = new ArrayObject(
-                array(
-                        'key' => & $key,
-                        'value' => & $value
-                ));
-        
+        $args = new ArrayObject(array(
+            'key'   => & $key,
+            'value' => & $value,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalReplaceItem($args['key'], $args['value']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalReplaceItem($args['key'], $args['value']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -904,48 +905,49 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to replace an existing item.
      *
-     * @param string $normalizedKey            
-     * @param mixed $value            
+     * @param  string $normalizedKey
+     * @param  mixed  $value
      * @return bool
      * @throws Exception\ExceptionInterface
      */
-    protected function internalReplaceItem (& $normalizedKey, & $value)
+    protected function internalReplaceItem(& $normalizedKey, & $value)
     {
-        if (! $this->internalhasItem($normalizedKey)) {
+        if (!$this->internalhasItem($normalizedKey)) {
             return false;
         }
-        
+
         return $this->internalSetItem($normalizedKey, $value);
     }
 
     /**
      * Replace multiple existing items.
      *
-     * @param array $keyValuePairs            
+     * @param  array $keyValuePairs
      * @return array Array of not stored keys
-     * @throws Exception\ExceptionInterface @triggers replaceItems.pre(PreEvent)
-     *         @triggers replaceItems.post(PostEvent)
-     *         @triggers replaceItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers replaceItems.pre(PreEvent)
+     * @triggers replaceItems.post(PostEvent)
+     * @triggers replaceItems.exception(ExceptionEvent)
      */
-    public function replaceItems (array $keyValuePairs)
+    public function replaceItems(array $keyValuePairs)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return array_keys($keyValuePairs);
         }
-        
+
         $this->normalizeKeyValuePairs($keyValuePairs);
-        $args = new ArrayObject(
-                array(
-                        'keyValuePairs' => & $keyValuePairs
-                ));
-        
+        $args = new ArrayObject(array(
+            'keyValuePairs' => & $keyValuePairs,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalReplaceItems($args['keyValuePairs']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalReplaceItems($args['keyValuePairs']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array_keys($keyValuePairs);
@@ -956,15 +958,15 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to replace multiple existing items.
      *
-     * @param array $normalizedKeyValuePairs            
+     * @param  array $normalizedKeyValuePairs
      * @return array Array of not stored keys
      * @throws Exception\ExceptionInterface
      */
-    protected function internalReplaceItems (array & $normalizedKeyValuePairs)
+    protected function internalReplaceItems(array & $normalizedKeyValuePairs)
     {
         $result = array();
         foreach ($normalizedKeyValuePairs as $normalizedKey => $value) {
-            if (! $this->internalReplaceItem($normalizedKey, $value)) {
+            if (!$this->internalReplaceItem($normalizedKey, $value)) {
                 $result[] = $normalizedKey;
             }
         }
@@ -977,36 +979,34 @@ abstract class AbstractAdapter implements StorageInterface,
      * It uses the token received from getItem() to check if the item has
      * changed before overwriting it.
      *
-     * @param mixed $token            
-     * @param string $key            
-     * @param mixed $value            
+     * @param  mixed  $token
+     * @param  string $key
+     * @param  mixed  $value
      * @return bool
      * @throws Exception\ExceptionInterface
-     * @see getItem()
-     * @see setItem()
+     * @see    getItem()
+     * @see    setItem()
      */
-    public function checkAndSetItem ($token, $key, $value)
+    public function checkAndSetItem($token, $key, $value)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
-        $args = new ArrayObject(
-                array(
-                        'token' => & $token,
-                        'key' => & $key,
-                        'value' => & $value
-                ));
-        
+        $args = new ArrayObject(array(
+            'token' => & $token,
+            'key'   => & $key,
+            'value' => & $value,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalCheckAndSetItem($args['token'], 
-                    $args['key'], $args['value']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalCheckAndSetItem($args['token'], $args['key'], $args['value']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -1017,52 +1017,53 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to set an item only if token matches
      *
-     * @param mixed $token            
-     * @param string $normalizedKey            
-     * @param mixed $value            
+     * @param  mixed  $token
+     * @param  string $normalizedKey
+     * @param  mixed  $value
      * @return bool
      * @throws Exception\ExceptionInterface
-     * @see getItem()
-     * @see setItem()
+     * @see    getItem()
+     * @see    setItem()
      */
-    protected function internalCheckAndSetItem (& $token, & $normalizedKey, 
-            & $value)
+    protected function internalCheckAndSetItem(& $token, & $normalizedKey, & $value)
     {
         $oldValue = $this->internalGetItem($normalizedKey);
         if ($oldValue !== $token) {
             return false;
         }
-        
+
         return $this->internalSetItem($normalizedKey, $value);
     }
 
     /**
      * Reset lifetime of an item
      *
-     * @param string $key            
+     * @param  string $key
      * @return bool
-     * @throws Exception\ExceptionInterface @triggers touchItem.pre(PreEvent)
-     *         @triggers touchItem.post(PostEvent)
-     *         @triggers touchItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers touchItem.pre(PreEvent)
+     * @triggers touchItem.post(PostEvent)
+     * @triggers touchItem.exception(ExceptionEvent)
      */
-    public function touchItem ($key)
+    public function touchItem($key)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
         $args = new ArrayObject(array(
-                'key' => & $key
+            'key' => & $key,
         ));
-        
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalTouchItem($args['key']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalTouchItem($args['key']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -1073,49 +1074,50 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to reset lifetime of an item
      *
-     * @param string $normalizedKey            
+     * @param  string $normalizedKey
      * @return bool
      * @throws Exception\ExceptionInterface
      */
-    protected function internalTouchItem (& $normalizedKey)
+    protected function internalTouchItem(& $normalizedKey)
     {
         $success = null;
-        $value = $this->internalGetItem($normalizedKey, $success);
-        if (! $success) {
+        $value   = $this->internalGetItem($normalizedKey, $success);
+        if (!$success) {
             return false;
         }
-        
+
         return $this->internalReplaceItem($normalizedKey, $value);
     }
 
     /**
      * Reset lifetime of multiple items.
      *
-     * @param array $keys            
+     * @param  array $keys
      * @return array Array of not updated keys
-     * @throws Exception\ExceptionInterface @triggers touchItems.pre(PreEvent)
-     *         @triggers touchItems.post(PostEvent)
-     *         @triggers touchItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers touchItems.pre(PreEvent)
+     * @triggers touchItems.post(PostEvent)
+     * @triggers touchItems.exception(ExceptionEvent)
      */
-    public function touchItems (array $keys)
+    public function touchItems(array $keys)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return $keys;
         }
-        
+
         $this->normalizeKeys($keys);
-        $args = new ArrayObject(
-                array(
-                        'keys' => & $keys
-                ));
-        
+        $args = new ArrayObject(array(
+            'keys' => & $keys,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalTouchItems($args['keys']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalTouchItems($args['keys']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             return $this->triggerException(__FUNCTION__, $args, $keys, $e);
@@ -1125,15 +1127,15 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to reset lifetime of multiple items.
      *
-     * @param array $normalizedKeys            
+     * @param  array $normalizedKeys
      * @return array Array of not updated keys
      * @throws Exception\ExceptionInterface
      */
-    protected function internalTouchItems (array & $normalizedKeys)
+    protected function internalTouchItems(array & $normalizedKeys)
     {
         $result = array();
         foreach ($normalizedKeys as $normalizedKey) {
-            if (! $this->internalTouchItem($normalizedKey)) {
+            if (!$this->internalTouchItem($normalizedKey)) {
                 $result[] = $normalizedKey;
             }
         }
@@ -1143,30 +1145,32 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Remove an item.
      *
-     * @param string $key            
+     * @param  string $key
      * @return bool
-     * @throws Exception\ExceptionInterface @triggers removeItem.pre(PreEvent)
-     *         @triggers removeItem.post(PostEvent)
-     *         @triggers removeItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers removeItem.pre(PreEvent)
+     * @triggers removeItem.post(PostEvent)
+     * @triggers removeItem.exception(ExceptionEvent)
      */
-    public function removeItem ($key)
+    public function removeItem($key)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
         $args = new ArrayObject(array(
-                'key' => & $key
+            'key' => & $key,
         ));
-        
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalRemoveItem($args['key']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalRemoveItem($args['key']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -1177,40 +1181,41 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to remove an item.
      *
-     * @param string $normalizedKey            
+     * @param  string $normalizedKey
      * @return bool
      * @throws Exception\ExceptionInterface
      */
-    abstract protected function internalRemoveItem (& $normalizedKey);
+    abstract protected function internalRemoveItem(& $normalizedKey);
 
     /**
      * Remove multiple items.
      *
-     * @param array $keys            
+     * @param  array $keys
      * @return array Array of not removed keys
-     * @throws Exception\ExceptionInterface @triggers removeItems.pre(PreEvent)
-     *         @triggers removeItems.post(PostEvent)
-     *         @triggers removeItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers removeItems.pre(PreEvent)
+     * @triggers removeItems.post(PostEvent)
+     * @triggers removeItems.exception(ExceptionEvent)
      */
-    public function removeItems (array $keys)
+    public function removeItems(array $keys)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return $keys;
         }
-        
+
         $this->normalizeKeys($keys);
-        $args = new ArrayObject(
-                array(
-                        'keys' => & $keys
-                ));
-        
+        $args = new ArrayObject(array(
+            'keys' => & $keys,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalRemoveItems($args['keys']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalRemoveItems($args['keys']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             return $this->triggerException(__FUNCTION__, $args, $keys, $e);
@@ -1220,15 +1225,15 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to remove multiple items.
      *
-     * @param array $normalizedKeys            
+     * @param  array $normalizedKeys
      * @return array Array of not removed keys
      * @throws Exception\ExceptionInterface
      */
-    protected function internalRemoveItems (array & $normalizedKeys)
+    protected function internalRemoveItems(array & $normalizedKeys)
     {
         $result = array();
         foreach ($normalizedKeys as $normalizedKey) {
-            if (! $this->internalRemoveItem($normalizedKey)) {
+            if (!$this->internalRemoveItem($normalizedKey)) {
                 $result[] = $normalizedKey;
             }
         }
@@ -1238,34 +1243,34 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Increment an item.
      *
-     * @param string $key            
-     * @param int $value            
+     * @param  string $key
+     * @param  int    $value
      * @return int|bool The new value on success, false on failure
-     * @throws Exception\ExceptionInterface @triggers
-     *         incrementItem.pre(PreEvent)
-     *         @triggers incrementItem.post(PostEvent)
-     *         @triggers incrementItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers incrementItem.pre(PreEvent)
+     * @triggers incrementItem.post(PostEvent)
+     * @triggers incrementItem.exception(ExceptionEvent)
      */
-    public function incrementItem ($key, $value)
+    public function incrementItem($key, $value)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
-        $args = new ArrayObject(
-                array(
-                        'key' => & $key,
-                        'value' => & $value
-                ));
-        
+        $args = new ArrayObject(array(
+            'key'   => & $key,
+            'value' => & $value,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalIncrementItem($args['key'], $args['value']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalIncrementItem($args['key'], $args['value']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -1276,56 +1281,56 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to increment an item.
      *
-     * @param string $normalizedKey            
-     * @param int $value            
+     * @param  string $normalizedKey
+     * @param  int    $value
      * @return int|bool The new value on success, false on failure
      * @throws Exception\ExceptionInterface
      */
-    protected function internalIncrementItem (& $normalizedKey, & $value)
+    protected function internalIncrementItem(& $normalizedKey, & $value)
     {
-        $success = null;
-        $value = (int) $value;
-        $get = (int) $this->internalGetItem($normalizedKey, $success);
+        $success  = null;
+        $value    = (int) $value;
+        $get      = (int) $this->internalGetItem($normalizedKey, $success);
         $newValue = $get + $value;
-        
+
         if ($success) {
             $this->internalReplaceItem($normalizedKey, $newValue);
         } else {
             $this->internalAddItem($normalizedKey, $newValue);
         }
-        
+
         return $newValue;
     }
 
     /**
      * Increment multiple items.
      *
-     * @param array $keyValuePairs            
+     * @param  array $keyValuePairs
      * @return array Associative array of keys and new values
-     * @throws Exception\ExceptionInterface @triggers
-     *         incrementItems.pre(PreEvent)
-     *         @triggers incrementItems.post(PostEvent)
-     *         @triggers incrementItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers incrementItems.pre(PreEvent)
+     * @triggers incrementItems.post(PostEvent)
+     * @triggers incrementItems.exception(ExceptionEvent)
      */
-    public function incrementItems (array $keyValuePairs)
+    public function incrementItems(array $keyValuePairs)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return array();
         }
-        
+
         $this->normalizeKeyValuePairs($keyValuePairs);
-        $args = new ArrayObject(
-                array(
-                        'keyValuePairs' => & $keyValuePairs
-                ));
-        
+        $args = new ArrayObject(array(
+            'keyValuePairs' => & $keyValuePairs,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalIncrementItems($args['keyValuePairs']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalIncrementItems($args['keyValuePairs']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array();
@@ -1336,11 +1341,11 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to increment multiple items.
      *
-     * @param array $normalizedKeyValuePairs            
+     * @param  array $normalizedKeyValuePairs
      * @return array Associative array of keys and new values
      * @throws Exception\ExceptionInterface
      */
-    protected function internalIncrementItems (array & $normalizedKeyValuePairs)
+    protected function internalIncrementItems(array & $normalizedKeyValuePairs)
     {
         $result = array();
         foreach ($normalizedKeyValuePairs as $normalizedKey => $value) {
@@ -1355,34 +1360,34 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Decrement an item.
      *
-     * @param string $key            
-     * @param int $value            
+     * @param  string $key
+     * @param  int    $value
      * @return int|bool The new value on success, false on failure
-     * @throws Exception\ExceptionInterface @triggers
-     *         decrementItem.pre(PreEvent)
-     *         @triggers decrementItem.post(PostEvent)
-     *         @triggers decrementItem.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers decrementItem.pre(PreEvent)
+     * @triggers decrementItem.post(PostEvent)
+     * @triggers decrementItem.exception(ExceptionEvent)
      */
-    public function decrementItem ($key, $value)
+    public function decrementItem($key, $value)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return false;
         }
-        
+
         $this->normalizeKey($key);
-        $args = new ArrayObject(
-                array(
-                        'key' => & $key,
-                        'value' => & $value
-                ));
-        
+        $args = new ArrayObject(array(
+            'key'   => & $key,
+            'value' => & $value,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalDecrementItem($args['key'], $args['value']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalDecrementItem($args['key'], $args['value']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -1393,56 +1398,56 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to decrement an item.
      *
-     * @param string $normalizedKey            
-     * @param int $value            
+     * @param  string $normalizedKey
+     * @param  int    $value
      * @return int|bool The new value on success, false on failure
      * @throws Exception\ExceptionInterface
      */
-    protected function internalDecrementItem (& $normalizedKey, & $value)
+    protected function internalDecrementItem(& $normalizedKey, & $value)
     {
-        $success = null;
-        $value = (int) $value;
-        $get = (int) $this->internalGetItem($normalizedKey, $success);
+        $success  = null;
+        $value    = (int) $value;
+        $get      = (int) $this->internalGetItem($normalizedKey, $success);
         $newValue = $get - $value;
-        
+
         if ($success) {
             $this->internalReplaceItem($normalizedKey, $newValue);
         } else {
             $this->internalAddItem($normalizedKey, $newValue);
         }
-        
+
         return $newValue;
     }
 
     /**
      * Decrement multiple items.
      *
-     * @param array $keyValuePairs            
+     * @param  array $keyValuePairs
      * @return array Associative array of keys and new values
-     * @throws Exception\ExceptionInterface @triggers
-     *         incrementItems.pre(PreEvent)
-     *         @triggers incrementItems.post(PostEvent)
-     *         @triggers incrementItems.exception(ExceptionEvent)
+     * @throws Exception\ExceptionInterface
+     *
+     * @triggers incrementItems.pre(PreEvent)
+     * @triggers incrementItems.post(PostEvent)
+     * @triggers incrementItems.exception(ExceptionEvent)
      */
-    public function decrementItems (array $keyValuePairs)
+    public function decrementItems(array $keyValuePairs)
     {
-        if (! $this->getOptions()->getWritable()) {
+        if (!$this->getOptions()->getWritable()) {
             return array();
         }
-        
+
         $this->normalizeKeyValuePairs($keyValuePairs);
-        $args = new ArrayObject(
-                array(
-                        'keyValuePairs' => & $keyValuePairs
-                ));
-        
+        $args = new ArrayObject(array(
+            'keyValuePairs' => & $keyValuePairs,
+        ));
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalDecrementItems($args['keyValuePairs']);
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalDecrementItems($args['keyValuePairs']);
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = array();
@@ -1453,11 +1458,11 @@ abstract class AbstractAdapter implements StorageInterface,
     /**
      * Internal method to decrement multiple items.
      *
-     * @param array $normalizedKeyValuePairs            
+     * @param  array $normalizedKeyValuePairs
      * @return array Associative array of keys and new values
      * @throws Exception\ExceptionInterface
      */
-    protected function internalDecrementItems (array & $normalizedKeyValuePairs)
+    protected function internalDecrementItems(array & $normalizedKeyValuePairs)
     {
         $result = array();
         foreach ($normalizedKeyValuePairs as $normalizedKey => $value) {
@@ -1470,25 +1475,26 @@ abstract class AbstractAdapter implements StorageInterface,
     }
 
     /* status */
-    
+
     /**
      * Get capabilities of this adapter
      *
-     * @return Capabilities @triggers getCapabilities.pre(PreEvent)
-     *         @triggers getCapabilities.post(PostEvent)
-     *         @triggers getCapabilities.exception(ExceptionEvent)
+     * @return Capabilities
+     * @triggers getCapabilities.pre(PreEvent)
+     * @triggers getCapabilities.post(PostEvent)
+     * @triggers getCapabilities.exception(ExceptionEvent)
      */
-    public function getCapabilities ()
+    public function getCapabilities()
     {
         $args = new ArrayObject();
-        
+
         try {
             $eventRs = $this->triggerPre(__FUNCTION__, $args);
-            if ($eventRs->stopped()) {
-                return $eventRs->last();
-            }
-            
-            $result = $this->internalGetCapabilities();
+
+            $result = $eventRs->stopped()
+                ? $eventRs->last()
+                : $this->internalGetCapabilities();
+
             return $this->triggerPost(__FUNCTION__, $args, $result);
         } catch (\Exception $e) {
             $result = false;
@@ -1501,69 +1507,66 @@ abstract class AbstractAdapter implements StorageInterface,
      *
      * @return Capabilities
      */
-    protected function internalGetCapabilities ()
+    protected function internalGetCapabilities()
     {
         if ($this->capabilities === null) {
             $this->capabilityMarker = new stdClass();
-            $this->capabilities = new Capabilities($this, 
-                    $this->capabilityMarker);
+            $this->capabilities     = new Capabilities($this, $this->capabilityMarker);
         }
         return $this->capabilities;
     }
 
     /* internal */
-    
+
     /**
      * Validates and normalizes a key
      *
-     * @param string $key            
+     * @param  string $key
      * @return void
      * @throws Exception\InvalidArgumentException On an invalid key
      */
-    protected function normalizeKey (& $key)
+    protected function normalizeKey(& $key)
     {
         $key = (string) $key;
-        
+
         if ($key === '') {
             throw new Exception\InvalidArgumentException(
-                    "An empty key isn't allowed");
-        } elseif (($p = $this->getOptions()->getKeyPattern()) &&
-                 ! preg_match($p, $key)) {
+                "An empty key isn't allowed"
+            );
+        } elseif (($p = $this->getOptions()->getKeyPattern()) && !preg_match($p, $key)) {
             throw new Exception\InvalidArgumentException(
-                    "The key '{$key}' doesn't match agains pattern '{$p}'");
+                "The key '{$key}' doesn't match against pattern '{$p}'"
+            );
         }
     }
 
     /**
      * Validates and normalizes multiple keys
      *
-     * @param array $keys            
+     * @param  array $keys
      * @return void
      * @throws Exception\InvalidArgumentException On an invalid key
      */
-    protected function normalizeKeys (array & $keys)
+    protected function normalizeKeys(array & $keys)
     {
-        if (! $keys) {
+        if (!$keys) {
             throw new Exception\InvalidArgumentException(
-                    "An empty list of keys isn't allowed");
+                "An empty list of keys isn't allowed"
+            );
         }
-        
-        array_walk($keys, 
-                array(
-                        $this,
-                        'normalizeKey'
-                ));
+
+        array_walk($keys, array($this, 'normalizeKey'));
         $keys = array_values(array_unique($keys));
     }
 
     /**
      * Validates and normalizes an array of key-value pairs
      *
-     * @param array $keyValuePairs            
+     * @param  array $keyValuePairs
      * @return void
      * @throws Exception\InvalidArgumentException On an invalid key
      */
-    protected function normalizeKeyValuePairs (array & $keyValuePairs)
+    protected function normalizeKeyValuePairs(array & $keyValuePairs)
     {
         $normalizedKeyValuePairs = array();
         foreach ($keyValuePairs as $key => $value) {

@@ -3,48 +3,52 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http\Header;
 
 /**
  * Age HTTP Header
  *
- * @link http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.6
+ * @link       http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.6
  */
 class Age implements HeaderInterface
 {
-
     /**
      * Estimate of the amount of time in seconds since the response
      *
      * @var int
      */
-    protected $deltaSeconds = null;
+    protected $deltaSeconds;
 
     /**
      * Create Age header from string
      *
-     * @param string $headerLine            
+     * @param string $headerLine
      * @return Age
      * @throws Exception\InvalidArgumentException
      */
-    public static function fromString ($headerLine)
+    public static function fromString($headerLine)
     {
-        $header = new static();
-        
-        list ($name, $value) = explode(': ', $headerLine, 2);
-        
+        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
+
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'age') {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid header line for Age string: "' . $name . '"');
+            throw new Exception\InvalidArgumentException('Invalid header line for Age string: "' . $name . '"');
         }
-        
-        $header->deltaSeconds = (int) $value;
-        
+
+        $header = new static($value);
+
         return $header;
+    }
+
+    public function __construct($deltaSeconds = null)
+    {
+        if ($deltaSeconds) {
+            $this->setDeltaSeconds($deltaSeconds);
+        }
     }
 
     /**
@@ -52,7 +56,7 @@ class Age implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldName ()
+    public function getFieldName()
     {
         return 'Age';
     }
@@ -62,7 +66,7 @@ class Age implements HeaderInterface
      *
      * @return int
      */
-    public function getFieldValue ()
+    public function getFieldValue()
     {
         return $this->getDeltaSeconds();
     }
@@ -70,11 +74,14 @@ class Age implements HeaderInterface
     /**
      * Set number of seconds
      *
-     * @param int $delta            
+     * @param int $delta
      * @return RetryAfter
      */
-    public function setDeltaSeconds ($delta)
+    public function setDeltaSeconds($delta)
     {
+        if (! is_int($delta) && ! is_numeric($delta)) {
+            throw new Exception\InvalidArgumentException('Invalid delta provided');
+        }
         $this->deltaSeconds = (int) $delta;
         return $this;
     }
@@ -84,7 +91,7 @@ class Age implements HeaderInterface
      *
      * @return int
      */
-    public function getDeltaSeconds ()
+    public function getDeltaSeconds()
     {
         return $this->deltaSeconds;
     }
@@ -95,9 +102,8 @@ class Age implements HeaderInterface
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
-        return 'Age: ' .
-                 (($this->deltaSeconds >= PHP_INT_MAX) ? '2147483648' : $this->deltaSeconds);
+        return 'Age: ' . (($this->deltaSeconds >= PHP_INT_MAX) ? '2147483648' : $this->deltaSeconds);
     }
 }

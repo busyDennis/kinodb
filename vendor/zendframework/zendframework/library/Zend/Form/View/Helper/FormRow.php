@@ -3,20 +3,22 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form\View\Helper;
+
 use Zend\Form\Element\Button;
+use Zend\Form\Element\MonthSelect;
+use Zend\Form\Element\Captcha;
 use Zend\Form\ElementInterface;
 use Zend\Form\Exception;
-use Zend\Form\View\Helper\AbstractHelper;
+use Zend\Form\LabelAwareInterface;
 
 class FormRow extends AbstractHelper
 {
-
-    const LABEL_APPEND = 'append';
-
+    const LABEL_APPEND  = 'append';
     const LABEL_PREPEND = 'prepend';
 
     /**
@@ -69,7 +71,6 @@ class FormRow extends AbstractHelper
     protected $elementErrorsHelper;
 
     /**
-     *
      * @var string
      */
     protected $partial;
@@ -79,137 +80,157 @@ class FormRow extends AbstractHelper
      *
      * Proxies to {@link render()}.
      *
-     * @param null|ElementInterface $element            
-     * @param null|string $labelPosition            
-     * @param bool $renderErrors            
-     * @param string|null $partial            
+     * @param  null|ElementInterface $element
+     * @param  null|string           $labelPosition
+     * @param  bool                  $renderErrors
+     * @param  string|null           $partial
      * @return string|FormRow
      */
-    public function __invoke (ElementInterface $element = null, 
-            $labelPosition = null, $renderErrors = null, $partial = null)
+    public function __invoke(ElementInterface $element = null, $labelPosition = null, $renderErrors = null, $partial = null)
     {
-        if (! $element) {
+        if (!$element) {
             return $this;
         }
-        
-        if ($labelPosition !== null) {
-            $this->setLabelPosition($labelPosition);
-        } else {
-            $this->setLabelPosition(self::LABEL_PREPEND);
+
+        if (is_null($labelPosition)) {
+            $labelPosition = $this->getLabelPosition();
         }
-        
+
         if ($renderErrors !== null) {
             $this->setRenderErrors($renderErrors);
         }
-        
+
         if ($partial !== null) {
             $this->setPartial($partial);
         }
-        
-        return $this->render($element);
+
+        return $this->render($element, $labelPosition);
     }
 
     /**
-     * Utility form helper that renders a label (if it exists), an element and
-     * errors
+     * Utility form helper that renders a label (if it exists), an element and errors
      *
-     * @param ElementInterface $element            
+     * @param  ElementInterface $element
+     * @param  null|string      $labelPosition
      * @throws \Zend\Form\Exception\DomainException
      * @return string
      */
-    public function render (ElementInterface $element)
+    public function render(ElementInterface $element, $labelPosition = null)
     {
-        $escapeHtmlHelper = $this->getEscapeHtmlHelper();
-        $labelHelper = $this->getLabelHelper();
-        $elementHelper = $this->getElementHelper();
+        $escapeHtmlHelper    = $this->getEscapeHtmlHelper();
+        $labelHelper         = $this->getLabelHelper();
+        $elementHelper       = $this->getElementHelper();
         $elementErrorsHelper = $this->getElementErrorsHelper();
-        
-        $label = $element->getLabel();
+
+        $label           = $element->getLabel();
         $inputErrorClass = $this->getInputErrorClass();
-        
+
+        if (is_null($labelPosition)) {
+            $labelPosition = $this->labelPosition;
+        }
+
         if (isset($label) && '' !== $label) {
             // Translate the label
             if (null !== ($translator = $this->getTranslator())) {
-                $label = $translator->translate($label, 
-                        $this->getTranslatorTextDomain());
+                $label = $translator->translate($label, $this->getTranslatorTextDomain());
             }
         }
-        
+
         // Does this element have errors ?
-        if (count($element->getMessages()) > 0 && ! empty($inputErrorClass)) {
-            $classAttributes = ($element->hasAttribute('class') ? $element->getAttribute(
-                    'class') . ' ' : '');
+        if (count($element->getMessages()) > 0 && !empty($inputErrorClass)) {
+            $classAttributes = ($element->hasAttribute('class') ? $element->getAttribute('class') . ' ' : '');
             $classAttributes = $classAttributes . $inputErrorClass;
-            
+
             $element->setAttribute('class', $classAttributes);
         }
-        
+
         if ($this->partial) {
             $vars = array(
-                    'element' => $element,
-                    'label' => $label,
-                    'labelAttributes' => $this->labelAttributes,
-                    'labelPosition' => $this->labelPosition,
-                    'renderErrors' => $this->renderErrors
+                'element'           => $element,
+                'label'             => $label,
+                'labelAttributes'   => $this->labelAttributes,
+                'labelPosition'     => $labelPosition,
+                'renderErrors'      => $this->renderErrors,
             );
-            
+
             return $this->view->render($this->partial, $vars);
         }
-        
+
         if ($this->renderErrors) {
             $elementErrors = $elementErrorsHelper->render($element);
         }
-        
+
         $elementString = $elementHelper->render($element);
-        
-        if (isset($label) && '' !== $label) {
-            $label = $escapeHtmlHelper($label);
-            $labelAttributes = $element->getLabelAttributes();
-            
+
+        // hidden elements do not need a <label> -https://github.com/zendframework/zf2/issues/5607
+        $type = $element->getAttribute('type');
+        if (isset($label) && '' !== $label && $type !== 'hidden') {
+            $labelAttributes = array();
+
+            if ($element instanceof LabelAwareInterface) {
+                $labelAttributes = $element->getLabelAttributes();
+            }
+
+            if (! $element instanceof LabelAwareInterface || ! $element->getLabelOption('disable_html_escape')) {
+                $label = $escapeHtmlHelper($label);
+            }
+
             if (empty($labelAttributes)) {
                 $labelAttributes = $this->labelAttributes;
             }
-            
-            // Multicheckbox elements have to be handled differently as the HTML
-            // standard does not allow nested
+
+            // Multicheckbox elements have to be handled differently as the HTML standard does not allow nested
             // labels. The semantic way is to group them inside a fieldset
-            $type = $element->getAttribute('type');
-            if ($type === 'multi_checkbox' || $type === 'radio') {
-                $markup = sprintf('<fieldset><legend>%s</legend>%s</fieldset>', 
-                        $label, $elementString);
+            if ($type === 'multi_checkbox'
+                || $type === 'radio'
+                || $element instanceof MonthSelect
+                || $element instanceof Captcha
+            ) {
+                $markup = sprintf(
+                    '<fieldset><legend>%s</legend>%s</fieldset>',
+                    $label,
+                    $elementString
+                );
             } else {
-                if ($element->hasAttribute('id')) {
+                // Ensure element and label will be separated if element has an `id`-attribute.
+                // If element has label option `always_wrap` it will be nested in any case.
+                if ($element->hasAttribute('id')
+                    && ($element instanceof LabelAwareInterface && !$element->getLabelOption('always_wrap'))
+                ) {
                     $labelOpen = '';
                     $labelClose = '';
                     $label = $labelHelper($element);
                 } else {
-                    $labelOpen = $labelHelper->openTag($labelAttributes);
+                    $labelOpen  = $labelHelper->openTag($labelAttributes);
                     $labelClose = $labelHelper->closeTag();
                 }
-                
-                if ($label !== '' && ! $element->hasAttribute('id')) {
+
+                if ($label !== '' && (!$element->hasAttribute('id'))
+                    || ($element instanceof LabelAwareInterface && $element->getLabelOption('always_wrap'))
+                ) {
                     $label = '<span>' . $label . '</span>';
                 }
-                
-                // Button element is a special case, because label is always
-                // rendered inside it
+
+                // Button element is a special case, because label is always rendered inside it
                 if ($element instanceof Button) {
                     $labelOpen = $labelClose = $label = '';
                 }
-                
-                switch ($this->labelPosition) {
+
+                if ($element instanceof LabelAwareInterface && $element->getLabelOption('label_position')) {
+                    $labelPosition = $element->getLabelOption('label_position');
+                }
+
+                switch ($labelPosition) {
                     case self::LABEL_PREPEND:
-                        $markup = $labelOpen . $label . $elementString .
-                                 $labelClose;
+                        $markup = $labelOpen . $label . $elementString . $labelClose;
                         break;
                     case self::LABEL_APPEND:
                     default:
-                        $markup = $labelOpen . $elementString . $label .
-                                 $labelClose;
+                        $markup = $labelOpen . $elementString . $label . $labelClose;
                         break;
                 }
             }
-            
+
             if ($this->renderErrors) {
                 $markup .= $elementErrors;
             }
@@ -220,17 +241,17 @@ class FormRow extends AbstractHelper
                 $markup = $elementString;
             }
         }
-        
+
         return $markup;
     }
 
     /**
      * Set the class that is added to element that have errors
      *
-     * @param string $inputErrorClass            
+     * @param  string $inputErrorClass
      * @return FormRow
      */
-    public function setInputErrorClass ($inputErrorClass)
+    public function setInputErrorClass($inputErrorClass)
     {
         $this->inputErrorClass = $inputErrorClass;
         return $this;
@@ -241,7 +262,7 @@ class FormRow extends AbstractHelper
      *
      * @return string
      */
-    public function getInputErrorClass ()
+    public function getInputErrorClass()
     {
         return $this->inputErrorClass;
     }
@@ -249,10 +270,10 @@ class FormRow extends AbstractHelper
     /**
      * Set the attributes for the row label
      *
-     * @param array $labelAttributes            
+     * @param  array $labelAttributes
      * @return FormRow
      */
-    public function setLabelAttributes ($labelAttributes)
+    public function setLabelAttributes($labelAttributes)
     {
         $this->labelAttributes = $labelAttributes;
         return $this;
@@ -263,7 +284,7 @@ class FormRow extends AbstractHelper
      *
      * @return array
      */
-    public function getLabelAttributes ()
+    public function getLabelAttributes()
     {
         return $this->labelAttributes;
     }
@@ -271,26 +292,24 @@ class FormRow extends AbstractHelper
     /**
      * Set the label position
      *
-     * @param string $labelPosition            
+     * @param  string $labelPosition
      * @throws \Zend\Form\Exception\InvalidArgumentException
      * @return FormRow
      */
-    public function setLabelPosition ($labelPosition)
+    public function setLabelPosition($labelPosition)
     {
         $labelPosition = strtolower($labelPosition);
-        if (! in_array($labelPosition, 
-                array(
-                        self::LABEL_APPEND,
-                        self::LABEL_PREPEND
-                ))) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            '%s expects either %s::LABEL_APPEND or %s::LABEL_PREPEND; received "%s"', 
-                            __METHOD__, __CLASS__, __CLASS__, 
-                            (string) $labelPosition));
+        if (!in_array($labelPosition, array(self::LABEL_APPEND, self::LABEL_PREPEND))) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects either %s::LABEL_APPEND or %s::LABEL_PREPEND; received "%s"',
+                __METHOD__,
+                __CLASS__,
+                __CLASS__,
+                (string) $labelPosition
+            ));
         }
         $this->labelPosition = $labelPosition;
-        
+
         return $this;
     }
 
@@ -299,7 +318,7 @@ class FormRow extends AbstractHelper
      *
      * @return string
      */
-    public function getLabelPosition ()
+    public function getLabelPosition()
     {
         return $this->labelPosition;
     }
@@ -307,21 +326,21 @@ class FormRow extends AbstractHelper
     /**
      * Set if the errors are rendered by this helper
      *
-     * @param bool $renderErrors            
+     * @param  bool $renderErrors
      * @return FormRow
      */
-    public function setRenderErrors ($renderErrors)
+    public function setRenderErrors($renderErrors)
     {
         $this->renderErrors = (bool) $renderErrors;
         return $this;
     }
 
     /**
-     * Retrive if the errors are rendered by this helper
+     * Retrieve if the errors are rendered by this helper
      *
      * @return bool
      */
-    public function getRenderErrors ()
+    public function getRenderErrors()
     {
         return $this->renderErrors;
     }
@@ -329,21 +348,21 @@ class FormRow extends AbstractHelper
     /**
      * Set a partial view script to use for rendering the row
      *
-     * @param null|string $partial            
+     * @param null|string $partial
      * @return FormRow
      */
-    public function setPartial ($partial)
+    public function setPartial($partial)
     {
         $this->partial = $partial;
         return $this;
     }
 
     /**
-     * Retrive current partial
+     * Retrieve current partial
      *
      * @return null|string
      */
-    public function getPartial ()
+    public function getPartial()
     {
         return $this->partial;
     }
@@ -353,25 +372,27 @@ class FormRow extends AbstractHelper
      *
      * @return FormLabel
      */
-    protected function getLabelHelper ()
+    protected function getLabelHelper()
     {
         if ($this->labelHelper) {
             return $this->labelHelper;
         }
-        
+
         if (method_exists($this->view, 'plugin')) {
             $this->labelHelper = $this->view->plugin('form_label');
         }
-        
-        if (! $this->labelHelper instanceof FormLabel) {
+
+        if (!$this->labelHelper instanceof FormLabel) {
             $this->labelHelper = new FormLabel();
         }
-        
+
         if ($this->hasTranslator()) {
-            $this->labelHelper->setTranslator($this->getTranslator(), 
-                    $this->getTranslatorTextDomain());
+            $this->labelHelper->setTranslator(
+                $this->getTranslator(),
+                $this->getTranslatorTextDomain()
+            );
         }
-        
+
         return $this->labelHelper;
     }
 
@@ -380,20 +401,20 @@ class FormRow extends AbstractHelper
      *
      * @return FormElement
      */
-    protected function getElementHelper ()
+    protected function getElementHelper()
     {
         if ($this->elementHelper) {
             return $this->elementHelper;
         }
-        
+
         if (method_exists($this->view, 'plugin')) {
             $this->elementHelper = $this->view->plugin('form_element');
         }
-        
-        if (! $this->elementHelper instanceof FormElement) {
+
+        if (!$this->elementHelper instanceof FormElement) {
             $this->elementHelper = new FormElement();
         }
-        
+
         return $this->elementHelper;
     }
 
@@ -402,21 +423,20 @@ class FormRow extends AbstractHelper
      *
      * @return FormElementErrors
      */
-    protected function getElementErrorsHelper ()
+    protected function getElementErrorsHelper()
     {
         if ($this->elementErrorsHelper) {
             return $this->elementErrorsHelper;
         }
-        
+
         if (method_exists($this->view, 'plugin')) {
-            $this->elementErrorsHelper = $this->view->plugin(
-                    'form_element_errors');
+            $this->elementErrorsHelper = $this->view->plugin('form_element_errors');
         }
-        
-        if (! $this->elementErrorsHelper instanceof FormElementErrors) {
+
+        if (!$this->elementErrorsHelper instanceof FormElementErrors) {
             $this->elementErrorsHelper = new FormElementErrors();
         }
-        
+
         return $this->elementErrorsHelper;
     }
 }

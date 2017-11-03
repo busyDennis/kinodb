@@ -3,18 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Log\Filter;
+
 use Traversable;
 use Zend\Log\Exception;
 
 class SuppressFilter implements FilterInterface
 {
-
     /**
-     *
      * @var bool
      */
     protected $accept = true;
@@ -22,10 +22,10 @@ class SuppressFilter implements FilterInterface
     /**
      * This is a simple boolean filter.
      *
-     * @param int|array|Traversable $suppress            
+     * @param int|array|Traversable $suppress
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct ($suppress = false)
+    public function __construct($suppress = false)
     {
         if ($suppress instanceof Traversable) {
             $suppress = iterator_to_array($suppress);
@@ -33,12 +33,12 @@ class SuppressFilter implements FilterInterface
         if (is_array($suppress)) {
             $suppress = isset($suppress['suppress']) ? $suppress['suppress'] : false;
         }
-        if (! is_bool($suppress)) {
+        if (!is_bool($suppress)) {
             throw new Exception\InvalidArgumentException(
-                    sprintf('Suppress must be an boolean; received "%s"', 
-                            gettype($suppress)));
+                sprintf('Suppress must be a boolean; received "%s"', gettype($suppress))
+            );
         }
-        
+
         $this->suppress($suppress);
     }
 
@@ -48,11 +48,10 @@ class SuppressFilter implements FilterInterface
      * Call suppress(true) to suppress all log events.
      * Call suppress(false) to accept all log events.
      *
-     * @param bool $suppress
-     *            Should all log events be suppressed?
+     * @param  bool $suppress Should all log events be suppressed?
      * @return void
      */
-    public function suppress ($suppress)
+    public function suppress($suppress)
     {
         $this->accept = ! (bool) $suppress;
     }
@@ -60,11 +59,10 @@ class SuppressFilter implements FilterInterface
     /**
      * Returns TRUE to accept the message, FALSE to block it.
      *
-     * @param array $event
-     *            event data
+     * @param array $event event data
      * @return bool accepted?
      */
-    public function filter (array $event)
+    public function filter(array $event)
     {
         return $this->accept;
     }

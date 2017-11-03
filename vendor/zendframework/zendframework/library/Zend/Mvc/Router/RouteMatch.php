@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\Router;
 
 /**
@@ -13,7 +14,6 @@ namespace Zend\Mvc\Router;
  */
 class RouteMatch
 {
-
     /**
      * Match parameters.
      *
@@ -31,9 +31,9 @@ class RouteMatch
     /**
      * Create a RouteMatch with given parameters.
      *
-     * @param array $params            
+     * @param array $params
      */
-    public function __construct (array $params)
+    public function __construct(array $params)
     {
         $this->params = $params;
     }
@@ -41,10 +41,10 @@ class RouteMatch
     /**
      * Set name of matched route.
      *
-     * @param string $name            
+     * @param  string $name
      * @return RouteMatch
      */
-    public function setMatchedRouteName ($name)
+    public function setMatchedRouteName($name)
     {
         $this->matchedRouteName = $name;
         return $this;
@@ -55,7 +55,7 @@ class RouteMatch
      *
      * @return string
      */
-    public function getMatchedRouteName ()
+    public function getMatchedRouteName()
     {
         return $this->matchedRouteName;
     }
@@ -63,11 +63,11 @@ class RouteMatch
     /**
      * Set a parameter.
      *
-     * @param string $name            
-     * @param mixed $value            
+     * @param  string $name
+     * @param  mixed  $value
      * @return RouteMatch
      */
-    public function setParam ($name, $value)
+    public function setParam($name, $value)
     {
         $this->params[$name] = $value;
         return $this;
@@ -78,7 +78,7 @@ class RouteMatch
      *
      * @return array
      */
-    public function getParams ()
+    public function getParams()
     {
         return $this->params;
     }
@@ -86,16 +86,16 @@ class RouteMatch
     /**
      * Get a specific parameter.
      *
-     * @param string $name            
-     * @param mixed $default            
+     * @param  string $name
+     * @param  mixed  $default
      * @return mixed
      */
-    public function getParam ($name, $default = null)
+    public function getParam($name, $default = null)
     {
         if (array_key_exists($name, $this->params)) {
             return $this->params[$name];
         }
-        
+
         return $default;
     }
 }

@@ -3,18 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Console;
+
 use Zend\Stdlib\Message;
 use Zend\Stdlib\ResponseInterface;
 
 class Response extends Message implements ResponseInterface
 {
-
     /**
-     *
      * @var bool
      */
     protected $contentSent = false;
@@ -24,9 +24,8 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      * @deprecated
-     *
      */
-    public function contentSent ()
+    public function contentSent()
     {
         return $this->contentSent;
     }
@@ -34,11 +33,15 @@ class Response extends Message implements ResponseInterface
     /**
      * Set the error level that will be returned to shell.
      *
-     * @param int $errorLevel            
+     * @param int   $errorLevel
      * @return Response
      */
-    public function setErrorLevel ($errorLevel)
+    public function setErrorLevel($errorLevel)
     {
+        if (is_string($errorLevel) && !ctype_digit($errorLevel)) {
+            return $this;
+        }
+
         $this->setMetadata('errorLevel', $errorLevel);
         return $this;
     }
@@ -48,7 +51,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return int|0
      */
-    public function getErrorLevel ()
+    public function getErrorLevel()
     {
         return $this->getMetadata('errorLevel', 0);
     }
@@ -58,9 +61,8 @@ class Response extends Message implements ResponseInterface
      *
      * @return Response
      * @deprecated
-     *
      */
-    public function sendContent ()
+    public function sendContent()
     {
         if ($this->contentSent()) {
             return $this;
@@ -71,11 +73,9 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     *
      * @deprecated
-     *
      */
-    public function send ()
+    public function send()
     {
         $this->sendContent();
         $errorLevel = (int) $this->getMetadata('errorLevel', 0);

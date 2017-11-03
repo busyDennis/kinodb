@@ -3,18 +3,22 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http\Header;
 
 /**
- *
  * @throws Exception\InvalidArgumentException
  * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9
  */
 class CacheControl implements HeaderInterface
 {
+    /**
+     * @var string
+     */
+    protected $value;
 
     /**
      * Array of Cache-Control directives
@@ -26,26 +30,31 @@ class CacheControl implements HeaderInterface
     /**
      * Creates a CacheControl object from a headerLine
      *
-     * @param string $headerLine            
+     * @param string $headerLine
      * @throws Exception\InvalidArgumentException
      * @return CacheControl
      */
-    public static function fromString ($headerLine)
+    public static function fromString($headerLine)
     {
-        $header = new static();
-        
-        list ($name, $value) = explode(': ', $headerLine, 2);
-        
+        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
+
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'cache-control') {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid header line for Cache-Control string: "' . $name .
-                             '"');
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Invalid header line for Cache-Control string: ""',
+                $name
+            ));
         }
-        
+
+        HeaderValue::assertValid($value);
+        $directives = static::parseValue($value);
+
         // @todo implementation details
-        $header->directives = static::parseValue($value);
-        
+        $header = new static();
+        foreach ($directives as $key => $value) {
+            $header->addDirective($key, $value);
+        }
+
         return $header;
     }
 
@@ -54,7 +63,7 @@ class CacheControl implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldName ()
+    public function getFieldName()
     {
         return 'Cache-Control';
     }
@@ -64,7 +73,7 @@ class CacheControl implements HeaderInterface
      *
      * @return bool
      */
-    public function isEmpty ()
+    public function isEmpty()
     {
         return empty($this->directives);
     }
@@ -74,12 +83,16 @@ class CacheControl implements HeaderInterface
      * For directives like 'max-age=60', $value = '60'
      * For directives like 'private', use the default $value = true
      *
-     * @param string $key            
-     * @param string|bool $value            
+     * @param string $key
+     * @param string|bool $value
      * @return CacheControl - provides the fluent interface
      */
-    public function addDirective ($key, $value = true)
+    public function addDirective($key, $value = true)
     {
+        HeaderValue::assertValid($key);
+        if (! is_bool($value)) {
+            HeaderValue::assertValid($value);
+        }
         $this->directives[$key] = $value;
         return $this;
     }
@@ -87,10 +100,10 @@ class CacheControl implements HeaderInterface
     /**
      * Check the internal directives array for a directive
      *
-     * @param string $key            
+     * @param string $key
      * @return bool
      */
-    public function hasDirective ($key)
+    public function hasDirective($key)
     {
         return array_key_exists($key, $this->directives);
     }
@@ -98,10 +111,10 @@ class CacheControl implements HeaderInterface
     /**
      * Fetch the value of a directive from the internal directive array
      *
-     * @param string $key            
+     * @param string $key
      * @return string|null
      */
-    public function getDirective ($key)
+    public function getDirective($key)
     {
         return array_key_exists($key, $this->directives) ? $this->directives[$key] : null;
     }
@@ -109,10 +122,10 @@ class CacheControl implements HeaderInterface
     /**
      * Remove a directive
      *
-     * @param string $key            
+     * @param string $key
      * @return CacheControl - provides the fluent interface
      */
-    public function removeDirective ($key)
+    public function removeDirective($key)
     {
         unset($this->directives[$key]);
         return $this;
@@ -123,7 +136,7 @@ class CacheControl implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldValue ()
+    public function getFieldValue()
     {
         $parts = array();
         ksort($this->directives);
@@ -132,7 +145,7 @@ class CacheControl implements HeaderInterface
                 $parts[] = $key;
             } else {
                 if (preg_match('#[^a-zA-Z0-9._-]#', $value)) {
-                    $value = '"' . $value . '"';
+                    $value = '"' . $value.'"';
                 }
                 $parts[] = "$key=$value";
             }
@@ -145,7 +158,7 @@ class CacheControl implements HeaderInterface
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return 'Cache-Control: ' . $this->getFieldValue();
     }
@@ -154,99 +167,86 @@ class CacheControl implements HeaderInterface
      * Internal function for parsing the value part of a
      * HTTP Cache-Control header
      *
-     * @param string $value            
+     * @param string $value
      * @throws Exception\InvalidArgumentException
      * @return array
      */
-    protected static function parseValue ($value)
+    protected static function parseValue($value)
     {
         $value = trim($value);
-        
+
         $directives = array();
-        
+
         // handle empty string early so we don't need a separate start state
         if ($value == '') {
             return $directives;
         }
-        
+
         $lastMatch = null;
-        
+
         state_directive:
-        switch (static::match(
-                array(
-                        '[a-zA-Z][a-zA-Z_-]*'
-                ), $value, $lastMatch)) {
+        switch (static::match(array('[a-zA-Z][a-zA-Z_-]*'), $value, $lastMatch)) {
             case 0:
                 $directive = $lastMatch;
                 goto state_value;
-                break;
-            
+                // intentional fall-through
+
             default:
-                throw new Exception\InvalidArgumentException(
-                        'expected DIRECTIVE');
-                break;
+                throw new Exception\InvalidArgumentException('expected DIRECTIVE');
         }
-        
+
         state_value:
-        switch (static::match(
-                array(
-                        '="[^"]*"',
-                        '=[^",\s;]*'
-                ), $value, $lastMatch)) {
+        switch (static::match(array('="[^"]*"', '=[^",\s;]*'), $value, $lastMatch)) {
             case 0:
-                $directives[$directive] = substr($lastMatch, 2, - 1);
+                $directives[$directive] = substr($lastMatch, 2, -1);
                 goto state_separator;
-                break;
-            
+                // intentional fall-through
+
             case 1:
                 $directives[$directive] = rtrim(substr($lastMatch, 1));
                 goto state_separator;
-                break;
-            
+                // intentional fall-through
+
             default:
                 $directives[$directive] = true;
                 goto state_separator;
-                break;
         }
-        
+
         state_separator:
-        switch (static::match(
-                array(
-                        '\s*,\s*',
-                        '$'
-                ), $value, $lastMatch)) {
+        switch (static::match(array('\s*,\s*', '$'), $value, $lastMatch)) {
             case 0:
                 goto state_directive;
-                break;
-            
+                // intentional fall-through
+
             case 1:
                 return $directives;
-                break;
-            
+
             default:
-                throw new Exception\InvalidArgumentException(
-                        'expected SEPARATOR or END');
-                break;
+                throw new Exception\InvalidArgumentException('expected SEPARATOR or END');
+
         }
     }
 
     /**
      * Internal function used by parseValue to match tokens
      *
-     * @param array $tokens            
-     * @param string $string            
-     * @param string $lastMatch            
+     * @param array $tokens
+     * @param string $string
+     * @param string $lastMatch
      * @return int
      */
-    protected static function match ($tokens, &$string, &$lastMatch)
+    protected static function match($tokens, &$string, &$lastMatch)
     {
+        // Ensure we have a string
+        $value = (string) $string;
+
         foreach ($tokens as $i => $token) {
-            if (preg_match('/^' . $token . '/', $string, $matches)) {
+            if (preg_match('/^' . $token . '/', $value, $matches)) {
                 $lastMatch = $matches[0];
-                $string = substr($string, strlen($matches[0]));
+                $string = substr($value, strlen($matches[0]));
                 return $i;
             }
         }
-        return - 1;
+        return -1;
     }
 }

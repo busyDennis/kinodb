@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Reflection;
 
 /**
@@ -15,30 +16,25 @@ namespace Zend\Server\Reflection;
  */
 class ReflectionParameter
 {
-
     /**
-     *
      * @var \ReflectionParameter
      */
     protected $reflection;
 
     /**
      * Parameter position
-     *
      * @var int
      */
     protected $position;
 
     /**
      * Parameter type
-     *
      * @var string
      */
     protected $type;
 
     /**
      * Parameter description
-     *
      * @var string
      */
     protected $description;
@@ -46,14 +42,11 @@ class ReflectionParameter
     /**
      * Constructor
      *
-     * @param \ReflectionParameter $r            
-     * @param string $type
-     *            Parameter type
-     * @param string $description
-     *            Parameter description
+     * @param \ReflectionParameter $r
+     * @param string $type Parameter type
+     * @param string $description Parameter description
      */
-    public function __construct (\ReflectionParameter $r, $type = 'mixed', 
-            $description = '')
+    public function __construct(\ReflectionParameter $r, $type = 'mixed', $description = '')
     {
         $this->reflection = $r;
         $this->setType($type);
@@ -63,21 +56,17 @@ class ReflectionParameter
     /**
      * Proxy reflection calls
      *
-     * @param string $method            
-     * @param array $args            
+     * @param string $method
+     * @param array $args
      * @throws Exception\BadMethodCallException
      * @return mixed
      */
-    public function __call ($method, $args)
+    public function __call($method, $args)
     {
         if (method_exists($this->reflection, $method)) {
-            return call_user_func_array(
-                    array(
-                            $this->reflection,
-                            $method
-                    ), $args);
+            return call_user_func_array(array($this->reflection, $method), $args);
         }
-        
+
         throw new Exception\BadMethodCallException('Invalid reflection method');
     }
 
@@ -86,7 +75,7 @@ class ReflectionParameter
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         return $this->type;
     }
@@ -94,17 +83,16 @@ class ReflectionParameter
     /**
      * Set parameter type
      *
-     * @param string|null $type            
+     * @param string|null $type
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public function setType ($type)
+    public function setType($type)
     {
-        if (! is_string($type) && (null !== $type)) {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid parameter type');
+        if (!is_string($type) && (null !== $type)) {
+            throw new Exception\InvalidArgumentException('Invalid parameter type');
         }
-        
+
         $this->type = $type;
     }
 
@@ -113,7 +101,7 @@ class ReflectionParameter
      *
      * @return string
      */
-    public function getDescription ()
+    public function getDescription()
     {
         return $this->description;
     }
@@ -121,27 +109,26 @@ class ReflectionParameter
     /**
      * Set parameter description
      *
-     * @param string|null $description            
+     * @param string|null $description
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public function setDescription ($description)
+    public function setDescription($description)
     {
-        if (! is_string($description) && (null !== $description)) {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid parameter description');
+        if (!is_string($description) && (null !== $description)) {
+            throw new Exception\InvalidArgumentException('Invalid parameter description');
         }
-        
+
         $this->description = $description;
     }
 
     /**
      * Set parameter position
      *
-     * @param int $index            
+     * @param int $index
      * @return void
      */
-    public function setPosition ($index)
+    public function setPosition($index)
     {
         $this->position = (int) $index;
     }
@@ -151,7 +138,7 @@ class ReflectionParameter
      *
      * @return int
      */
-    public function getPosition ()
+    public function getPosition()
     {
         return $this->position;
     }

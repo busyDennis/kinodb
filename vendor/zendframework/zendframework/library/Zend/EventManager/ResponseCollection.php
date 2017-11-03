@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\EventManager;
+
 use SplStack;
 
 /**
@@ -14,7 +16,6 @@ use SplStack;
  */
 class ResponseCollection extends SplStack
 {
-
     protected $stopped = false;
 
     /**
@@ -22,7 +23,7 @@ class ResponseCollection extends SplStack
      *
      * @return bool
      */
-    public function stopped ()
+    public function stopped()
     {
         return $this->stopped;
     }
@@ -30,10 +31,10 @@ class ResponseCollection extends SplStack
     /**
      * Mark the collection as stopped (or its opposite)
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return ResponseCollection
      */
-    public function setStopped ($flag)
+    public function setStopped($flag)
     {
         $this->stopped = (bool) $flag;
         return $this;
@@ -44,7 +45,7 @@ class ResponseCollection extends SplStack
      *
      * @return mixed The first handler return value
      */
-    public function first ()
+    public function first()
     {
         return parent::bottom();
     }
@@ -57,10 +58,10 @@ class ResponseCollection extends SplStack
      *
      * @return mixed The last handler return value
      */
-    public function last ()
+    public function last()
     {
         if (count($this) === 0) {
-            return null;
+            return;
         }
         return parent::top();
     }
@@ -68,11 +69,10 @@ class ResponseCollection extends SplStack
     /**
      * Check if any of the responses match the given value.
      *
-     * @param mixed $value
-     *            The value to look for among responses
+     * @param  mixed $value The value to look for among responses
      * @return bool
      */
-    public function contains ($value)
+    public function contains($value)
     {
         foreach ($this as $response) {
             if ($response === $value) {

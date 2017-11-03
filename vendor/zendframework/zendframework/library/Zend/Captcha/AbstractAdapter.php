@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Captcha;
+
 use Traversable;
 use Zend\Validator\AbstractValidator;
 
@@ -15,10 +17,8 @@ use Zend\Validator\AbstractValidator;
  *
  * Provides some utility functionality to build on
  */
-abstract class AbstractAdapter extends AbstractValidator implements 
-        AdapterInterface
+abstract class AbstractAdapter extends AbstractValidator implements AdapterInterface
 {
-
     /**
      * Captcha name
      *
@@ -37,12 +37,11 @@ abstract class AbstractAdapter extends AbstractValidator implements
 
     /**
      * Options to skip when processing options
-     *
      * @var array
      */
     protected $skipOptions = array(
-            'options',
-            'config'
+        'options',
+        'config',
     );
 
     /**
@@ -50,7 +49,7 @@ abstract class AbstractAdapter extends AbstractValidator implements
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -58,10 +57,10 @@ abstract class AbstractAdapter extends AbstractValidator implements
     /**
      * Set name
      *
-     * @param string $name            
+     * @param string $name
      * @return AbstractAdapter
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = $name;
         return $this;
@@ -70,16 +69,16 @@ abstract class AbstractAdapter extends AbstractValidator implements
     /**
      * Set single option for the object
      *
-     * @param string $key            
-     * @param string $value            
+     * @param  string $key
+     * @param  string $value
      * @return AbstractAdapter
      */
-    public function setOption ($key, $value)
+    public function setOption($key, $value)
     {
         if (in_array(strtolower($key), $this->skipOptions)) {
             return $this;
         }
-        
+
         $method = 'set' . ucfirst($key);
         if (method_exists($this, $method)) {
             // Setter exists; use it
@@ -96,17 +95,16 @@ abstract class AbstractAdapter extends AbstractValidator implements
     /**
      * Set object state from options array
      *
-     * @param array|Traversable $options            
+     * @param  array|Traversable $options
      * @throws Exception\InvalidArgumentException
      * @return AbstractAdapter
      */
-    public function setOptions ($options = array())
+    public function setOptions($options = array())
     {
-        if (! is_array($options) && ! $options instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(
-                    __METHOD__ . ' expects an array or Traversable');
+        if (!is_array($options) && !$options instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(__METHOD__ . ' expects an array or Traversable');
         }
-        
+
         foreach ($options as $key => $value) {
             $this->setOption($key, $value);
         }
@@ -118,7 +116,7 @@ abstract class AbstractAdapter extends AbstractValidator implements
      *
      * @return array
      */
-    public function getOptions ()
+    public function getOptions()
     {
         return $this->options;
     }
@@ -130,7 +128,7 @@ abstract class AbstractAdapter extends AbstractValidator implements
      *
      * @return string
      */
-    public function getHelperName ()
+    public function getHelperName()
     {
         return '';
     }

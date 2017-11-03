@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Text\Table\Decorator;
+
 use Zend\Text\Table\Decorator\DecoratorInterface as Decorator;
 
 /**
@@ -14,13 +16,12 @@ use Zend\Text\Table\Decorator\DecoratorInterface as Decorator;
  */
 class Blank implements Decorator
 {
-
     /**
      * Defined by Zend\Text\Table\Decorator\DecoratorInterface
      *
      * @return string
      */
-    public function getTopLeft ()
+    public function getTopLeft()
     {
         return '';
     }
@@ -30,7 +31,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getTopRight ()
+    public function getTopRight()
     {
         return '';
     }
@@ -40,7 +41,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getBottomLeft ()
+    public function getBottomLeft()
     {
         return '';
     }
@@ -50,7 +51,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getBottomRight ()
+    public function getBottomRight()
     {
         return '';
     }
@@ -60,7 +61,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getVertical ()
+    public function getVertical()
     {
         return '';
     }
@@ -70,7 +71,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getHorizontal ()
+    public function getHorizontal()
     {
         return '';
     }
@@ -80,7 +81,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getCross ()
+    public function getCross()
     {
         return '';
     }
@@ -90,7 +91,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getVerticalRight ()
+    public function getVerticalRight()
     {
         return '';
     }
@@ -100,7 +101,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getVerticalLeft ()
+    public function getVerticalLeft()
     {
         return '';
     }
@@ -110,7 +111,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getHorizontalDown ()
+    public function getHorizontalDown()
     {
         return '';
     }
@@ -120,7 +121,7 @@ class Blank implements Decorator
      *
      * @return string
      */
-    public function getHorizontalUp ()
+    public function getHorizontalUp()
     {
         return '';
     }

@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Captcha;
+
 use Zend\Text\Figlet\Figlet as FigletManager;
 
 /**
@@ -16,7 +18,6 @@ use Zend\Text\Figlet\Figlet as FigletManager;
  */
 class Figlet extends AbstractWord
 {
-
     /**
      * Figlet text renderer
      *
@@ -27,9 +28,9 @@ class Figlet extends AbstractWord
     /**
      * Constructor
      *
-     * @param null|string|array|\Traversable $options            
+     * @param  null|string|array|\Traversable $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         parent::__construct($options);
         $this->figlet = new FigletManager($options);
@@ -40,7 +41,7 @@ class Figlet extends AbstractWord
      *
      * @return FigletManager
      */
-    public function getFiglet ()
+    public function getFiglet()
     {
         return $this->figlet;
     }
@@ -50,7 +51,7 @@ class Figlet extends AbstractWord
      *
      * @return string
      */
-    public function generate ()
+    public function generate()
     {
         $this->useNumbers = false;
         return parent::generate();
@@ -61,7 +62,7 @@ class Figlet extends AbstractWord
      *
      * @return string
      */
-    public function getHelperName ()
+    public function getHelperName()
     {
         return 'captcha/figlet';
     }

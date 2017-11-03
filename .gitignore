@@ -1,31 +1,28 @@
+# ignore local OMDb API config file - it is required only in 'development' application environment
+module/Kino/config/omdb.api.config.php
+
+# ignore vendor folder
+vendor/**/*
+
+#ignore 'aux' folder
+aux/**/*
+
 #ignore temporary files
 ~*
 **/*.tmp
 
-#ignore .git folder and the gitignore file
-.git
-#.git/**/*
-.gitignore
-
 #ignore log files
 **/*.log
+
+#ignore .git folder
+.git
+.gitignore
 
 #ignore Eclipse project configuration
 .buildpath
 .project
 .settings
 .settings/**/*
-
-# ignore 'data' folder
-data
-#data/**/*
-
-#ignore local OMDb API config file - it is required only in 'development' application environment
-module/Kino/config/omdb.api.config.php
-
-#ignore 'aux' folder
-aux
-#aux/**/*
 
 
 

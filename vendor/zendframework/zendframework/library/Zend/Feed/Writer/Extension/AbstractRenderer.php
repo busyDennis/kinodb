@@ -3,50 +3,45 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\Writer\Extension;
+
 use DOMDocument;
 use DOMElement;
 
 /**
- */
+*/
 abstract class AbstractRenderer implements RendererInterface
 {
-
     /**
-     *
      * @var DOMDocument
      */
     protected $dom = null;
 
     /**
-     *
      * @var mixed
      */
     protected $entry = null;
 
     /**
-     *
      * @var DOMElement
      */
     protected $base = null;
 
     /**
-     *
      * @var mixed
      */
     protected $container = null;
 
     /**
-     *
      * @var string
      */
     protected $type = null;
 
     /**
-     *
      * @var DOMElement
      */
     protected $rootElement = null;
@@ -61,10 +56,10 @@ abstract class AbstractRenderer implements RendererInterface
     /**
      * Set the data container
      *
-     * @param mixed $container            
+     * @param  mixed $container
      * @return AbstractRenderer
      */
-    public function setDataContainer ($container)
+    public function setDataContainer($container)
     {
         $this->container = $container;
         return $this;
@@ -73,10 +68,10 @@ abstract class AbstractRenderer implements RendererInterface
     /**
      * Set feed encoding
      *
-     * @param string $enc            
+     * @param  string $enc
      * @return AbstractRenderer
      */
-    public function setEncoding ($enc)
+    public function setEncoding($enc)
     {
         $this->encoding = $enc;
         return $this;
@@ -87,7 +82,7 @@ abstract class AbstractRenderer implements RendererInterface
      *
      * @return string
      */
-    public function getEncoding ()
+    public function getEncoding()
     {
         return $this->encoding;
     }
@@ -95,13 +90,13 @@ abstract class AbstractRenderer implements RendererInterface
     /**
      * Set DOMDocument and DOMElement on which to operate
      *
-     * @param DOMDocument $dom            
-     * @param DOMElement $base            
+     * @param  DOMDocument $dom
+     * @param  DOMElement $base
      * @return AbstractRenderer
      */
-    public function setDomDocument (DOMDocument $dom, DOMElement $base)
+    public function setDomDocument(DOMDocument $dom, DOMElement $base)
     {
-        $this->dom = $dom;
+        $this->dom  = $dom;
         $this->base = $base;
         return $this;
     }
@@ -111,7 +106,7 @@ abstract class AbstractRenderer implements RendererInterface
      *
      * @return mixed
      */
-    public function getDataContainer ()
+    public function getDataContainer()
     {
         return $this->container;
     }
@@ -119,10 +114,10 @@ abstract class AbstractRenderer implements RendererInterface
     /**
      * Set feed type
      *
-     * @param string $type            
+     * @param  string $type
      * @return AbstractRenderer
      */
-    public function setType ($type)
+    public function setType($type)
     {
         $this->type = $type;
         return $this;
@@ -133,7 +128,7 @@ abstract class AbstractRenderer implements RendererInterface
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         return $this->type;
     }
@@ -141,10 +136,10 @@ abstract class AbstractRenderer implements RendererInterface
     /**
      * Set root element of document
      *
-     * @param DOMElement $root            
+     * @param  DOMElement $root
      * @return AbstractRenderer
      */
-    public function setRootElement (DOMElement $root)
+    public function setRootElement(DOMElement $root)
     {
         $this->rootElement = $root;
         return $this;
@@ -155,7 +150,7 @@ abstract class AbstractRenderer implements RendererInterface
      *
      * @return DOMElement
      */
-    public function getRootElement ()
+    public function getRootElement()
     {
         return $this->rootElement;
     }
@@ -165,5 +160,5 @@ abstract class AbstractRenderer implements RendererInterface
      *
      * @return void
      */
-    abstract protected function _appendNamespaces ();
+    abstract protected function _appendNamespaces();
 }

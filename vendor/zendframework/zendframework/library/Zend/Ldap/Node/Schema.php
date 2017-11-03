@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Ldap\Node;
+
 use Zend\Ldap;
 
 /**
@@ -14,29 +16,21 @@ use Zend\Ldap;
  */
 class Schema extends AbstractNode
 {
-
-    const OBJECTCLASS_TYPE_UNKNOWN = 0;
-
+    const OBJECTCLASS_TYPE_UNKNOWN    = 0;
     const OBJECTCLASS_TYPE_STRUCTURAL = 1;
-
-    const OBJECTCLASS_TYPE_ABSTRACT = 3;
-
-    const OBJECTCLASS_TYPE_AUXILIARY = 4;
+    const OBJECTCLASS_TYPE_ABSTRACT   = 3;
+    const OBJECTCLASS_TYPE_AUXILIARY  = 4;
 
     /**
      * Factory method to create the Schema node.
      *
-     * @param \Zend\Ldap\Ldap $ldap            
+     * @param  \Zend\Ldap\Ldap $ldap
      * @return Schema
      */
-    public static function create (Ldap\Ldap $ldap)
+    public static function create(Ldap\Ldap $ldap)
     {
-        $dn = $ldap->getRootDse()->getSchemaDn();
-        $data = $ldap->getEntry($dn, 
-                array(
-                        '*',
-                        '+'
-                ), true);
+        $dn   = $ldap->getRootDse()->getSchemaDn();
+        $data = $ldap->getEntry($dn, array('*', '+'), true);
         switch ($ldap->getRootDse()->getServerType()) {
             case RootDse::SERVER_TYPE_ACTIVEDIRECTORY:
                 return new Schema\ActiveDirectory($dn, $data, $ldap);
@@ -53,11 +47,11 @@ class Schema extends AbstractNode
      *
      * Constructor is protected to enforce the use of factory methods.
      *
-     * @param \Zend\Ldap\Dn $dn            
-     * @param array $data            
-     * @param \Zend\Ldap\Ldap $ldap            
+     * @param  \Zend\Ldap\Dn   $dn
+     * @param  array           $data
+     * @param  \Zend\Ldap\Ldap $ldap
      */
-    protected function __construct (Ldap\Dn $dn, array $data, Ldap\Ldap $ldap)
+    protected function __construct(Ldap\Dn $dn, array $data, Ldap\Ldap $ldap)
     {
         parent::__construct($dn, $data, true);
         $this->parseSchema($dn, $ldap);
@@ -66,11 +60,11 @@ class Schema extends AbstractNode
     /**
      * Parses the schema
      *
-     * @param \Zend\Ldap\Dn $dn            
-     * @param \Zend\Ldap\Ldap $ldap            
+     * @param  \Zend\Ldap\Dn   $dn
+     * @param  \Zend\Ldap\Ldap $ldap
      * @return Schema Provides a fluid interface
      */
-    protected function parseSchema (Ldap\Dn $dn, Ldap\Ldap $ldap)
+    protected function parseSchema(Ldap\Dn $dn, Ldap\Ldap $ldap)
     {
         return $this;
     }
@@ -80,7 +74,7 @@ class Schema extends AbstractNode
      *
      * @return array
      */
-    public function getAttributeTypes ()
+    public function getAttributeTypes()
     {
         return array();
     }
@@ -90,7 +84,7 @@ class Schema extends AbstractNode
      *
      * @return array
      */
-    public function getObjectClasses ()
+    public function getObjectClasses()
     {
         return array();
     }

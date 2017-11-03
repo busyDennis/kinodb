@@ -3,42 +3,42 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Stdlib;
 
 interface MessageInterface
 {
-
     /**
      * Set metadata
      *
-     * @param string|int|array|\Traversable $spec            
-     * @param mixed $value            
+     * @param  string|int|array|\Traversable $spec
+     * @param  mixed $value
      */
-    public function setMetadata ($spec, $value = null);
+    public function setMetadata($spec, $value = null);
 
     /**
      * Get metadata
      *
-     * @param null|string|int $key            
+     * @param  null|string|int $key
      * @return mixed
      */
-    public function getMetadata ($key = null);
+    public function getMetadata($key = null);
 
     /**
      * Set content
      *
-     * @param mixed $content            
+     * @param  mixed $content
      * @return mixed
      */
-    public function setContent ($content);
+    public function setContent($content);
 
     /**
      * Get content
      *
      * @return mixed
      */
-    public function getContent ();
+    public function getContent();
 }

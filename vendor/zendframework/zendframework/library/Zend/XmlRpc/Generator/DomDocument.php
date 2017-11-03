@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\XmlRpc\Generator;
 
 /**
@@ -13,15 +14,12 @@ namespace Zend\XmlRpc\Generator;
  */
 class DomDocument extends AbstractGenerator
 {
-
     /**
-     *
      * @var \DOMDocument
      */
     protected $dom;
 
     /**
-     *
      * @var \DOMNode
      */
     protected $currentElement;
@@ -29,35 +27,35 @@ class DomDocument extends AbstractGenerator
     /**
      * Start XML element
      *
-     * @param string $name            
+     * @param string $name
      * @return void
      */
-    protected function _openElement ($name)
+    protected function _openElement($name)
     {
         $newElement = $this->dom->createElement($name);
-        
+
         $this->currentElement = $this->currentElement->appendChild($newElement);
     }
 
     /**
      * Write XML text data into the currently opened XML element
      *
-     * @param string $text            
+     * @param string $text
      */
-    protected function _writeTextData ($text)
+    protected function _writeTextData($text)
     {
         $this->currentElement->appendChild($this->dom->createTextNode($text));
     }
 
     /**
-     * Close an previously opened XML element
+     * Close a previously opened XML element
      *
      * Resets $currentElement to the next parent node in the hierarchy
      *
-     * @param string $name            
+     * @param string $name
      * @return void
      */
-    protected function _closeElement ($name)
+    protected function _closeElement($name)
     {
         if (isset($this->currentElement->parentNode)) {
             $this->currentElement = $this->currentElement->parentNode;
@@ -69,7 +67,7 @@ class DomDocument extends AbstractGenerator
      *
      * @return string
      */
-    public function saveXml ()
+    public function saveXml()
     {
         return $this->dom->saveXml();
     }
@@ -79,7 +77,7 @@ class DomDocument extends AbstractGenerator
      *
      * @return void
      */
-    protected function _init ()
+    protected function _init()
     {
         $this->dom = new \DOMDocument('1.0', $this->encoding);
         $this->currentElement = $this->dom;

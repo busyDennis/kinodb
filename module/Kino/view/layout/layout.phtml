@@ -3,27 +3,20 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <?= $this->headTitle('Kino DB application')->setSeparator(' - ')->setAutoEscape(false)?>
+        <?= $this->headTitle('Kino DB application')->setSeparator(' - ')->setAutoEscape(false) ?>
 
-        <?=$this->headMeta()->
+        <?= $this->headMeta()->
         appendName('viewport', 'width=device-width, initial-scale=1.0')->
-        appendHttpEquiv('X-UA-Compatible', 'IE=edge')?>
+        appendHttpEquiv('X-UA-Compatible', 'IE=edge') ?>
 
         <!-- Le styles -->
         <?= $this->headLink()->
         appendStylesheet($this->basePath('/lib/bootstrap/css/bootstrap.min.css'))->
-        appendStylesheet($this->basePath('/style/style.css'))?>
+        appendStylesheet($this->basePath('/css/style.css')) ?>
 
         <!-- Scripts -->
-        <?=$this->headScript()->
-        appendFile($this->basePath('lib/moment.min.js'))->
-        appendFile($this->basePath('lib/prefixfree.min.js'))->
-        appendFile($this->basePath('lib/jquery-3.2.1.min.js'))->
-        appendFile($this->basePath('lib/underscore-min.js'))->
-        appendFile($this->basePath('lib/backbone-min.js'))->
-        appendFile($this->basePath('lib/raty-2.5.2/lib/jquery.raty.js'))->
-        appendFile($this->basePath('lib/bootstrap/js/bootstrap.min.js'))->
-        appendFile($this->basePath('src/master.js'))?>
+        <?= $this->headScript()->setAllowArbitraryAttributes(true)->
+        appendFile('/lib/require.js', $type = 'text/javascript', $attrs = array("data-main" => "/js/main.js")) ?>
     </head>
     <body>
         <?= $this->content ?>

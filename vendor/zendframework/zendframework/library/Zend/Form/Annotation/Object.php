@@ -1,44 +1,42 @@
 <?php
 /**
- * Zend Framework
+ * Zend Framework (http://framework.zend.com/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://framework.zend.com/license/new-bsd
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@zend.com so we can send you a copy immediately.
- *
- * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @link      http://github.com/zendframework/zf2 for the canonical source repository
+ * @copyright  Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
+
 namespace Zend\Form\Annotation;
 
 /**
- * Object annotation
+ * Stub class for backwards compatibility.
  *
- * Use this annotation to specify an object to use as the bound object of a form
- * or fieldset
+ * Since PHP 7 adds "object" as a reserved keyword, we can no longer have a class
+ * named that and retain PHP 7 compatibility. The original class has been
+ * renamed to "Instance", and this class is now an extension of it. It raises an
+ * E_USER_DEPRECATED to warn users to migrate.
  *
+ * @deprecated
  * @Annotation
- *
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc.
- *            (http://www.zend.com)
- * @license http://framework.zend.com/license/new-bsd New BSD License
  */
-class Object extends AbstractStringAnnotation
+class Object extends Instance
 {
-
     /**
-     * Retrieve the object
-     *
-     * @return null|string
+     * {@inheritdoc}
      */
-    public function getObject ()
+    public function __construct(array $data)
     {
-        return $this->value;
+        trigger_error(
+            sprintf(
+                'The class %s has been deprecated; please use %s\\Instance,'
+                . ' and the annotation @Instance or @Annotation\Instance',
+                __CLASS__,
+                __NAMESPACE__
+            ),
+            E_USER_DEPRECATED
+        );
+
+        parent::__construct($data);
     }
 }

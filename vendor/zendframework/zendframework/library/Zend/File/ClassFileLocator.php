@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\File;
+
 use DirectoryIterator;
 use FilterIterator;
 use RecursiveDirectoryIterator;
@@ -19,36 +21,31 @@ use SplFileInfo;
  */
 class ClassFileLocator extends FilterIterator
 {
-
     /**
      * Create an instance of the locator iterator
      *
-     * Expects either a directory, or a DirectoryIterator (or its recursive
-     * variant)
+     * Expects either a directory, or a DirectoryIterator (or its recursive variant)
      * instance.
      *
-     * @param string|DirectoryIterator $dirOrIterator            
+     * @param  string|DirectoryIterator $dirOrIterator
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct ($dirOrIterator = '.')
+    public function __construct($dirOrIterator = '.')
     {
         if (is_string($dirOrIterator)) {
-            if (! is_dir($dirOrIterator)) {
-                throw new Exception\InvalidArgumentException(
-                        'Expected a valid directory name');
+            if (!is_dir($dirOrIterator)) {
+                throw new Exception\InvalidArgumentException('Expected a valid directory name');
             }
-            
-            $dirOrIterator = new RecursiveDirectoryIterator($dirOrIterator, 
-                    RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
-        } elseif (! $dirOrIterator instanceof DirectoryIterator) {
-            throw new Exception\InvalidArgumentException(
-                    'Expected a DirectoryIterator');
+
+            $dirOrIterator = new RecursiveDirectoryIterator($dirOrIterator, RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
+        } elseif (!$dirOrIterator instanceof DirectoryIterator) {
+            throw new Exception\InvalidArgumentException('Expected a DirectoryIterator');
         }
-        
+
         if ($dirOrIterator instanceof RecursiveIterator) {
             $dirOrIterator = new RecursiveIteratorIterator($dirOrIterator);
         }
-        
+
         parent::__construct($dirOrIterator);
         $this->setInfoClass('Zend\File\PhpClassFile');
     }
@@ -58,42 +55,41 @@ class ClassFileLocator extends FilterIterator
      *
      * @return bool
      */
-    public function accept ()
+    public function accept()
     {
         $file = $this->getInnerIterator()->current();
         // If we somehow have something other than an SplFileInfo object, just
         // return false
-        if (! $file instanceof SplFileInfo) {
+        if (!$file instanceof SplFileInfo) {
             return false;
         }
-        
+
         // If we have a directory, it's not a file, so return false
-        if (! $file->isFile()) {
+        if (!$file->isFile()) {
             return false;
         }
-        
+
         // If not a PHP file, skip
         if ($file->getBasename('.php') == $file->getBasename()) {
             return false;
         }
-        
+
         $contents = file_get_contents($file->getRealPath());
-        $tokens = token_get_all($contents);
-        $count = count($tokens);
-        $t_trait = defined('T_TRAIT') ? T_TRAIT : - 1; // For preserve PHP 5.3
-                                                       // compatibility
-        for ($i = 0; $i < $count; $i ++) {
+        $tokens   = token_get_all($contents);
+        $count    = count($tokens);
+        $t_trait  = defined('T_TRAIT') ? T_TRAIT : -1; // For preserve PHP 5.3 compatibility
+        for ($i = 0; $i < $count; $i++) {
             $token = $tokens[$i];
-            if (! is_array($token)) {
+            if (!is_array($token)) {
                 // single character token found; skip
-                $i ++;
+                $i++;
                 continue;
             }
             switch ($token[0]) {
                 case T_NAMESPACE:
                     // Namespace found; grab it for later
                     $namespace = '';
-                    for ($i ++; $i < $count; $i ++) {
+                    for ($i++; $i < $count; $i++) {
                         $token = $tokens[$i];
                         if (is_string($token)) {
                             if (';' === $token) {
@@ -106,7 +102,7 @@ class ClassFileLocator extends FilterIterator
                             }
                             continue;
                         }
-                        list ($type, $content, $line) = $token;
+                        list($type, $content, $line) = $token;
                         switch ($type) {
                             case T_STRING:
                             case T_NS_SEPARATOR:
@@ -120,30 +116,35 @@ class ClassFileLocator extends FilterIterator
                     break;
                 case $t_trait:
                 case T_CLASS:
+                    // ignore T_CLASS after T_DOUBLE_COLON to allow PHP >=5.5 FQCN scalar resolution
+                    if ($i > 0 && is_array($tokens[$i-1]) && $tokens[$i-1][0] === T_DOUBLE_COLON) {
+                        break;
+                    }
                 case T_INTERFACE:
                     // Abstract class, class, interface or trait found
-                    
+
                     // Get the classname
-                    for ($i ++; $i < $count; $i ++) {
+                    for ($i++; $i < $count; $i++) {
                         $token = $tokens[$i];
                         if (is_string($token)) {
                             continue;
                         }
-                        list ($type, $content, $line) = $token;
+                        list($type, $content, $line) = $token;
                         if (T_STRING == $type) {
-                            // If a classname was found, set it in the object,
-                            // and
+                            // If a classname was found, set it in the object, and
                             // return boolean true (found)
-                            if (! isset($namespace) || null === $namespace) {
+                            if (!isset($namespace) || null === $namespace) {
                                 if (isset($saveNamespace) && $saveNamespace) {
                                     $namespace = $savedNamespace;
                                 } else {
                                     $namespace = null;
                                 }
                             }
-                            $class = (null === $namespace) ? $content : $namespace .
-                                     '\\' . $content;
+                            $class = (null === $namespace) ? $content : $namespace . '\\' . $content;
                             $file->addClass($class);
+                            if ($namespace) {
+                                $file->addNamespace($namespace);
+                            }
                             $namespace = null;
                             break;
                         }
@@ -154,7 +155,7 @@ class ClassFileLocator extends FilterIterator
             }
         }
         $classes = $file->getClasses();
-        if (! empty($classes)) {
+        if (!empty($classes)) {
             return true;
         }
         // No class-type tokens found; return false

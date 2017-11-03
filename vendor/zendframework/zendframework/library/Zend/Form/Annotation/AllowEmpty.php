@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form\Annotation;
+
 use Zend\Filter\Boolean as BooleanFilter;
 
 /**
@@ -16,12 +18,11 @@ use Zend\Filter\Boolean as BooleanFilter;
  * \Zend\InputFilter\Input should enable the allowEmpty flag.
  *
  * @Annotation
+ * @deprecated 2.4.8 Use `@Validator({"name":"NotEmpty"})` instead.
  */
 class AllowEmpty
 {
-
     /**
-     *
      * @var bool
      */
     protected $allowEmpty = true;
@@ -29,21 +30,21 @@ class AllowEmpty
     /**
      * Receive and process the contents of an annotation
      *
-     * @param array $data            
+     * @param array $data
      */
-    public function __construct (array $data)
+    public function __construct(array $data)
     {
-        if (! isset($data['value'])) {
+        if (!isset($data['value'])) {
             $data['value'] = false;
         }
-        
+
         $allowEmpty = $data['value'];
-        
-        if (! is_bool($allowEmpty)) {
-            $filter = new BooleanFilter();
+
+        if (!is_bool($allowEmpty)) {
+            $filter   = new BooleanFilter();
             $allowEmpty = $filter->filter($allowEmpty);
         }
-        
+
         $this->allowEmpty = $allowEmpty;
     }
 
@@ -52,7 +53,7 @@ class AllowEmpty
      *
      * @return bool
      */
-    public function getAllowEmpty ()
+    public function getAllowEmpty()
     {
         return $this->allowEmpty;
     }

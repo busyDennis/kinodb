@@ -3,39 +3,37 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http\Header\Accept\FieldValuePart;
 
 /**
  * Field Value Part
  *
  *
- * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
+ * @see        http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
  */
 abstract class AbstractFieldValuePart
 {
-
     /**
      * Internal object used for value retrieval
-     *
      * @var object
      */
     private $internalValues;
 
     /**
      * A Field Value Part this Field Value Part matched against.
-     *
      * @var AbstractFieldValuePart
      */
     protected $matchedAgainst;
 
     /**
      *
-     * @param object $internalValues            
+     * @param object $internalValues
      */
-    public function __construct ($internalValues)
+    public function __construct($internalValues)
     {
         $this->internalValues = $internalValues;
     }
@@ -43,10 +41,10 @@ abstract class AbstractFieldValuePart
     /**
      * Set a Field Value Part this Field Value Part matched against.
      *
-     * @param AbstractFieldValuePart $matchedAgainst            
+     * @param AbstractFieldValuePart $matchedAgainst
      * @return AbstractFieldValuePart provides fluent interface
      */
-    public function setMatchedAgainst (AbstractFieldValuePart $matchedAgainst)
+    public function setMatchedAgainst(AbstractFieldValuePart $matchedAgainst)
     {
         $this->matchedAgainst = $matchedAgainst;
         return $this;
@@ -57,7 +55,7 @@ abstract class AbstractFieldValuePart
      *
      * @return AbstractFieldValuePart|null
      */
-    public function getMatchedAgainst ()
+    public function getMatchedAgainst()
     {
         return $this->matchedAgainst;
     }
@@ -66,54 +64,49 @@ abstract class AbstractFieldValuePart
      *
      * @return object
      */
-    protected function getInternalValues ()
+    protected function getInternalValues()
     {
         return $this->internalValues;
     }
 
     /**
-     *
      * @return string $typeString
      */
-    public function getTypeString ()
+    public function getTypeString()
     {
         return $this->getInternalValues()->typeString;
     }
 
     /**
-     *
      * @return float $priority
      */
-    public function getPriority ()
+    public function getPriority()
     {
         return (float) $this->getInternalValues()->priority;
     }
 
     /**
-     *
      * @return \stdClass $params
      */
-    public function getParams ()
+    public function getParams()
     {
         return (object) $this->getInternalValues()->params;
     }
 
     /**
-     *
-     * @return raw $raw
+     * @return string $raw
      */
-    public function getRaw ()
+    public function getRaw()
     {
         return $this->getInternalValues()->raw;
     }
 
     /**
      *
-     * @param
-     *            mixed
+     * @param mixed
      * @return mixed
      */
-    public function __get ($key)
+    public function __get($key)
     {
         return $this->getInternalValues()->$key;
     }

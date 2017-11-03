@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Reflection;
 
 /**
@@ -13,24 +14,20 @@ namespace Zend\Server\Reflection;
  */
 class Node
 {
-
     /**
      * Node value
-     *
      * @var mixed
      */
     protected $value = null;
 
     /**
      * Array of child nodes (if any)
-     *
      * @var array
      */
     protected $children = array();
 
     /**
      * Parent node (if any)
-     *
      * @var \Zend\Server\Reflection\Node
      */
     protected $parent = null;
@@ -38,34 +35,32 @@ class Node
     /**
      * Constructor
      *
-     * @param mixed $value            
-     * @param \Zend\Server\Reflection\Node $parent
-     *            Optional
+     * @param mixed $value
+     * @param \Zend\Server\Reflection\Node $parent Optional
      * @return \Zend\Server\Reflection\Node
      */
-    public function __construct ($value, Node $parent = null)
+    public function __construct($value, Node $parent = null)
     {
         $this->value = $value;
         if (null !== $parent) {
             $this->setParent($parent, true);
         }
-        
+
         return $this;
     }
 
     /**
      * Set parent node
      *
-     * @param \Zend\Server\Reflection\Node $node            
-     * @param bool $new
-     *            Whether or not the child node is newly created
-     *            and should always be attached
+     * @param \Zend\Server\Reflection\Node $node
+     * @param  bool $new Whether or not the child node is newly created
+     * and should always be attached
      * @return void
      */
-    public function setParent (Node $node, $new = false)
+    public function setParent(Node $node, $new = false)
     {
         $this->parent = $node;
-        
+
         if ($new) {
             $node->attachChild($this);
             return;
@@ -75,27 +70,27 @@ class Node
     /**
      * Create and attach a new child node
      *
-     * @param mixed $value            
+     * @param mixed $value
      * @access public
      * @return \Zend\Server\Reflection\Node New child node
      */
-    public function createChild ($value)
+    public function createChild($value)
     {
         $child = new static($value, $this);
-        
+
         return $child;
     }
 
     /**
      * Attach a child node
      *
-     * @param \Zend\Server\Reflection\Node $node            
+     * @param \Zend\Server\Reflection\Node $node
      * @return void
      */
-    public function attachChild (Node $node)
+    public function attachChild(Node $node)
     {
         $this->children[] = $node;
-        
+
         if ($node->getParent() !== $this) {
             $node->setParent($this);
         }
@@ -106,7 +101,7 @@ class Node
      *
      * @return array
      */
-    public function getChildren ()
+    public function getChildren()
     {
         return $this->children;
     }
@@ -116,7 +111,7 @@ class Node
      *
      * @return bool
      */
-    public function hasChildren ()
+    public function hasChildren()
     {
         return count($this->children) > 0;
     }
@@ -126,7 +121,7 @@ class Node
      *
      * @return null|\Zend\Server\Reflection\Node
      */
-    public function getParent ()
+    public function getParent()
     {
         return $this->parent;
     }
@@ -136,7 +131,7 @@ class Node
      *
      * @return mixed
      */
-    public function getValue ()
+    public function getValue()
     {
         return $this->value;
     }
@@ -144,10 +139,10 @@ class Node
     /**
      * Set the node value
      *
-     * @param mixed $value            
+     * @param mixed $value
      * @return void
      */
-    public function setValue ($value)
+    public function setValue($value)
     {
         $this->value = $value;
     }
@@ -161,28 +156,28 @@ class Node
      *
      * @return array
      */
-    public function getEndPoints ()
+    public function getEndPoints()
     {
         $endPoints = array();
-        if (! $this->hasChildren()) {
+        if (!$this->hasChildren()) {
             return $endPoints;
         }
-        
+
         foreach ($this->children as $child) {
             $value = $child->getValue();
-            
+
             if (null === $value) {
                 $endPoints[] = $this;
             } elseif ((null !== $value) && $child->hasChildren()) {
                 $childEndPoints = $child->getEndPoints();
-                if (! empty($childEndPoints)) {
+                if (!empty($childEndPoints)) {
                     $endPoints = array_merge($endPoints, $childEndPoints);
                 }
-            } elseif ((null !== $value) && ! $child->hasChildren()) {
+            } elseif ((null !== $value) && !$child->hasChildren()) {
                 $endPoints[] = $child;
             }
         }
-        
+
         return $endPoints;
     }
 }

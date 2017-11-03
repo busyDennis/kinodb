@@ -3,21 +3,22 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Serializer;
+
 use Zend\Serializer\Adapter\AdapterInterface as Adapter;
 
 abstract class Serializer
 {
-
     /**
      * Plugin manager for loading adapters
      *
      * @var null|AdapterPluginManager
      */
-    private static $adapters = null;
+    protected static $adapters;
 
     /**
      * The default adapter.
@@ -29,30 +30,26 @@ abstract class Serializer
     /**
      * Create a serializer adapter instance.
      *
-     * @param string|Adapter $adapterName
-     *            Name of the adapter class
-     * @param
-     *            array |\Traversable|null $adapterOptions Serializer options
+     * @param  string|Adapter $adapterName Name of the adapter class
+     * @param  array |\Traversable|null $adapterOptions Serializer options
      * @return Adapter
      */
-    public static function factory ($adapterName, $adapterOptions = null)
+    public static function factory($adapterName, $adapterOptions = null)
     {
         if ($adapterName instanceof Adapter) {
             return $adapterName; // $adapterName is already an adapter object
         }
-        
-        return static::getAdapterPluginManager()->get($adapterName, 
-                $adapterOptions);
+
+        return static::getAdapterPluginManager()->get($adapterName, $adapterOptions);
     }
 
     /**
      * Change the adapter plugin manager
      *
-     * @param AdapterPluginManager $adapters            
+     * @param  AdapterPluginManager $adapters
      * @return void
      */
-    public static function setAdapterPluginManager (
-            AdapterPluginManager $adapters)
+    public static function setAdapterPluginManager(AdapterPluginManager $adapters)
     {
         static::$adapters = $adapters;
     }
@@ -62,7 +59,7 @@ abstract class Serializer
      *
      * @return AdapterPluginManager
      */
-    public static function getAdapterPluginManager ()
+    public static function getAdapterPluginManager()
     {
         if (static::$adapters === null) {
             static::$adapters = new AdapterPluginManager();
@@ -75,7 +72,7 @@ abstract class Serializer
      *
      * @return AdapterPluginManager
      */
-    public static function resetAdapterPluginManager ()
+    public static function resetAdapterPluginManager()
     {
         static::$adapters = new AdapterPluginManager();
         return static::$adapters;
@@ -84,10 +81,10 @@ abstract class Serializer
     /**
      * Change the default adapter.
      *
-     * @param string|Adapter $adapter            
-     * @param array|\Traversable|null $adapterOptions            
+     * @param string|Adapter $adapter
+     * @param array|\Traversable|null $adapterOptions
      */
-    public static function setDefaultAdapter ($adapter, $adapterOptions = null)
+    public static function setDefaultAdapter($adapter, $adapterOptions = null)
     {
         static::$defaultAdapter = static::factory($adapter, $adapterOptions);
     }
@@ -97,9 +94,9 @@ abstract class Serializer
      *
      * @return Adapter
      */
-    public static function getDefaultAdapter ()
+    public static function getDefaultAdapter()
     {
-        if (! static::$defaultAdapter instanceof Adapter) {
+        if (!static::$defaultAdapter instanceof Adapter) {
             static::setDefaultAdapter(static::$defaultAdapter);
         }
         return static::$defaultAdapter;
@@ -109,46 +106,41 @@ abstract class Serializer
      * Generates a storable representation of a value using the default adapter.
      * Optionally different adapter could be provided as second argument
      *
-     * @param mixed $value            
-     * @param string|Adapter $adapter            
-     * @param array|\Traversable|null $adapterOptions
-     *            Adapter constructor options
-     *            only used to create adapter instance
+     * @param  mixed $value
+     * @param  string|Adapter $adapter
+     * @param  array|\Traversable|null $adapterOptions Adapter constructor options
+     *                                                 only used to create adapter instance
      * @return string
      */
-    public static function serialize ($value, $adapter = null, 
-            $adapterOptions = null)
+    public static function serialize($value, $adapter = null, $adapterOptions = null)
     {
         if ($adapter !== null) {
             $adapter = static::factory($adapter, $adapterOptions);
         } else {
             $adapter = static::getDefaultAdapter();
         }
-        
+
         return $adapter->serialize($value);
     }
 
     /**
-     * Creates a PHP value from a stored representation using the default
-     * adapter.
+     * Creates a PHP value from a stored representation using the default adapter.
      * Optionally different adapter could be provided as second argument
      *
-     * @param string $serialized            
-     * @param string|Adapter $adapter            
-     * @param array|\Traversable|null $adapterOptions
-     *            Adapter constructor options
-     *            only used to create adapter instance
+     * @param  string $serialized
+     * @param  string|Adapter $adapter
+     * @param  array|\Traversable|null $adapterOptions Adapter constructor options
+     *                                                 only used to create adapter instance
      * @return mixed
      */
-    public static function unserialize ($serialized, $adapter = null, 
-            $adapterOptions = null)
+    public static function unserialize($serialized, $adapter = null, $adapterOptions = null)
     {
         if ($adapter !== null) {
             $adapter = static::factory($adapter, $adapterOptions);
         } else {
             $adapter = static::getDefaultAdapter();
         }
-        
+
         return $adapter->unserialize($serialized);
     }
 }

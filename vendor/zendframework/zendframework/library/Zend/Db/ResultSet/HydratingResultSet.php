@@ -3,25 +3,24 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\ResultSet;
+
 use ArrayObject;
 use Zend\Stdlib\Hydrator\ArraySerializable;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
 class HydratingResultSet extends AbstractResultSet
 {
-
     /**
-     *
      * @var HydratorInterface
      */
     protected $hydrator = null;
 
     /**
-     *
      * @var null
      */
     protected $objectPrototype = null;
@@ -29,41 +28,50 @@ class HydratingResultSet extends AbstractResultSet
     /**
      * Constructor
      *
-     * @param null|HydratorInterface $hydrator            
-     * @param null|object $objectPrototype            
+     * @param  null|HydratorInterface $hydrator
+     * @param  null|object $objectPrototype
      */
-    public function __construct (HydratorInterface $hydrator = null, 
-            $objectPrototype = null)
+    public function __construct(HydratorInterface $hydrator = null, $objectPrototype = null)
     {
-        $this->setHydrator(($hydrator) ?  : new ArraySerializable());
-        $this->setObjectPrototype(($objectPrototype) ?  : new ArrayObject());
+        $this->setHydrator(($hydrator) ?: new ArraySerializable);
+        $this->setObjectPrototype(($objectPrototype) ?: new ArrayObject);
     }
 
     /**
      * Set the row object prototype
      *
-     * @param object $objectPrototype            
+     * @param  object $objectPrototype
      * @throws Exception\InvalidArgumentException
      * @return ResultSet
      */
-    public function setObjectPrototype ($objectPrototype)
+    public function setObjectPrototype($objectPrototype)
     {
-        if (! is_object($objectPrototype)) {
+        if (!is_object($objectPrototype)) {
             throw new Exception\InvalidArgumentException(
-                    'An object must be set as the object prototype, a ' .
-                             gettype($objectPrototype) . ' was provided.');
+                'An object must be set as the object prototype, a ' . gettype($objectPrototype) . ' was provided.'
+            );
         }
         $this->objectPrototype = $objectPrototype;
         return $this;
     }
 
     /**
+     * Get the row object prototype
+     *
+     * @return object
+     */
+    public function getObjectPrototype()
+    {
+        return $this->objectPrototype;
+    }
+
+    /**
      * Set the hydrator to use for each row object
      *
-     * @param HydratorInterface $hydrator            
+     * @param HydratorInterface $hydrator
      * @return HydratingResultSet
      */
-    public function setHydrator (HydratorInterface $hydrator)
+    public function setHydrator(HydratorInterface $hydrator)
     {
         $this->hydrator = $hydrator;
         return $this;
@@ -74,7 +82,7 @@ class HydratingResultSet extends AbstractResultSet
      *
      * @return HydratorInterface
      */
-    public function getHydrator ()
+    public function getHydrator()
     {
         return $this->hydrator;
     }
@@ -84,22 +92,20 @@ class HydratingResultSet extends AbstractResultSet
      *
      * @return object
      */
-    public function current ()
+    public function current()
     {
         if ($this->buffer === null) {
-            $this->buffer = - 2; // implicitly disable buffering from here on
-        } elseif (is_array($this->buffer) &&
-                 isset($this->buffer[$this->position])) {
+            $this->buffer = -2; // implicitly disable buffering from here on
+        } elseif (is_array($this->buffer) && isset($this->buffer[$this->position])) {
             return $this->buffer[$this->position];
         }
         $data = $this->dataSource->current();
-        $object = is_array($data) ? $this->hydrator->hydrate($data, 
-                clone $this->objectPrototype) : false;
-        
+        $object = is_array($data) ? $this->hydrator->hydrate($data, clone $this->objectPrototype) : false;
+
         if (is_array($this->buffer)) {
             $this->buffer[$this->position] = $object;
         }
-        
+
         return $object;
     }
 
@@ -109,7 +115,7 @@ class HydratingResultSet extends AbstractResultSet
      * @return array
      * @throws Exception\RuntimeException if any row is not castable to an array
      */
-    public function toArray ()
+    public function toArray()
     {
         $return = array();
         foreach ($this as $row) {

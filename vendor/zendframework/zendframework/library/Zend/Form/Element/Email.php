@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form\Element;
+
 use Zend\Form\Element;
 use Zend\InputFilter\InputProviderInterface;
 use Zend\Validator\Explode as ExplodeValidator;
@@ -15,24 +17,21 @@ use Zend\Validator\ValidatorInterface;
 
 class Email extends Element implements InputProviderInterface
 {
-
     /**
      * Seed attributes
      *
      * @var array
      */
     protected $attributes = array(
-            'type' => 'email'
+        'type' => 'email',
     );
 
     /**
-     *
      * @var ValidatorInterface
      */
     protected $validator;
 
     /**
-     *
      * @var ValidatorInterface
      */
     protected $emailValidator;
@@ -42,33 +41,33 @@ class Email extends Element implements InputProviderInterface
      *
      * @return ValidatorInterface
      */
-    public function getValidator ()
+    public function getValidator()
     {
         if (null === $this->validator) {
             $emailValidator = $this->getEmailValidator();
-            
-            $multiple = (isset($this->attributes['multiple'])) ? $this->attributes['multiple'] : null;
-            
+
+            $multiple = (isset($this->attributes['multiple']))
+                      ? $this->attributes['multiple'] : null;
+
             if (true === $multiple || 'multiple' === $multiple) {
-                $this->validator = new ExplodeValidator(
-                        array(
-                                'validator' => $emailValidator
-                        ));
+                $this->validator = new ExplodeValidator(array(
+                    'validator' => $emailValidator,
+                ));
             } else {
                 $this->validator = $emailValidator;
             }
         }
-        
+
         return $this->validator;
     }
 
     /**
      * Sets the primary validator to use for this element
      *
-     * @param ValidatorInterface $validator            
+     * @param  ValidatorInterface $validator
      * @return Email
      */
-    public function setValidator (ValidatorInterface $validator)
+    public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;
         return $this;
@@ -94,11 +93,12 @@ class Email extends Element implements InputProviderInterface
      *
      * @return ValidatorInterface
      */
-    public function getEmailValidator ()
+    public function getEmailValidator()
     {
         if (null === $this->emailValidator) {
             $this->emailValidator = new RegexValidator(
-                    '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/');
+                '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/'
+            );
         }
         return $this->emailValidator;
     }
@@ -107,10 +107,10 @@ class Email extends Element implements InputProviderInterface
      * Sets the email validator to use for multiple or single
      * email addresses.
      *
-     * @param ValidatorInterface $validator            
+     * @param  ValidatorInterface $validator
      * @return Email
      */
-    public function setEmailValidator (ValidatorInterface $validator)
+    public function setEmailValidator(ValidatorInterface $validator)
     {
         $this->emailValidator = $validator;
         return $this;
@@ -123,19 +123,17 @@ class Email extends Element implements InputProviderInterface
      *
      * @return array
      */
-    public function getInputSpecification ()
+    public function getInputSpecification()
     {
         return array(
-                'name' => $this->getName(),
-                'required' => true,
-                'filters' => array(
-                        array(
-                                'name' => 'Zend\Filter\StringTrim'
-                        )
-                ),
-                'validators' => array(
-                        $this->getValidator()
-                )
+            'name' => $this->getName(),
+            'required' => true,
+            'filters' => array(
+                array('name' => 'Zend\Filter\StringTrim'),
+            ),
+            'validators' => array(
+                $this->getValidator(),
+            ),
         );
     }
 }

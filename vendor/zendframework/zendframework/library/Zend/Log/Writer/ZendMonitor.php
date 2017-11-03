@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Log\Writer;
 
 class ZendMonitor extends AbstractWriter
 {
-
     /**
      * Is Zend Monitor enabled?
      *
@@ -28,14 +28,14 @@ class ZendMonitor extends AbstractWriter
     /**
      * Constructor
      *
-     * @param array|\Traversable|null $options            
+     * @param array|\Traversable|null $options
      * @return ZendMonitor
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         parent::__construct($options);
-        
-        if (! function_exists('monitor_custom_event')) {
+
+        if (!function_exists('monitor_custom_event')) {
             $this->isEnabled = false;
         }
         if (function_exists('zend_monitor_custom_event')) {
@@ -52,7 +52,7 @@ class ZendMonitor extends AbstractWriter
      *
      * @return bool
      */
-    public function isEnabled ()
+    public function isEnabled()
     {
         return $this->isEnabled;
     }
@@ -60,33 +60,31 @@ class ZendMonitor extends AbstractWriter
     /**
      * Log a message to this writer.
      *
-     * @param array $event
-     *            log data event
+     * @param array $event log data event
      * @return void
      */
-    public function write (array $event)
+    public function write(array $event)
     {
-        if (! $this->isEnabled()) {
+        if (!$this->isEnabled()) {
             return;
         }
-        
+
         parent::write($event);
     }
 
     /**
      * Write a message to the log.
      *
-     * @param array $event
-     *            log data event
+     * @param array $event log data event
      * @return void
      */
-    protected function doWrite (array $event)
+    protected function doWrite(array $event)
     {
         $priority = $event['priority'];
-        $message = $event['message'];
+        $message  = $event['message'];
         unset($event['priority'], $event['message']);
-        
-        if (! empty($event)) {
+
+        if (!empty($event)) {
             if ($this->isZendServer) {
                 // On Zend Server; third argument should be the event
                 zend_monitor_custom_event($priority, $message, $event);
@@ -96,8 +94,7 @@ class ZendMonitor extends AbstractWriter
                 // Severity is either 0 (normal) or 1 (severe); classifying
                 // notice, info, and debug as "normal", and all others as
                 // "severe"
-                monitor_custom_event($priority, $message, 
-                        ($priority > 4) ? 0 : 1, $event);
+                monitor_custom_event($priority, $message, ($priority > 4) ? 0 : 1, $event);
             }
         } else {
             monitor_custom_event($priority, $message);

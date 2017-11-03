@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View;
+
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -18,21 +20,17 @@ use Zend\View\Renderer\TreeRendererInterface;
 
 class View implements EventManagerAwareInterface
 {
-
     /**
-     *
      * @var EventManagerInterface
      */
     protected $events;
 
     /**
-     *
      * @var Request
      */
     protected $request;
 
     /**
-     *
      * @var Response
      */
     protected $response;
@@ -40,10 +38,10 @@ class View implements EventManagerAwareInterface
     /**
      * Set MVC request object
      *
-     * @param Request $request            
+     * @param  Request $request
      * @return View
      */
-    public function setRequest (Request $request)
+    public function setRequest(Request $request)
     {
         $this->request = $request;
         return $this;
@@ -52,10 +50,10 @@ class View implements EventManagerAwareInterface
     /**
      * Set MVC response object
      *
-     * @param Response $response            
+     * @param  Response $response
      * @return View
      */
-    public function setResponse (Response $response)
+    public function setResponse(Response $response)
     {
         $this->response = $response;
         return $this;
@@ -66,7 +64,7 @@ class View implements EventManagerAwareInterface
      *
      * @return null|Request
      */
-    public function getRequest ()
+    public function getRequest()
     {
         return $this->request;
     }
@@ -76,7 +74,7 @@ class View implements EventManagerAwareInterface
      *
      * @return null|Response
      */
-    public function getResponse ()
+    public function getResponse()
     {
         return $this->response;
     }
@@ -84,16 +82,15 @@ class View implements EventManagerAwareInterface
     /**
      * Set the event manager instance
      *
-     * @param EventManagerInterface $events            
+     * @param  EventManagerInterface $events
      * @return View
      */
-    public function setEventManager (EventManagerInterface $events)
+    public function setEventManager(EventManagerInterface $events)
     {
-        $events->setIdentifiers(
-                array(
-                        __CLASS__,
-                        get_class($this)
-                ));
+        $events->setIdentifiers(array(
+            __CLASS__,
+            get_class($this),
+        ));
         $this->events = $events;
         return $this;
     }
@@ -105,9 +102,9 @@ class View implements EventManagerAwareInterface
      *
      * @return EventManagerInterface
      */
-    public function getEventManager ()
+    public function getEventManager()
     {
-        if (! $this->events instanceof EventManagerInterface) {
+        if (!$this->events instanceof EventManagerInterface) {
             $this->setEventManager(new EventManager());
         }
         return $this->events;
@@ -116,45 +113,40 @@ class View implements EventManagerAwareInterface
     /**
      * Add a rendering strategy
      *
-     * Expects a callable. Strategies should accept a ViewEvent object, and
-     * should
+     * Expects a callable. Strategies should accept a ViewEvent object, and should
      * return a Renderer instance if the strategy is selected.
      *
      * Internally, the callable provided will be subscribed to the "renderer"
      * event, at the priority specified.
      *
-     * @param callable $callable            
-     * @param int $priority            
+     * @param  callable $callable
+     * @param  int $priority
      * @return View
      */
-    public function addRenderingStrategy ($callable, $priority = 1)
+    public function addRenderingStrategy($callable, $priority = 1)
     {
-        $this->getEventManager()->attach(ViewEvent::EVENT_RENDERER, $callable, 
-                $priority);
+        $this->getEventManager()->attach(ViewEvent::EVENT_RENDERER, $callable, $priority);
         return $this;
     }
 
     /**
      * Add a response strategy
      *
-     * Expects a callable. Strategies should accept a ViewEvent object. The
-     * return
+     * Expects a callable. Strategies should accept a ViewEvent object. The return
      * value will be ignored.
      *
-     * Typical usages for a response strategy are to populate the Response
-     * object.
+     * Typical usages for a response strategy are to populate the Response object.
      *
      * Internally, the callable provided will be subscribed to the "response"
      * event, at the priority specified.
      *
-     * @param callable $callable            
-     * @param int $priority            
+     * @param  callable $callable
+     * @param  int $priority
      * @return View
      */
-    public function addResponseStrategy ($callable, $priority = 1)
+    public function addResponseStrategy($callable, $priority = 1)
     {
-        $this->getEventManager()->attach(ViewEvent::EVENT_RESPONSE, $callable, 
-                $priority);
+        $this->getEventManager()->attach(ViewEvent::EVENT_RESPONSE, $callable, $priority);
         return $this;
     }
 
@@ -169,81 +161,81 @@ class View implements EventManagerAwareInterface
      *
      * @triggers renderer(ViewEvent)
      * @triggers response(ViewEvent)
-     *
-     * @param Model $model            
+     * @param  Model $model
      * @throws Exception\RuntimeException
      * @return void
      */
-    public function render (Model $model)
+    public function render(Model $model)
     {
-        $event = $this->getEvent();
+        $event   = $this->getEvent();
         $event->setModel($model);
-        $events = $this->getEventManager();
-        $results = $events->trigger(ViewEvent::EVENT_RENDERER, $event, 
-                function  ($result)
-                {
-                    return ($result instanceof Renderer);
-                });
+        $events  = $this->getEventManager();
+        $results = $events->trigger(ViewEvent::EVENT_RENDERER, $event, function ($result) {
+            return ($result instanceof Renderer);
+        });
         $renderer = $results->last();
-        if (! $renderer instanceof Renderer) {
-            throw new Exception\RuntimeException(
-                    sprintf('%s: no renderer selected!', __METHOD__));
+        if (!$renderer instanceof Renderer) {
+            throw new Exception\RuntimeException(sprintf(
+                '%s: no renderer selected!',
+                __METHOD__
+            ));
         }
-        
+
         $event->setRenderer($renderer);
-        $results = $events->trigger(ViewEvent::EVENT_RENDERER_POST, $event);
-        
+        $events->trigger(ViewEvent::EVENT_RENDERER_POST, $event);
+
         // If EVENT_RENDERER or EVENT_RENDERER_POST changed the model, make sure
         // we use this new model instead of the current $model
-        $model = $event->getModel();
-        
+        $model   = $event->getModel();
+
         // If we have children, render them first, but only if:
         // a) the renderer does not implement TreeRendererInterface, or
         // b) it does, but canRenderTrees() returns false
-        if ($model->hasChildren() && (! $renderer instanceof TreeRendererInterface ||
-                 ! $renderer->canRenderTrees())) {
+        if ($model->hasChildren()
+            && (!$renderer instanceof TreeRendererInterface
+                || !$renderer->canRenderTrees())
+        ) {
             $this->renderChildren($model);
         }
-        
+
         // Reset the model, in case it has changed, and set the renderer
         $event->setModel($model);
         $event->setRenderer($renderer);
-        
+
         $rendered = $renderer->render($model);
-        
+
         // If this is a child model, return the rendered content; do not
         // invoke the response strategy.
         $options = $model->getOptions();
         if (array_key_exists('has_parent', $options) && $options['has_parent']) {
             return $rendered;
         }
-        
+
         $event->setResult($rendered);
-        
+
         $events->trigger(ViewEvent::EVENT_RESPONSE, $event);
     }
 
     /**
      * Loop through children, rendering each
      *
-     * @param Model $model            
+     * @param  Model $model
      * @throws Exception\DomainException
      * @return void
      */
-    protected function renderChildren (Model $model)
+    protected function renderChildren(Model $model)
     {
         foreach ($model as $child) {
             if ($child->terminate()) {
-                throw new Exception\DomainException(
-                        'Inconsistent state; child view model is marked as terminal');
+                throw new Exception\DomainException('Inconsistent state; child view model is marked as terminal');
             }
             $child->setOption('has_parent', true);
-            $result = $this->render($child);
+            $result  = $this->render($child);
             $child->setOption('has_parent', null);
             $capture = $child->captureTo();
-            if (! empty($capture)) {
+            if (!empty($capture)) {
                 if ($child->isAppend()) {
-                    $oldResult = $model->{$capture};
+                    $oldResult=$model->{$capture};
                     $model->setVariable($capture, $oldResult . $result);
                 } else {
                     $model->setVariable($capture, $result);
@@ -257,7 +249,7 @@ class View implements EventManagerAwareInterface
      *
      * @return ViewEvent
      */
-    protected function getEvent ()
+    protected function getEvent()
     {
         $event = new ViewEvent();
         $event->setTarget($this);

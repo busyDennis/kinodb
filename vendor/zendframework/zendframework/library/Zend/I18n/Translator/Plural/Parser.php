@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\I18n\Translator\Plural;
+
 use Zend\I18n\Exception;
 
 /**
@@ -17,7 +19,6 @@ use Zend\I18n\Exception;
  */
 class Parser
 {
-
     /**
      * String to parse.
      *
@@ -48,8 +49,9 @@ class Parser
 
     /**
      * Create a new plural parser.
+     *
      */
-    public function __construct ()
+    public function __construct()
     {
         $this->populateSymbolTable();
     }
@@ -59,68 +61,68 @@ class Parser
      *
      * @return void
      */
-    protected function populateSymbolTable ()
+    protected function populateSymbolTable()
     {
         // Ternary operators
         $this->registerSymbol('?', 20)->setLeftDenotationGetter(
-                function  (Symbol $self, Symbol $left)
-                {
-                    $self->first = $left;
-                    $self->second = $self->parser->expression();
-                    $self->parser->advance(':');
-                    $self->third = $self->parser->expression();
-                    return $self;
-                });
+            function (Symbol $self, Symbol $left) {
+                $self->first  = $left;
+                $self->second = $self->parser->expression();
+                $self->parser->advance(':');
+                $self->third  = $self->parser->expression();
+                return $self;
+            }
+        );
         $this->registerSymbol(':');
-        
+
         // Boolean operators
         $this->registerLeftInfixSymbol('||', 30);
         $this->registerLeftInfixSymbol('&&', 40);
-        
+
         // Equal operators
         $this->registerLeftInfixSymbol('==', 50);
         $this->registerLeftInfixSymbol('!=', 50);
-        
+
         // Compare operators
         $this->registerLeftInfixSymbol('>', 50);
         $this->registerLeftInfixSymbol('<', 50);
         $this->registerLeftInfixSymbol('>=', 50);
         $this->registerLeftInfixSymbol('<=', 50);
-        
+
         // Add operators
         $this->registerLeftInfixSymbol('-', 60);
         $this->registerLeftInfixSymbol('+', 60);
-        
+
         // Multiply operators
         $this->registerLeftInfixSymbol('*', 70);
         $this->registerLeftInfixSymbol('/', 70);
         $this->registerLeftInfixSymbol('%', 70);
-        
+
         // Not operator
         $this->registerPrefixSymbol('!', 80);
-        
+
         // Literals
         $this->registerSymbol('n')->setNullDenotationGetter(
-                function  (Symbol $self)
-                {
-                    return $self;
-                });
+            function (Symbol $self) {
+                return $self;
+            }
+        );
         $this->registerSymbol('number')->setNullDenotationGetter(
-                function  (Symbol $self)
-                {
-                    return $self;
-                });
-        
+            function (Symbol $self) {
+                return $self;
+            }
+        );
+
         // Parentheses
         $this->registerSymbol('(')->setNullDenotationGetter(
-                function  (Symbol $self)
-                {
-                    $expression = $self->parser->expression();
-                    $self->parser->advance(')');
-                    return $expression;
-                });
+            function (Symbol $self) {
+                $expression = $self->parser->expression();
+                $self->parser->advance(')');
+                return $expression;
+            }
+        );
         $this->registerSymbol(')');
-        
+
         // Eof
         $this->registerSymbol('eof');
     }
@@ -128,144 +130,145 @@ class Parser
     /**
      * Register a left infix symbol.
      *
-     * @param string $id            
-     * @param int $leftBindingPower            
+     * @param  string  $id
+     * @param  int $leftBindingPower
      * @return void
      */
-    protected function registerLeftInfixSymbol ($id, $leftBindingPower)
+    protected function registerLeftInfixSymbol($id, $leftBindingPower)
     {
         $this->registerSymbol($id, $leftBindingPower)->setLeftDenotationGetter(
-                function  (Symbol $self, Symbol $left) use( $leftBindingPower)
-                {
-                    $self->first = $left;
-                    $self->second = $self->parser->expression($leftBindingPower);
-                    return $self;
-                });
+            function (Symbol $self, Symbol $left) use ($leftBindingPower) {
+                $self->first  = $left;
+                $self->second = $self->parser->expression($leftBindingPower);
+                return $self;
+            }
+        );
     }
 
     /**
      * Register a right infix symbol.
      *
-     * @param string $id            
-     * @param int $leftBindingPower            
+     * @param  string  $id
+     * @param  int $leftBindingPower
      * @return void
      */
-    protected function registerRightInfixSymbol ($id, $leftBindingPower)
+    protected function registerRightInfixSymbol($id, $leftBindingPower)
     {
         $this->registerSymbol($id, $leftBindingPower)->setLeftDenotationGetter(
-                function  (Symbol $self, Symbol $left) use( $leftBindingPower)
-                {
-                    $self->first = $left;
-                    $self->second = $self->parser->expression(
-                            $leftBindingPower - 1);
-                    return $self;
-                });
+            function (Symbol $self, Symbol $left) use ($leftBindingPower) {
+                $self->first  = $left;
+                $self->second = $self->parser->expression($leftBindingPower - 1);
+                return $self;
+            }
+        );
     }
 
     /**
      * Register a prefix symbol.
      *
-     * @param string $id            
-     * @param int $leftBindingPower            
+     * @param  string  $id
+     * @param  int $leftBindingPower
      * @return void
      */
-    protected function registerPrefixSymbol ($id, $leftBindingPower)
+    protected function registerPrefixSymbol($id, $leftBindingPower)
     {
         $this->registerSymbol($id, $leftBindingPower)->setNullDenotationGetter(
-                function  (Symbol $self) use( $leftBindingPower)
-                {
-                    $self->first = $self->parser->expression($leftBindingPower);
-                    $self->second = null;
-                    return $self;
-                });
+            function (Symbol $self) use ($leftBindingPower) {
+                $self->first  = $self->parser->expression($leftBindingPower);
+                $self->second = null;
+                return $self;
+            }
+        );
     }
 
     /**
      * Register a symbol.
      *
-     * @param string $id            
-     * @param int $leftBindingPower            
+     * @param  string  $id
+     * @param  int $leftBindingPower
      * @return Symbol
      */
-    protected function registerSymbol ($id, $leftBindingPower = 0)
+    protected function registerSymbol($id, $leftBindingPower = 0)
     {
         if (isset($this->symbolTable[$id])) {
             $symbol = $this->symbolTable[$id];
-            $symbol->leftBindingPower = max($symbol->leftBindingPower, 
-                    $leftBindingPower);
+            $symbol->leftBindingPower = max(
+                $symbol->leftBindingPower,
+                $leftBindingPower
+            );
         } else {
             $symbol = new Symbol($this, $id, $leftBindingPower);
             $this->symbolTable[$id] = $symbol;
         }
-        
+
         return $symbol;
     }
 
     /**
      * Get a new symbol.
      *
-     * @param string $id            
+     * @param string $id
      */
-    protected function getSymbol ($id)
+    protected function getSymbol($id)
     {
-        if (! isset($this->symbolTable[$id])) {
+        if (!isset($this->symbolTable[$id])) {
             // Unkown symbol exception
         }
-        
+
         return clone $this->symbolTable[$id];
     }
 
     /**
      * Parse a string.
      *
-     * @param string $string            
-     * @return array
+     * @param  string $string
+     * @return Symbol
      */
-    public function parse ($string)
+    public function parse($string)
     {
-        $this->string = $string . "\0";
-        $this->currentPos = 0;
+        $this->string       = $string . "\0";
+        $this->currentPos   = 0;
         $this->currentToken = $this->getNextToken();
-        
+
         return $this->expression();
     }
 
     /**
      * Parse an expression.
      *
-     * @param int $rightBindingPower            
+     * @param  int $rightBindingPower
      * @return Symbol
      */
-    public function expression ($rightBindingPower = 0)
+    public function expression($rightBindingPower = 0)
     {
-        $token = $this->currentToken;
+        $token              = $this->currentToken;
         $this->currentToken = $this->getNextToken();
-        $left = $token->getNullDenotation();
-        
+        $left               = $token->getNullDenotation();
+
         while ($rightBindingPower < $this->currentToken->leftBindingPower) {
-            $token = $this->currentToken;
+            $token              = $this->currentToken;
             $this->currentToken = $this->getNextToken();
-            $left = $token->getLeftDenotation($left);
+            $left               = $token->getLeftDenotation($left);
         }
-        
+
         return $left;
     }
 
     /**
      * Advance the current token and optionally check the old token id.
      *
-     * @param string $id            
+     * @param  string $id
      * @return void
      * @throws Exception\ParseException
      */
-    public function advance ($id = null)
+    public function advance($id = null)
     {
         if ($id !== null && $this->currentToken->id !== $id) {
             throw new Exception\ParseException(
-                    sprintf('Expected token with id %s but received %s', $id, 
-                            $this->currentToken->id));
+                sprintf('Expected token with id %s but received %s', $id, $this->currentToken->id)
+            );
         }
-        
+
         $this->currentToken = $this->getNextToken();
     }
 
@@ -275,16 +278,15 @@ class Parser
      * @return array
      * @throws Exception\ParseException
      */
-    protected function getNextToken ()
+    protected function getNextToken()
     {
-        while ($this->string[$this->currentPos] === ' ' ||
-                 $this->string[$this->currentPos] === "\t") {
-                    $this->currentPos ++;
+        while ($this->string[$this->currentPos] === ' ' || $this->string[$this->currentPos] === "\t") {
+            $this->currentPos++;
         }
-        
-        $result = $this->string[$this->currentPos ++];
-        $value = null;
-        
+
+        $result = $this->string[$this->currentPos++];
+        $value  = null;
+
         switch ($result) {
             case '0':
             case '1':
@@ -297,35 +299,35 @@ class Parser
             case '8':
             case '9':
                 while (ctype_digit($this->string[$this->currentPos])) {
-                    $result .= $this->string[$this->currentPos ++];
+                    $result .= $this->string[$this->currentPos++];
                 }
-                
-                $id = 'number';
+
+                $id    = 'number';
                 $value = (int) $result;
                 break;
-            
+
             case '=':
             case '&':
             case '|':
                 if ($this->string[$this->currentPos] === $result) {
-                    $this->currentPos ++;
+                    $this->currentPos++;
                     $id = $result . $result;
                 } else {
                     // Yield error
                 }
                 break;
-            
+
             case '!':
             case '<':
             case '>':
                 if ($this->string[$this->currentPos] === '=') {
-                    $this->currentPos ++;
+                    $this->currentPos++;
                     $result .= '=';
                 }
-                
+
                 $id = $result;
                 break;
-            
+
             case '*':
             case '/':
             case '%':
@@ -338,24 +340,24 @@ class Parser
             case ')':
                 $id = $result;
                 break;
-            
+
             case ';':
             case "\n":
             case "\0":
                 $id = 'eof';
-                $this->currentPos --;
+                $this->currentPos--;
                 break;
-            
+
             default:
-                throw new Exception\ParseException(
-                        sprintf('Found invalid character "%s" in input stream', 
-                                $result));
-                break;
+                throw new Exception\ParseException(sprintf(
+                    'Found invalid character "%s" in input stream',
+                    $result
+                ));
         }
-        
+
         $token = $this->getSymbol($id);
         $token->value = $value;
-        
+
         return $token;
     }
 }

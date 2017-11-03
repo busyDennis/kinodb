@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Session\SaveHandler;
+
 use Zend\Cache\Storage\ClearExpiredInterface as ClearExpiredCacheStorage;
 use Zend\Cache\Storage\StorageInterface as CacheStorage;
 
@@ -15,7 +17,6 @@ use Zend\Cache\Storage\StorageInterface as CacheStorage;
  */
 class Cache implements SaveHandlerInterface
 {
-
     /**
      * Session Save Path
      *
@@ -32,7 +33,6 @@ class Cache implements SaveHandlerInterface
 
     /**
      * The cache storage
-     *
      * @var CacheStorage
      */
     protected $cacheStorage;
@@ -40,9 +40,9 @@ class Cache implements SaveHandlerInterface
     /**
      * Constructor
      *
-     * @param CacheStorage $cacheStorage            
+     * @param  CacheStorage $cacheStorage
      */
-    public function __construct (CacheStorage $cacheStorage)
+    public function __construct(CacheStorage $cacheStorage)
     {
         $this->setCacheStorage($cacheStorage);
     }
@@ -50,16 +50,16 @@ class Cache implements SaveHandlerInterface
     /**
      * Open Session
      *
-     * @param string $savePath            
-     * @param string $name            
+     * @param string $savePath
+     * @param string $name
      * @return bool
      */
-    public function open ($savePath, $name)
+    public function open($savePath, $name)
     {
         // @todo figure out if we want to use these
         $this->sessionSavePath = $savePath;
-        $this->sessionName = $name;
-        
+        $this->sessionName     = $name;
+
         return true;
     }
 
@@ -68,7 +68,7 @@ class Cache implements SaveHandlerInterface
      *
      * @return bool
      */
-    public function close ()
+    public function close()
     {
         return true;
     }
@@ -76,10 +76,10 @@ class Cache implements SaveHandlerInterface
     /**
      * Read session data
      *
-     * @param string $id            
+     * @param string $id
      * @return string
      */
-    public function read ($id)
+    public function read($id)
     {
         return $this->getCacheStorage()->getItem($id);
     }
@@ -87,11 +87,11 @@ class Cache implements SaveHandlerInterface
     /**
      * Write session data
      *
-     * @param string $id            
-     * @param string $data            
+     * @param string $id
+     * @param string $data
      * @return bool
      */
-    public function write ($id, $data)
+    public function write($id, $data)
     {
         return $this->getCacheStorage()->setItem($id, $data);
     }
@@ -99,10 +99,10 @@ class Cache implements SaveHandlerInterface
     /**
      * Destroy session
      *
-     * @param string $id            
+     * @param string $id
      * @return bool
      */
-    public function destroy ($id)
+    public function destroy($id)
     {
         return $this->getCacheStorage()->removeItem($id);
     }
@@ -110,10 +110,10 @@ class Cache implements SaveHandlerInterface
     /**
      * Garbage Collection
      *
-     * @param int $maxlifetime            
+     * @param int $maxlifetime
      * @return bool
      */
-    public function gc ($maxlifetime)
+    public function gc($maxlifetime)
     {
         $cache = $this->getCacheStorage();
         if ($cache instanceof ClearExpiredCacheStorage) {
@@ -125,10 +125,10 @@ class Cache implements SaveHandlerInterface
     /**
      * Set cache storage
      *
-     * @param CacheStorage $cacheStorage            
+     * @param  CacheStorage $cacheStorage
      * @return Cache
      */
-    public function setCacheStorage (CacheStorage $cacheStorage)
+    public function setCacheStorage(CacheStorage $cacheStorage)
     {
         $this->cacheStorage = $cacheStorage;
         return $this;
@@ -139,16 +139,15 @@ class Cache implements SaveHandlerInterface
      *
      * @return CacheStorage
      */
-    public function getCacheStorage ()
+    public function getCacheStorage()
     {
         return $this->cacheStorage;
     }
 
     /**
-     *
      * @deprecated Misspelled method - use getCacheStorage() instead
      */
-    public function getCacheStorge ()
+    public function getCacheStorge()
     {
         return $this->getCacheStorage();
     }

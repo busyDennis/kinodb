@@ -3,49 +3,44 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Validator;
+
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 
-class Explode extends AbstractValidator implements 
-        ValidatorPluginManagerAwareInterface
+class Explode extends AbstractValidator implements ValidatorPluginManagerAwareInterface
 {
-
     const INVALID = 'explodeInvalid';
 
     protected $pluginManager;
 
     /**
-     *
      * @var array
      */
     protected $messageTemplates = array(
-            self::INVALID => "Invalid type given"
+        self::INVALID => "Invalid type given",
     );
 
     /**
-     *
      * @var array
      */
     protected $messageVariables = array();
 
     /**
-     *
      * @var string
      */
     protected $valueDelimiter = ',';
 
     /**
-     *
      * @var ValidatorInterface
      */
     protected $validator;
 
     /**
-     *
      * @var bool
      */
     protected $breakOnFirstFailure = false;
@@ -53,10 +48,10 @@ class Explode extends AbstractValidator implements
     /**
      * Sets the delimiter string that the values will be split upon
      *
-     * @param string $delimiter            
+     * @param string $delimiter
      * @return Explode
      */
-    public function setValueDelimiter ($delimiter)
+    public function setValueDelimiter($delimiter)
     {
         $this->valueDelimiter = $delimiter;
         return $this;
@@ -67,7 +62,7 @@ class Explode extends AbstractValidator implements
      *
      * @return string
      */
-    public function getValueDelimiter ()
+    public function getValueDelimiter()
     {
         return $this->valueDelimiter;
     }
@@ -75,10 +70,9 @@ class Explode extends AbstractValidator implements
     /**
      * Set validator plugin manager
      *
-     * @param ValidatorPluginManager $pluginManager            
+     * @param ValidatorPluginManager $pluginManager
      */
-    public function setValidatorPluginManager (
-            ValidatorPluginManager $pluginManager)
+    public function setValidatorPluginManager(ValidatorPluginManager $pluginManager)
     {
         $this->pluginManager = $pluginManager;
     }
@@ -88,39 +82,41 @@ class Explode extends AbstractValidator implements
      *
      * @return ValidatorPluginManager
      */
-    public function getValidatorPluginManager ()
+    public function getValidatorPluginManager()
     {
-        if (! $this->pluginManager) {
+        if (!$this->pluginManager) {
             $this->setValidatorPluginManager(new ValidatorPluginManager());
         }
-        
+
         return $this->pluginManager;
     }
 
     /**
      * Sets the Validator for validating each value
      *
-     * @param ValidatorInterface|array $validator            
+     * @param ValidatorInterface|array $validator
      * @throws Exception\RuntimeException
      * @return Explode
      */
-    public function setValidator ($validator)
+    public function setValidator($validator)
     {
         if (is_array($validator)) {
-            if (! isset($validator['name'])) {
+            if (!isset($validator['name'])) {
                 throw new Exception\RuntimeException(
-                        'Invalid validator specification provided; does not include "name" key');
+                    'Invalid validator specification provided; does not include "name" key'
+                );
             }
             $name = $validator['name'];
             $options = isset($validator['options']) ? $validator['options'] : array();
-            $validator = $this->getValidatorPluginManager()->get($name, 
-                    $options);
+            $validator = $this->getValidatorPluginManager()->get($name, $options);
         }
-        
-        if (! $validator instanceof ValidatorInterface) {
-            throw new Exception\RuntimeException('Invalid validator given');
+
+        if (!$validator instanceof ValidatorInterface) {
+            throw new Exception\RuntimeException(
+                'Invalid validator given'
+            );
         }
-        
+
         $this->validator = $validator;
         return $this;
     }
@@ -130,7 +126,7 @@ class Explode extends AbstractValidator implements
      *
      * @return ValidatorInterface
      */
-    public function getValidator ()
+    public function getValidator()
     {
         return $this->validator;
     }
@@ -138,10 +134,10 @@ class Explode extends AbstractValidator implements
     /**
      * Set break on first failure setting
      *
-     * @param bool $break            
+     * @param  bool $break
      * @return Explode
      */
-    public function setBreakOnFirstFailure ($break)
+    public function setBreakOnFirstFailure($break)
     {
         $this->breakOnFirstFailure = (bool) $break;
         return $this;
@@ -152,7 +148,7 @@ class Explode extends AbstractValidator implements
      *
      * @return bool
      */
-    public function isBreakOnFirstFailure ()
+    public function isBreakOnFirstFailure()
     {
         return $this->breakOnFirstFailure;
     }
@@ -162,18 +158,19 @@ class Explode extends AbstractValidator implements
      *
      * Returns true if all values validate true
      *
-     * @param mixed $value            
+     * @param  mixed $value
+     * @param  mixed $context Extra "context" to provide the composed validator
      * @return bool
      * @throws Exception\RuntimeException
      */
-    public function isValid ($value)
+    public function isValid($value, $context = null)
     {
         $this->setValue($value);
-        
+
         if ($value instanceof Traversable) {
             $value = ArrayUtils::iteratorToArray($value);
         }
-        
+
         if (is_array($value)) {
             $values = $value;
         } elseif (is_string($value)) {
@@ -182,39 +179,32 @@ class Explode extends AbstractValidator implements
             // used when value is expected to be either an
             // array when multiple values and a string for
             // single values (ie. MultiCheckbox form behavior)
-            $values = (null !== $delimiter) ? explode($this->valueDelimiter, 
-                    $value) : array(
-                    $value
-            );
+            $values = (null !== $delimiter)
+                      ? explode($this->valueDelimiter, $value)
+                      : array($value);
         } else {
-            $values = array(
-                    $value
-            );
+            $values = array($value);
         }
-        
-        $retval = true;
-        $messages = array();
+
         $validator = $this->getValidator();
-        
-        if (! $validator) {
-            throw new Exception\RuntimeException(
-                    sprintf('%s expects a validator to be set; none given', 
-                            __METHOD__));
+
+        if (!$validator) {
+            throw new Exception\RuntimeException(sprintf(
+                '%s expects a validator to be set; none given',
+                __METHOD__
+            ));
         }
-        
+
         foreach ($values as $value) {
-            if (! $validator->isValid($value)) {
-                $messages[] = $validator->getMessages();
-                $retval = false;
-                
+            if (!$validator->isValid($value, $context)) {
+                $this->abstractOptions['messages'][] = $validator->getMessages();
+
                 if ($this->isBreakOnFirstFailure()) {
-                    break;
+                    return false;
                 }
             }
         }
-        
-        $this->abstractOptions['messages'] = $messages;
-        
-        return $retval;
+
+        return count($this->abstractOptions['messages']) == 0;
     }
 }

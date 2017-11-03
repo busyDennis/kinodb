@@ -3,30 +3,28 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\TableGateway\Feature\EventFeature;
+
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\EventManager\EventInterface;
 
 class TableGatewayEvent implements EventInterface
 {
-
     /**
-     *
      * @var AbstractTableGateway
      */
     protected $target = null;
 
     /**
-     *
      * @var null
      */
     protected $name = null;
 
     /**
-     *
      * @var array|\ArrayAccess
      */
     protected $params = array();
@@ -36,7 +34,7 @@ class TableGatewayEvent implements EventInterface
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -46,7 +44,7 @@ class TableGatewayEvent implements EventInterface
      *
      * @return null|string|object
      */
-    public function getTarget ()
+    public function getTarget()
     {
         return $this->target;
     }
@@ -56,7 +54,7 @@ class TableGatewayEvent implements EventInterface
      *
      * @return array|\ArrayAccess
      */
-    public function getParams ()
+    public function getParams()
     {
         return $this->params;
     }
@@ -64,12 +62,11 @@ class TableGatewayEvent implements EventInterface
     /**
      * Get a single parameter by name
      *
-     * @param string $name            
-     * @param mixed $default
-     *            Default value to return if parameter does not exist
+     * @param  string $name
+     * @param  mixed $default Default value to return if parameter does not exist
      * @return mixed
      */
-    public function getParam ($name, $default = null)
+    public function getParam($name, $default = null)
     {
         return (isset($this->params[$name]) ? $this->params[$name] : $default);
     }
@@ -77,10 +74,10 @@ class TableGatewayEvent implements EventInterface
     /**
      * Set the event name
      *
-     * @param string $name            
+     * @param  string $name
      * @return void
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = $name;
     }
@@ -88,10 +85,10 @@ class TableGatewayEvent implements EventInterface
     /**
      * Set the event target/context
      *
-     * @param null|string|object $target            
+     * @param  null|string|object $target
      * @return void
      */
-    public function setTarget ($target)
+    public function setTarget($target)
     {
         $this->target = $target;
     }
@@ -99,10 +96,10 @@ class TableGatewayEvent implements EventInterface
     /**
      * Set event parameters
      *
-     * @param string $params            
+     * @param  string $params
      * @return void
      */
-    public function setParams ($params)
+    public function setParams($params)
     {
         $this->params = $params;
     }
@@ -110,23 +107,22 @@ class TableGatewayEvent implements EventInterface
     /**
      * Set a single parameter by key
      *
-     * @param string $name            
-     * @param mixed $value            
+     * @param  string $name
+     * @param  mixed $value
      * @return void
      */
-    public function setParam ($name, $value)
+    public function setParam($name, $value)
     {
         $this->params[$name] = $value;
     }
 
     /**
-     * Indicate whether or not the parent EventManagerInterface should stop
-     * propagating events
+     * Indicate whether or not the parent EventManagerInterface should stop propagating events
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return void
      */
-    public function stopPropagation ($flag = true)
+    public function stopPropagation($flag = true)
     {
         return;
     }
@@ -136,7 +132,7 @@ class TableGatewayEvent implements EventInterface
      *
      * @return bool
      */
-    public function propagationIsStopped ()
+    public function propagationIsStopped()
     {
         return false;
     }

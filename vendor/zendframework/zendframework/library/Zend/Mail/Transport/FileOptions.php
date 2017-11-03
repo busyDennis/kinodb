@@ -3,24 +3,23 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mail\Transport;
+
 use Zend\Mail\Exception;
 use Zend\Stdlib\AbstractOptions;
 
 class FileOptions extends AbstractOptions
 {
-
     /**
-     *
-     * @var string Local client hostname
+     * @var string Path to stored mail files
      */
     protected $path;
 
     /**
-     *
      * @var callable
      */
     protected $callback;
@@ -28,17 +27,18 @@ class FileOptions extends AbstractOptions
     /**
      * Set path to stored mail files
      *
-     * @param string $path            
+     * @param  string $path
      * @throws \Zend\Mail\Exception\InvalidArgumentException
      * @return FileOptions
      */
-    public function setPath ($path)
+    public function setPath($path)
     {
-        if (! is_dir($path) || ! is_writable($path)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            '%s expects a valid path in which to write mail files; received "%s"', 
-                            __METHOD__, (string) $path));
+        if (!is_dir($path) || !is_writable($path)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects a valid path in which to write mail files; received "%s"',
+                __METHOD__,
+                (string) $path
+            ));
         }
         $this->path = $path;
         return $this;
@@ -51,7 +51,7 @@ class FileOptions extends AbstractOptions
      *
      * @return string
      */
-    public function getPath ()
+    public function getPath()
     {
         if (null === $this->path) {
             $this->setPath(sys_get_temp_dir());
@@ -62,18 +62,18 @@ class FileOptions extends AbstractOptions
     /**
      * Set callback used to generate a file name
      *
-     * @param callable $callback            
+     * @param  callable $callback
      * @throws \Zend\Mail\Exception\InvalidArgumentException
      * @return FileOptions
      */
-    public function setCallback ($callback)
+    public function setCallback($callback)
     {
-        if (! is_callable($callback)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf('%s expects a valid callback; received "%s"', 
-                            __METHOD__, 
-                            (is_object($callback) ? get_class($callback) : gettype(
-                                    $callback))));
+        if (!is_callable($callback)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects a valid callback; received "%s"',
+                __METHOD__,
+                (is_object($callback) ? get_class($callback) : gettype($callback))
+            ));
         }
         $this->callback = $callback;
         return $this;
@@ -84,14 +84,12 @@ class FileOptions extends AbstractOptions
      *
      * @return callable
      */
-    public function getCallback ()
+    public function getCallback()
     {
         if (null === $this->callback) {
-            $this->setCallback(
-                    function  ($transport)
-                    {
-                        return 'ZendMail_' . time() . '_' . mt_rand() . '.tmp';
-                    });
+            $this->setCallback(function () {
+                return 'ZendMail_' . time() . '_' . mt_rand() . '.eml';
+            });
         }
         return $this->callback;
     }

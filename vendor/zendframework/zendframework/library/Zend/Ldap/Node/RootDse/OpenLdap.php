@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Ldap\Node\RootDse;
+
 use Zend\Ldap\Node;
 
 /**
@@ -15,13 +17,12 @@ use Zend\Ldap\Node;
  */
 class OpenLdap extends Node\RootDse
 {
-
     /**
      * Gets the configContext.
      *
      * @return string|null
      */
-    public function getConfigContext ()
+    public function getConfigContext()
     {
         return $this->getAttribute('configContext', 0);
     }
@@ -31,7 +32,7 @@ class OpenLdap extends Node\RootDse
      *
      * @return string|null
      */
-    public function getMonitorContext ()
+    public function getMonitorContext()
     {
         return $this->getAttribute('monitorContext', 0);
     }
@@ -39,11 +40,10 @@ class OpenLdap extends Node\RootDse
     /**
      * Determines if the control is supported
      *
-     * @param string|array $oids
-     *            control oid(s) to check
+     * @param  string|array $oids control oid(s) to check
      * @return bool
      */
-    public function supportsControl ($oids)
+    public function supportsControl($oids)
     {
         return $this->attributeHasValue('supportedControl', $oids);
     }
@@ -51,11 +51,10 @@ class OpenLdap extends Node\RootDse
     /**
      * Determines if the extension is supported
      *
-     * @param string|array $oids
-     *            oid(s) to check
+     * @param  string|array $oids oid(s) to check
      * @return bool
      */
-    public function supportsExtension ($oids)
+    public function supportsExtension($oids)
     {
         return $this->attributeHasValue('supportedExtension', $oids);
     }
@@ -63,11 +62,10 @@ class OpenLdap extends Node\RootDse
     /**
      * Determines if the feature is supported
      *
-     * @param string|array $oids
-     *            feature oid(s) to check
+     * @param  string|array $oids feature oid(s) to check
      * @return bool
      */
-    public function supportsFeature ($oids)
+    public function supportsFeature($oids)
     {
         return $this->attributeHasValue('supportedFeatures', $oids);
     }
@@ -77,7 +75,7 @@ class OpenLdap extends Node\RootDse
      *
      * @return int
      */
-    public function getServerType ()
+    public function getServerType()
     {
         return self::SERVER_TYPE_OPENLDAP;
     }

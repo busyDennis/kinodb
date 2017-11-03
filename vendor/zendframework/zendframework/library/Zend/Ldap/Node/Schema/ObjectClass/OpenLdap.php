@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Ldap\Node\Schema\ObjectClass;
+
 use Zend\Ldap\Node\Schema;
 
 /**
@@ -15,7 +17,6 @@ use Zend\Ldap\Node\Schema;
  */
 class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
 {
-
     /**
      * All inherited "MUST" attributes
      *
@@ -35,7 +36,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -45,7 +46,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return string
      */
-    public function getOid ()
+    public function getOid()
     {
         return $this->oid;
     }
@@ -55,7 +56,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return array
      */
-    public function getMustContain ()
+    public function getMustContain()
     {
         if ($this->inheritedMust === null) {
             $this->resolveInheritance();
@@ -68,7 +69,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return array
      */
-    public function getMayContain ()
+    public function getMayContain()
     {
         if ($this->inheritedMay === null) {
             $this->resolveInheritance();
@@ -81,21 +82,21 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return void
      */
-    protected function resolveInheritance ()
+    protected function resolveInheritance()
     {
         $must = $this->must;
-        $may = $this->may;
+        $may  = $this->may;
         foreach ($this->getParents() as $p) {
             $must = array_merge($must, $p->getMustContain());
-            $may = array_merge($may, $p->getMayContain());
+            $may  = array_merge($may, $p->getMayContain());
         }
         $must = array_unique($must);
-        $may = array_unique($may);
-        $may = array_diff($may, $must);
+        $may  = array_unique($may);
+        $may  = array_diff($may, $must);
         sort($must, SORT_STRING);
         sort($may, SORT_STRING);
         $this->inheritedMust = $must;
-        $this->inheritedMay = $may;
+        $this->inheritedMay  = $may;
     }
 
     /**
@@ -103,7 +104,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return string
      */
-    public function getDescription ()
+    public function getDescription()
     {
         return $this->desc;
     }
@@ -113,7 +114,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return int
      */
-    public function getType ()
+    public function getType()
     {
         if ($this->structural) {
             return Schema::OBJECTCLASS_TYPE_STRUCTURAL;
@@ -122,7 +123,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
         } elseif ($this->auxiliary) {
             return Schema::OBJECTCLASS_TYPE_AUXILIARY;
         }
-        
+
         return Schema::OBJECTCLASS_TYPE_UNKNOWN;
     }
 
@@ -132,7 +133,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return array
      */
-    public function getParentClasses ()
+    public function getParentClasses()
     {
         return $this->sup;
     }
@@ -142,7 +143,7 @@ class OpenLdap extends Schema\AbstractItem implements ObjectClassInterface
      *
      * @return array of OpenLdap
      */
-    public function getParents ()
+    public function getParents()
     {
         return $this->_parents;
     }

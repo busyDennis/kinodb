@@ -3,93 +3,96 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Code\Reflection;
+
 use Zend\Code\Scanner\CachingFileScanner;
 
 class FileReflection implements ReflectionInterface
 {
-
     /**
-     *
      * @var string
      */
     protected $filePath = null;
 
     /**
-     *
      * @var string
      */
     protected $docComment = null;
 
     /**
-     *
      * @var int
      */
     protected $startLine = 1;
 
     /**
-     *
      * @var int
      */
     protected $endLine = null;
 
     /**
-     *
-     * @var string
+     * @var string[]
      */
     protected $namespaces = array();
 
     /**
-     *
-     * @var array
+     * @var string[]
      */
     protected $uses = array();
 
     /**
-     *
-     * @var array
+     * @var string[]
      */
     protected $requiredFiles = array();
 
     /**
-     *
-     * @var ReflectionClass[]
+     * @var ClassReflection[]
      */
     protected $classes = array();
 
     /**
-     *
      * @var FunctionReflection[]
      */
     protected $functions = array();
 
     /**
-     *
      * @var string
      */
     protected $contents = null;
 
     /**
-     *
-     * @param string $filename            
-     * @throws Exception\RuntimeException
+     * @param  string $filename
+     * @param  bool $includeIfNotAlreadyIncluded
+     * @throws Exception\InvalidArgumentException If file does not exists
+     * @throws Exception\RuntimeException If file exists but is not included or required
      */
-    public function __construct ($filename)
+    public function __construct($filename, $includeIfNotAlreadyIncluded = false)
     {
         if (($fileRealPath = realpath($filename)) === false) {
             $fileRealPath = stream_resolve_include_path($filename);
         }
-        
-        if (! $fileRealPath || ! in_array($fileRealPath, get_included_files())) {
-            throw new Exception\RuntimeException(
-                    sprintf(
-                            'File %s must be required before it can be reflected', 
-                            $filename));
+
+        if (!$fileRealPath) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'No file for %s was found.',
+                $filename
+            ));
         }
-        
+
+        if (!in_array($fileRealPath, get_included_files())) {
+            if (!$includeIfNotAlreadyIncluded) {
+                throw new Exception\RuntimeException(sprintf(
+                    'File %s must be required before it can be reflected',
+                    $filename
+                ));
+            }
+
+            include $fileRealPath;
+        }
+
         $this->filePath = $fileRealPath;
         $this->reflect();
     }
@@ -97,12 +100,12 @@ class FileReflection implements ReflectionInterface
     /**
      * Required by the Reflector interface.
      *
-     * @todo What should this do?
+     * @todo   What should this do?
      * @return null
      */
-    public static function export ()
+    public static function export()
     {
-        return null;
+        return;
     }
 
     /**
@@ -110,10 +113,9 @@ class FileReflection implements ReflectionInterface
      *
      * @return string
      */
-    public function getFileName ()
+    public function getFileName()
     {
-        // @todo get file name from path
-        return $this->filePath;
+        return basename($this->filePath);
     }
 
     /**
@@ -121,7 +123,7 @@ class FileReflection implements ReflectionInterface
      *
      * @return int
      */
-    public function getStartLine ()
+    public function getStartLine()
     {
         return $this->startLine;
     }
@@ -131,62 +133,57 @@ class FileReflection implements ReflectionInterface
      *
      * @return int
      */
-    public function getEndLine ()
+    public function getEndLine()
     {
         return $this->endLine;
     }
 
     /**
-     *
      * @return string
      */
-    public function getDocComment ()
+    public function getDocComment()
     {
         return $this->docComment;
     }
 
     /**
-     *
      * @return DocBlockReflection
      */
-    public function getDocBlock ()
+    public function getDocBlock()
     {
-        if (! ($docComment = $this->getDocComment())) {
+        if (!($docComment = $this->getDocComment())) {
             return false;
         }
-        
+
         $instance = new DocBlockReflection($docComment);
-        
+
         return $instance;
     }
 
     /**
-     *
-     * @return array
+     * @return string[]
      */
-    public function getNamespaces ()
+    public function getNamespaces()
     {
         return $this->namespaces;
     }
 
     /**
-     *
      * @return string
      */
-    public function getNamespace ()
+    public function getNamespace()
     {
         if (count($this->namespaces) == 0) {
-            return null;
+            return;
         }
-        
+
         return $this->namespaces[0];
     }
 
     /**
-     *
      * @return array
      */
-    public function getUses ()
+    public function getUses()
     {
         return $this->uses;
     }
@@ -196,13 +193,13 @@ class FileReflection implements ReflectionInterface
      *
      * @return ClassReflection[]
      */
-    public function getClasses ()
+    public function getClasses()
     {
         $classes = array();
         foreach ($this->classes as $class) {
             $classes[] = new ClassReflection($class);
         }
-        
+
         return $classes;
     }
 
@@ -211,39 +208,40 @@ class FileReflection implements ReflectionInterface
      *
      * @return FunctionReflection[]
      */
-    public function getFunctions ()
+    public function getFunctions()
     {
         $functions = array();
         foreach ($this->functions as $function) {
             $functions[] = new FunctionReflection($function);
         }
-        
+
         return $functions;
     }
 
     /**
      * Retrieve the reflection class of a given class found in this file
      *
-     * @param null|string $name            
+     * @param  null|string $name
      * @return ClassReflection
-     * @throws Exception\InvalidArgumentException for invalid class name or
-     *         invalid reflection class
+     * @throws Exception\InvalidArgumentException for invalid class name or invalid reflection class
      */
-    public function getClass ($name = null)
+    public function getClass($name = null)
     {
         if (null === $name) {
             reset($this->classes);
             $selected = current($this->classes);
-            
+
             return new ClassReflection($selected);
         }
-        
+
         if (in_array($name, $this->classes)) {
             return new ClassReflection($name);
         }
-        
-        throw new Exception\InvalidArgumentException(
-                sprintf('Class by name %s not found.', $name));
+
+        throw new Exception\InvalidArgumentException(sprintf(
+            'Class by name %s not found.',
+            $name
+        ));
     }
 
     /**
@@ -251,12 +249,12 @@ class FileReflection implements ReflectionInterface
      *
      * @return string
      */
-    public function getContents ()
+    public function getContents()
     {
         return file_get_contents($this->filePath);
     }
 
-    public function toString ()
+    public function toString()
     {
         return ''; // @todo
     }
@@ -266,10 +264,10 @@ class FileReflection implements ReflectionInterface
      *
      * Required by the Reflector interface
      *
-     * @todo What should this serialization look like?
+     * @todo   What should this serialization look like?
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return '';
     }
@@ -281,35 +279,34 @@ class FileReflection implements ReflectionInterface
      *
      * @return void
      */
-    protected function reflect ()
+    protected function reflect()
     {
-        $scanner = new CachingFileScanner($this->filePath);
-        $this->docComment = $scanner->getDocComment();
+        $scanner             = new CachingFileScanner($this->filePath);
+        $this->docComment    = $scanner->getDocComment();
         $this->requiredFiles = $scanner->getIncludes();
-        $this->classes = $scanner->getClassNames();
-        $this->namespaces = $scanner->getNamespaces();
-        $this->uses = $scanner->getUses();
+        $this->classes       = $scanner->getClassNames();
+        $this->namespaces    = $scanner->getNamespaces();
+        $this->uses          = $scanner->getUses();
     }
 
     /**
      * Validate / check a file level DocBlock
      *
-     * @param array $tokens
-     *            Array of tokenizer tokens
+     * @param  array $tokens Array of tokenizer tokens
      * @return void
      */
-    protected function checkFileDocBlock ($tokens)
+    protected function checkFileDocBlock($tokens)
     {
         foreach ($tokens as $token) {
-            $type = $token[0];
-            $value = $token[1];
+            $type    = $token[0];
+            $value   = $token[1];
             $lineNum = $token[2];
             if (($type == T_OPEN_TAG) || ($type == T_WHITESPACE)) {
                 continue;
             } elseif ($type == T_DOC_COMMENT) {
                 $this->docComment = $value;
-                $this->startLine = $lineNum + substr_count($value, "\n") + 1;
-                
+                $this->startLine  = $lineNum + substr_count($value, "\n") + 1;
+
                 return;
             } else {
                 // Only whitespace is allowed before file DocBlocks

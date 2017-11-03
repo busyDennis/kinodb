@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage;
+
 use ArrayObject;
 use stdClass;
 use Zend\Cache\Exception;
@@ -14,7 +16,6 @@ use Zend\EventManager\EventsCapableInterface;
 
 class Capabilities
 {
-
     /**
      * The storage instance
      *
@@ -47,8 +48,7 @@ class Capabilities
     protected $expiredRead;
 
     /**
-     * Max.
-     * key length
+     * Max. key length
      *
      * If it's NULL the capability isn't set and the getter
      * returns the base capability or the default value.
@@ -58,8 +58,7 @@ class Capabilities
     protected $maxKeyLength;
 
     /**
-     * Min.
-     * TTL (0 means items never expire)
+     * Min. TTL (0 means items never expire)
      *
      * If it's NULL the capability isn't set and the getter
      * returns the base capability or the default value.
@@ -69,8 +68,7 @@ class Capabilities
     protected $minTtl;
 
     /**
-     * Max.
-     * TTL (0 means infinite)
+     * Max. TTL (0 means infinite)
      *
      * If it's NULL the capability isn't set and the getter
      * returns the base capability or the default value.
@@ -152,18 +150,21 @@ class Capabilities
     /**
      * Constructor
      *
-     * @param StorageInterface $storage            
-     * @param stdClass $marker            
-     * @param array $capabilities            
-     * @param null|Capabilities $baseCapabilities            
+     * @param StorageInterface  $storage
+     * @param stdClass          $marker
+     * @param array             $capabilities
+     * @param null|Capabilities $baseCapabilities
      */
-    public function __construct (StorageInterface $storage, stdClass $marker, 
-            array $capabilities = array(), Capabilities $baseCapabilities = null)
-    {
+    public function __construct(
+        StorageInterface $storage,
+        stdClass $marker,
+        array $capabilities = array(),
+        Capabilities $baseCapabilities = null
+    ) {
         $this->storage = $storage;
-        $this->marker = $marker;
+        $this->marker  = $marker;
         $this->baseCapabilities = $baseCapabilities;
-        
+
         foreach ($capabilities as $name => $value) {
             $this->setCapability($marker, $name, $value);
         }
@@ -174,7 +175,7 @@ class Capabilities
      *
      * @return StorageInterface
      */
-    public function getAdapter ()
+    public function getAdapter()
     {
         return $this->storage;
     }
@@ -184,66 +185,63 @@ class Capabilities
      *
      * @return array
      */
-    public function getSupportedDatatypes ()
+    public function getSupportedDatatypes()
     {
-        return $this->getCapability('supportedDatatypes', 
-                array(
-                        'NULL' => false,
-                        'boolean' => false,
-                        'integer' => false,
-                        'double' => false,
-                        'string' => true,
-                        'array' => false,
-                        'object' => false,
-                        'resource' => false
-                ));
+        return $this->getCapability('supportedDatatypes', array(
+            'NULL'     => false,
+            'boolean'  => false,
+            'integer'  => false,
+            'double'   => false,
+            'string'   => true,
+            'array'    => false,
+            'object'   => false,
+            'resource' => false,
+        ));
     }
 
     /**
      * Set supported datatypes
      *
-     * @param stdClass $marker            
-     * @param array $datatypes            
+     * @param  stdClass $marker
+     * @param  array $datatypes
      * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
-    public function setSupportedDatatypes (stdClass $marker, array $datatypes)
+    public function setSupportedDatatypes(stdClass $marker, array $datatypes)
     {
         $allTypes = array(
-                'array',
-                'boolean',
-                'double',
-                'integer',
-                'NULL',
-                'object',
-                'resource',
-                'string'
+            'array',
+            'boolean',
+            'double',
+            'integer',
+            'NULL',
+            'object',
+            'resource',
+            'string',
         );
-        
+
         // check/normalize datatype values
         foreach ($datatypes as $type => &$toType) {
-            if (! in_array($type, $allTypes)) {
-                throw new Exception\InvalidArgumentException(
-                        "Unknown datatype '{$type}'");
+            if (!in_array($type, $allTypes)) {
+                throw new Exception\InvalidArgumentException("Unknown datatype '{$type}'");
             }
-            
+
             if (is_string($toType)) {
                 $toType = strtolower($toType);
-                if (! in_array($toType, $allTypes)) {
-                    throw new Exception\InvalidArgumentException(
-                            "Unknown datatype '{$toType}'");
+                if (!in_array($toType, $allTypes)) {
+                    throw new Exception\InvalidArgumentException("Unknown datatype '{$toType}'");
                 }
             } else {
                 $toType = (bool) $toType;
             }
         }
-        
+
         // add missing datatypes as not supported
         $missingTypes = array_diff($allTypes, array_keys($datatypes));
         foreach ($missingTypes as $type) {
             $datatypes[$type] = false;
         }
-        
+
         return $this->setCapability($marker, 'supportedDatatypes', $datatypes);
     }
 
@@ -252,7 +250,7 @@ class Capabilities
      *
      * @return array
      */
-    public function getSupportedMetadata ()
+    public function getSupportedMetadata()
     {
         return $this->getCapability('supportedMetadata', array());
     }
@@ -260,17 +258,16 @@ class Capabilities
     /**
      * Set supported metadata
      *
-     * @param stdClass $marker            
-     * @param string[] $metadata            
+     * @param  stdClass $marker
+     * @param  string[] $metadata
      * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
-    public function setSupportedMetadata (stdClass $marker, array $metadata)
+    public function setSupportedMetadata(stdClass $marker, array $metadata)
     {
         foreach ($metadata as $name) {
-            if (! is_string($name)) {
-                throw new Exception\InvalidArgumentException(
-                        '$metadata must be an array of strings');
+            if (!is_string($name)) {
+                throw new Exception\InvalidArgumentException('$metadata must be an array of strings');
             }
         }
         return $this->setCapability($marker, 'supportedMetadata', $metadata);
@@ -281,7 +278,7 @@ class Capabilities
      *
      * @return int 0 means items never expire
      */
-    public function getMinTtl ()
+    public function getMinTtl()
     {
         return $this->getCapability('minTtl', 0);
     }
@@ -289,17 +286,16 @@ class Capabilities
     /**
      * Set minimum supported time-to-live
      *
-     * @param stdClass $marker            
-     * @param int $minTtl            
+     * @param  stdClass $marker
+     * @param  int $minTtl
      * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
-    public function setMinTtl (stdClass $marker, $minTtl)
+    public function setMinTtl(stdClass $marker, $minTtl)
     {
         $minTtl = (int) $minTtl;
         if ($minTtl < 0) {
-            throw new Exception\InvalidArgumentException(
-                    '$minTtl must be greater or equal 0');
+            throw new Exception\InvalidArgumentException('$minTtl must be greater or equal 0');
         }
         return $this->setCapability($marker, 'minTtl', $minTtl);
     }
@@ -309,7 +305,7 @@ class Capabilities
      *
      * @return int 0 means infinite
      */
-    public function getMaxTtl ()
+    public function getMaxTtl()
     {
         return $this->getCapability('maxTtl', 0);
     }
@@ -317,17 +313,16 @@ class Capabilities
     /**
      * Set maximum supported time-to-live
      *
-     * @param stdClass $marker            
-     * @param int $maxTtl            
+     * @param  stdClass $marker
+     * @param  int $maxTtl
      * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
-    public function setMaxTtl (stdClass $marker, $maxTtl)
+    public function setMaxTtl(stdClass $marker, $maxTtl)
     {
         $maxTtl = (int) $maxTtl;
         if ($maxTtl < 0) {
-            throw new Exception\InvalidArgumentException(
-                    '$maxTtl must be greater or equal 0');
+            throw new Exception\InvalidArgumentException('$maxTtl must be greater or equal 0');
         }
         return $this->setCapability($marker, 'maxTtl', $maxTtl);
     }
@@ -338,7 +333,7 @@ class Capabilities
      *
      * @return bool
      */
-    public function getStaticTtl ()
+    public function getStaticTtl()
     {
         return $this->getCapability('staticTtl', false);
     }
@@ -346,11 +341,11 @@ class Capabilities
     /**
      * Set if the time-to-live handled static (on write) or dynamic (on read)
      *
-     * @param stdClass $marker            
-     * @param bool $flag            
+     * @param  stdClass $marker
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
-    public function setStaticTtl (stdClass $marker, $flag)
+    public function setStaticTtl(stdClass $marker, $flag)
     {
         return $this->setCapability($marker, 'staticTtl', (bool) $flag);
     }
@@ -360,7 +355,7 @@ class Capabilities
      *
      * @return float
      */
-    public function getTtlPrecision ()
+    public function getTtlPrecision()
     {
         return $this->getCapability('ttlPrecision', 1);
     }
@@ -368,17 +363,16 @@ class Capabilities
     /**
      * Set time-to-live precision
      *
-     * @param stdClass $marker            
-     * @param float $ttlPrecision            
+     * @param  stdClass $marker
+     * @param  float $ttlPrecision
      * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
-    public function setTtlPrecision (stdClass $marker, $ttlPrecision)
+    public function setTtlPrecision(stdClass $marker, $ttlPrecision)
     {
         $ttlPrecision = (float) $ttlPrecision;
         if ($ttlPrecision <= 0) {
-            throw new Exception\InvalidArgumentException(
-                    '$ttlPrecision must be greater than 0');
+            throw new Exception\InvalidArgumentException('$ttlPrecision must be greater than 0');
         }
         return $this->setCapability($marker, 'ttlPrecision', $ttlPrecision);
     }
@@ -388,7 +382,7 @@ class Capabilities
      *
      * @return bool
      */
-    public function getUseRequestTime ()
+    public function getUseRequestTime()
     {
         return $this->getCapability('useRequestTime', false);
     }
@@ -396,11 +390,11 @@ class Capabilities
     /**
      * Set use request time
      *
-     * @param stdClass $marker            
-     * @param bool $flag            
+     * @param  stdClass $marker
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
-    public function setUseRequestTime (stdClass $marker, $flag)
+    public function setUseRequestTime(stdClass $marker, $flag)
     {
         return $this->setCapability($marker, 'useRequestTime', (bool) $flag);
     }
@@ -410,7 +404,7 @@ class Capabilities
      *
      * @return bool
      */
-    public function getExpiredRead ()
+    public function getExpiredRead()
     {
         return $this->getCapability('expiredRead', false);
     }
@@ -418,11 +412,11 @@ class Capabilities
     /**
      * Set if expired items are readable
      *
-     * @param stdClass $marker            
-     * @param bool $flag            
+     * @param  stdClass $marker
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
-    public function setExpiredRead (stdClass $marker, $flag)
+    public function setExpiredRead(stdClass $marker, $flag)
     {
         return $this->setCapability($marker, 'expiredRead', (bool) $flag);
     }
@@ -432,25 +426,24 @@ class Capabilities
      *
      * @return int -1 means unknown, 0 means infinite
      */
-    public function getMaxKeyLength ()
+    public function getMaxKeyLength()
     {
-        return $this->getCapability('maxKeyLength', - 1);
+        return $this->getCapability('maxKeyLength', -1);
     }
 
     /**
      * Set maximum key length
      *
-     * @param stdClass $marker            
-     * @param int $maxKeyLength            
+     * @param  stdClass $marker
+     * @param  int $maxKeyLength
      * @throws Exception\InvalidArgumentException
      * @return Capabilities Fluent interface
      */
-    public function setMaxKeyLength (stdClass $marker, $maxKeyLength)
+    public function setMaxKeyLength(stdClass $marker, $maxKeyLength)
     {
         $maxKeyLength = (int) $maxKeyLength;
-        if ($maxKeyLength < - 1) {
-            throw new Exception\InvalidArgumentException(
-                    '$maxKeyLength must be greater or equal than -1');
+        if ($maxKeyLength < -1) {
+            throw new Exception\InvalidArgumentException('$maxKeyLength must be greater or equal than -1');
         }
         return $this->setCapability($marker, 'maxKeyLength', $maxKeyLength);
     }
@@ -460,7 +453,7 @@ class Capabilities
      *
      * @return bool
      */
-    public function getNamespaceIsPrefix ()
+    public function getNamespaceIsPrefix()
     {
         return $this->getCapability('namespaceIsPrefix', true);
     }
@@ -468,11 +461,11 @@ class Capabilities
     /**
      * Set if namespace support is implemented as prefix
      *
-     * @param stdClass $marker            
-     * @param bool $flag            
+     * @param  stdClass $marker
+     * @param  bool $flag
      * @return Capabilities Fluent interface
      */
-    public function setNamespaceIsPrefix (stdClass $marker, $flag)
+    public function setNamespaceIsPrefix(stdClass $marker, $flag)
     {
         return $this->setCapability($marker, 'namespaceIsPrefix', (bool) $flag);
     }
@@ -482,7 +475,7 @@ class Capabilities
      *
      * @return string
      */
-    public function getNamespaceSeparator ()
+    public function getNamespaceSeparator()
     {
         return $this->getCapability('namespaceSeparator', '');
     }
@@ -490,24 +483,23 @@ class Capabilities
     /**
      * Set the namespace separator if namespace is implemented as prefix
      *
-     * @param stdClass $marker            
-     * @param string $separator            
+     * @param  stdClass $marker
+     * @param  string $separator
      * @return Capabilities Fluent interface
      */
-    public function setNamespaceSeparator (stdClass $marker, $separator)
+    public function setNamespaceSeparator(stdClass $marker, $separator)
     {
-        return $this->setCapability($marker, 'namespaceSeparator', 
-                (string) $separator);
+        return $this->setCapability($marker, 'namespaceSeparator', (string) $separator);
     }
 
     /**
      * Get a capability
      *
-     * @param string $property            
-     * @param mixed $default            
+     * @param  string $property
+     * @param  mixed $default
      * @return mixed
      */
-    protected function getCapability ($property, $default = null)
+    protected function getCapability($property, $default = null)
     {
         if ($this->$property !== null) {
             return $this->$property;
@@ -521,32 +513,29 @@ class Capabilities
     /**
      * Change a capability
      *
-     * @param stdClass $marker            
-     * @param string $property            
-     * @param mixed $value            
+     * @param  stdClass $marker
+     * @param  string $property
+     * @param  mixed $value
      * @return Capabilities Fluent interface
      * @throws Exception\InvalidArgumentException
      */
-    protected function setCapability (stdClass $marker, $property, $value)
+    protected function setCapability(stdClass $marker, $property, $value)
     {
         if ($this->marker !== $marker) {
             throw new Exception\InvalidArgumentException('Invalid marker');
         }
-        
+
         if ($this->$property !== $value) {
             $this->$property = $value;
-            
+
             // trigger event
             if ($this->storage instanceof EventsCapableInterface) {
-                $this->storage->getEventManager()->trigger('capability', 
-                        $this->storage, 
-                        new ArrayObject(
-                                array(
-                                        $property => $value
-                                )));
+                $this->storage->getEventManager()->trigger('capability', $this->storage, new ArrayObject(array(
+                    $property => $value
+                )));
             }
         }
-        
+
         return $this;
     }
 }

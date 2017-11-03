@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\I18n\Translator\Plural;
+
 use Closure;
 use Zend\I18n\Exception;
 
@@ -20,7 +22,6 @@ use Zend\I18n\Exception;
  */
 class Symbol
 {
-
     /**
      * Parser instance.
      *
@@ -87,24 +88,24 @@ class Symbol
     /**
      * Create a new symbol.
      *
-     * @param Parser $parser            
-     * @param string $id            
-     * @param int $leftBindingPower            
+     * @param  Parser  $parser
+     * @param  string  $id
+     * @param  int $leftBindingPower
      */
-    public function __construct (Parser $parser, $id, $leftBindingPower)
+    public function __construct(Parser $parser, $id, $leftBindingPower)
     {
-        $this->parser = $parser;
-        $this->id = $id;
-        $this->leftBindingPower = $leftBindingPower;
+        $this->parser               = $parser;
+        $this->id                   = $id;
+        $this->leftBindingPower     = $leftBindingPower;
     }
 
     /**
      * Set the null denotation getter.
      *
-     * @param Closure $getter            
+     * @param  Closure $getter
      * @return Symbol
      */
-    public function setNullDenotationGetter (Closure $getter)
+    public function setNullDenotationGetter(Closure $getter)
     {
         $this->nullDenotationGetter = $getter;
         return $this;
@@ -113,10 +114,10 @@ class Symbol
     /**
      * Set the left denotation getter.
      *
-     * @param Closure $getter            
+     * @param  Closure $getter
      * @return Symbol
      */
-    public function setLeftDenotationGetter (Closure $getter)
+    public function setLeftDenotationGetter(Closure $getter)
     {
         $this->leftDenotationGetter = $getter;
         return $this;
@@ -128,17 +129,13 @@ class Symbol
      * @throws Exception\ParseException
      * @return Symbol
      */
-    public function getNullDenotation ()
+    public function getNullDenotation()
     {
         if ($this->nullDenotationGetter === null) {
-            throw new Exception\ParseException(
-                    sprintf('Syntax error: %s', $this->id));
+            throw new Exception\ParseException(sprintf('Syntax error: %s', $this->id));
         }
-        
-        /**
-         *
-         * @var callable $function
-         */
+
+        /** @var callable $function  */
         $function = $this->nullDenotationGetter;
         return $function($this);
     }
@@ -146,21 +143,17 @@ class Symbol
     /**
      * Get left denotation.
      *
-     * @param Symbol $left            
+     * @param  Symbol $left
      * @throws Exception\ParseException
      * @return Symbol
      */
-    public function getLeftDenotation ($left)
+    public function getLeftDenotation($left)
     {
         if ($this->leftDenotationGetter === null) {
-            throw new Exception\ParseException(
-                    sprintf('Unknown operator: %s', $this->id));
+            throw new Exception\ParseException(sprintf('Unknown operator: %s', $this->id));
         }
-        
-        /**
-         *
-         * @var callable $function
-         */
+
+        /** @var callable $function  */
         $function = $this->leftDenotationGetter;
         return $function($this, $left);
     }

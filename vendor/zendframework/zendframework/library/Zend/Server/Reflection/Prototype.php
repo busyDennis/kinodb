@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Reflection;
 
 /**
@@ -15,32 +16,26 @@ namespace Zend\Server\Reflection;
  */
 class Prototype
 {
-
-    /**
-     *
-     * @var ReflectionParameter[]
-     */
+    /** @var ReflectionParameter[] */
     protected $params;
 
     /**
      * Constructor
      *
-     * @param ReflectionReturnValue $return            
-     * @param ReflectionParameter[] $params            
+     * @param ReflectionReturnValue $return
+     * @param ReflectionParameter[] $params
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct (ReflectionReturnValue $return, 
-            array $params = array())
+    public function __construct(ReflectionReturnValue $return, array $params = array())
     {
         $this->return = $return;
-        
+
         foreach ($params as $param) {
-            if (! $param instanceof ReflectionParameter) {
-                throw new Exception\InvalidArgumentException(
-                        'One or more params are invalid');
+            if (!$param instanceof ReflectionParameter) {
+                throw new Exception\InvalidArgumentException('One or more params are invalid');
             }
         }
-        
+
         $this->params = $params;
     }
 
@@ -49,7 +44,7 @@ class Prototype
      *
      * @return string
      */
-    public function getReturnType ()
+    public function getReturnType()
     {
         return $this->return->getType();
     }
@@ -59,7 +54,7 @@ class Prototype
      *
      * @return \Zend\Server\Reflection\ReflectionReturnValue
      */
-    public function getReturnValue ()
+    public function getReturnValue()
     {
         return $this->return;
     }
@@ -67,10 +62,9 @@ class Prototype
     /**
      * Retrieve method parameters
      *
-     * @return ReflectionParameter[] Array of {@link
-     *         \Zend\Server\Reflection\ReflectionParameter}s
+     * @return ReflectionParameter[] Array of {@link \Zend\Server\Reflection\ReflectionParameter}s
      */
-    public function getParameters ()
+    public function getParameters()
     {
         return $this->params;
     }

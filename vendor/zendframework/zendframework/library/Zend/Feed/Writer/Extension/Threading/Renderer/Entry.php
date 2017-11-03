@@ -3,22 +3,22 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\Writer\Extension\Threading\Renderer;
+
 use DOMDocument;
 use DOMElement;
 use Zend\Feed\Writer\Extension;
 
 /**
- */
+*/
 class Entry extends Extension\AbstractRenderer
 {
-
     /**
-     * Set to TRUE if a rendering method actually renders something.
-     * This
+     * Set to TRUE if a rendering method actually renders something. This
      * is used to prevent premature appending of a XML namespace declaration
      * until an element which requires it is actually appended.
      *
@@ -31,7 +31,7 @@ class Entry extends Extension\AbstractRenderer
      *
      * @return void
      */
-    public function render ()
+    public function render()
     {
         if (strtolower($this->getType()) == 'rss') {
             return; // Atom 1.0 only
@@ -49,23 +49,23 @@ class Entry extends Extension\AbstractRenderer
      *
      * @return void
      */
-    protected function _appendNamespaces ()
+    protected function _appendNamespaces()
     {
-        $this->getRootElement()->setAttribute('xmlns:thr', 
-                'http://purl.org/syndication/thread/1.0');
+        $this->getRootElement()->setAttribute('xmlns:thr',
+            'http://purl.org/syndication/thread/1.0');
     }
 
     /**
      * Set comment link
      *
-     * @param DOMDocument $dom            
-     * @param DOMElement $root            
+     * @param  DOMDocument $dom
+     * @param  DOMElement $root
      * @return void
      */
-    protected function _setCommentLink (DOMDocument $dom, DOMElement $root)
+    protected function _setCommentLink(DOMDocument $dom, DOMElement $root)
     {
         $link = $this->getDataContainer()->getCommentLink();
-        if (! $link) {
+        if (!$link) {
             return;
         }
         $clink = $this->dom->createElement('link');
@@ -83,21 +83,20 @@ class Entry extends Extension\AbstractRenderer
     /**
      * Set comment feed links
      *
-     * @param DOMDocument $dom            
-     * @param DOMElement $root            
+     * @param  DOMDocument $dom
+     * @param  DOMElement $root
      * @return void
      */
-    protected function _setCommentFeedLinks (DOMDocument $dom, DOMElement $root)
+    protected function _setCommentFeedLinks(DOMDocument $dom, DOMElement $root)
     {
         $links = $this->getDataContainer()->getCommentFeedLinks();
-        if (! $links || empty($links)) {
+        if (!$links || empty($links)) {
             return;
         }
         foreach ($links as $link) {
             $flink = $this->dom->createElement('link');
             $flink->setAttribute('rel', 'replies');
-            $flink->setAttribute('type', 
-                    'application/' . $link['type'] . '+xml');
+            $flink->setAttribute('type', 'application/' . $link['type'] . '+xml');
             $flink->setAttribute('href', $link['uri']);
             $count = $this->getDataContainer()->getCommentCount();
             if ($count !== null) {
@@ -111,11 +110,11 @@ class Entry extends Extension\AbstractRenderer
     /**
      * Set entry comment count
      *
-     * @param DOMDocument $dom            
-     * @param DOMElement $root            
+     * @param  DOMDocument $dom
+     * @param  DOMElement $root
      * @return void
      */
-    protected function _setCommentCount (DOMDocument $dom, DOMElement $root)
+    protected function _setCommentCount(DOMDocument $dom, DOMElement $root)
     {
         $count = $this->getDataContainer()->getCommentCount();
         if ($count === null) {

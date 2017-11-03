@@ -3,10 +3,11 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Math\Source;
+
 use RandomLib;
 use SecurityLib\Strength;
 
@@ -28,8 +29,7 @@ use SecurityLib\Strength;
  * names of its contributors may be used to endorse or promote products
  * derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL GEORGE ARGYROS BE LIABLE FOR ANY
@@ -51,13 +51,12 @@ use SecurityLib\Strength;
  */
 class HashTiming implements RandomLib\Source
 {
-
     /**
      * Return an instance of Strength indicating the strength of the source
      *
      * @return Strength An instance of one of the strength classes
      */
-    public static function getStrength ()
+    public static function getStrength()
     {
         return new Strength(Strength::VERYLOW);
     }
@@ -65,28 +64,26 @@ class HashTiming implements RandomLib\Source
     /**
      * Generate a random string of the specified size
      *
-     * @param int $size
-     *            The size of the requested random string
-     *            
+     * @param int $size The size of the requested random string
+     *
      * @return string A string of the requested size
      */
-    public function generate ($size)
+    public function generate($size)
     {
-        $result = '';
-        $entropy = '';
+        $result         = '';
+        $entropy        = '';
         $msec_per_round = 400;
         $bits_per_round = 2;
-        $total = $size;
-        $bytes = 0;
-        $hash_length = 20;
-        $rounds = 0;
+        $total          = $size;
+        $hash_length    = 20;
+
         while (strlen($result) < $size) {
-            $bytes = ($total > $hash_length) ? $hash_length : $total;
+            $bytes  = ($total > $hash_length)? $hash_length : $total;
             $total -= $bytes;
-            for ($i = 1; $i < 3; $i ++) {
-                $t1 = microtime(true);
+            for ($i=1; $i < 3; $i++) {
+                $t1   = microtime(true);
                 $seed = mt_rand();
-                for ($j = 1; $j < 50; $j ++) {
+                for ($j=1; $j < 50; $j++) {
                     $seed = sha1($seed);
                 }
                 $t2 = microtime(true);
@@ -101,7 +98,7 @@ class HashTiming implements RandomLib\Source
             for ($i = 0; $i < $iter; $i ++) {
                 $t1 = microtime();
                 $seed = sha1(mt_rand());
-                for ($j = 0; $j < $rounds; $j ++) {
+                for ($j = 0; $j < $rounds; $j++) {
                     $seed = sha1($seed);
                 }
                 $t2 = microtime();

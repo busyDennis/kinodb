@@ -3,17 +3,20 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Ldap;
+
+use Countable;
+use Iterator;
 
 /**
  * Zend\Ldap\Collection wraps a list of LDAP entries.
  */
-class Collection implements \Iterator, \Countable
+class Collection implements Iterator, Countable
 {
-
     /**
      * Iterator
      *
@@ -26,7 +29,7 @@ class Collection implements \Iterator, \Countable
      *
      * @var int
      */
-    protected $current = - 1;
+    protected $current = -1;
 
     /**
      * Container for item caching to speed up multiple iterations
@@ -38,14 +41,14 @@ class Collection implements \Iterator, \Countable
     /**
      * Constructor.
      *
-     * @param Collection\DefaultIterator $iterator            
+     * @param Collection\DefaultIterator $iterator
      */
-    public function __construct (Collection\DefaultIterator $iterator)
+    public function __construct(Collection\DefaultIterator $iterator)
     {
         $this->iterator = $iterator;
     }
 
-    public function __destruct ()
+    public function __destruct()
     {
         $this->close();
     }
@@ -55,7 +58,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return bool
      */
-    public function close ()
+    public function close()
     {
         return $this->iterator->close();
     }
@@ -65,7 +68,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         $data = array();
         foreach ($this as $item) {
@@ -79,13 +82,13 @@ class Collection implements \Iterator, \Countable
      *
      * @return array
      */
-    public function getFirst ()
+    public function getFirst()
     {
         if ($this->count() > 0) {
             $this->rewind();
             return $this->current();
         }
-        return null;
+        return;
     }
 
     /**
@@ -93,7 +96,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return Collection\DefaultIterator
      */
-    public function getInnerIterator ()
+    public function getInnerIterator()
     {
         return $this->iterator;
     }
@@ -104,7 +107,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return int
      */
-    public function count ()
+    public function count()
     {
         return $this->iterator->count();
     }
@@ -116,31 +119,31 @@ class Collection implements \Iterator, \Countable
      * @return array|null
      * @throws Exception\LdapException
      */
-    public function current ()
+    public function current()
     {
         if ($this->count() > 0) {
             if ($this->current < 0) {
                 $this->rewind();
             }
-            if (! array_key_exists($this->current, $this->cache)) {
+            if (!array_key_exists($this->current, $this->cache)) {
                 $current = $this->iterator->current();
                 if ($current === null) {
-                    return null;
+                    return;
                 }
                 $this->cache[$this->current] = $this->createEntry($current);
             }
             return $this->cache[$this->current];
         }
-        return null;
+        return;
     }
 
     /**
      * Creates the data structure for the given entry data
      *
-     * @param array $data            
+     * @param  array $data
      * @return array
      */
-    protected function createEntry (array $data)
+    protected function createEntry(array $data)
     {
         return $data;
     }
@@ -150,7 +153,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return string|null
      */
-    public function dn ()
+    public function dn()
     {
         if ($this->count() > 0) {
             if ($this->current < 0) {
@@ -158,7 +161,7 @@ class Collection implements \Iterator, \Countable
             }
             return $this->iterator->key();
         }
-        return null;
+        return;
     }
 
     /**
@@ -167,7 +170,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return int|null
      */
-    public function key ()
+    public function key()
     {
         if ($this->count() > 0) {
             if ($this->current < 0) {
@@ -175,7 +178,7 @@ class Collection implements \Iterator, \Countable
             }
             return $this->current;
         }
-        return null;
+        return;
     }
 
     /**
@@ -184,10 +187,10 @@ class Collection implements \Iterator, \Countable
      *
      * @throws Exception\LdapException
      */
-    public function next ()
+    public function next()
     {
         $this->iterator->next();
-        $this->current ++;
+        $this->current++;
     }
 
     /**
@@ -196,7 +199,7 @@ class Collection implements \Iterator, \Countable
      *
      * @throws Exception\LdapException
      */
-    public function rewind ()
+    public function rewind()
     {
         $this->iterator->rewind();
         $this->current = 0;
@@ -209,7 +212,7 @@ class Collection implements \Iterator, \Countable
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         if (isset($this->cache[$this->current])) {
             return true;

@@ -3,23 +3,23 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter\Driver\Sqlsrv;
+
+use Iterator;
 use Zend\Db\Adapter\Driver\ResultInterface;
 
-class Result implements \Iterator, ResultInterface
+class Result implements Iterator, ResultInterface
 {
-
     /**
-     *
      * @var resource
      */
     protected $resource = null;
 
     /**
-     *
      * @var bool
      */
     protected $currentData = false;
@@ -34,10 +34,9 @@ class Result implements \Iterator, ResultInterface
      *
      * @var int
      */
-    protected $position = - 1;
+    protected $position = -1;
 
     /**
-     *
      * @var mixed
      */
     protected $generatedValue = null;
@@ -45,11 +44,11 @@ class Result implements \Iterator, ResultInterface
     /**
      * Initialize
      *
-     * @param resource $resource            
-     * @param mixed $generatedValue            
+     * @param  resource $resource
+     * @param  mixed    $generatedValue
      * @return Result
      */
-    public function initialize ($resource, $generatedValue = null)
+    public function initialize($resource, $generatedValue = null)
     {
         $this->resource = $resource;
         $this->generatedValue = $generatedValue;
@@ -57,19 +56,17 @@ class Result implements \Iterator, ResultInterface
     }
 
     /**
-     *
      * @return null
      */
-    public function buffer ()
+    public function buffer()
     {
-        return null;
+        return;
     }
 
     /**
-     *
      * @return bool
      */
-    public function isBuffered ()
+    public function isBuffered()
     {
         return false;
     }
@@ -79,7 +76,7 @@ class Result implements \Iterator, ResultInterface
      *
      * @return resource
      */
-    public function getResource ()
+    public function getResource()
     {
         return $this->resource;
     }
@@ -89,12 +86,12 @@ class Result implements \Iterator, ResultInterface
      *
      * @return mixed
      */
-    public function current ()
+    public function current()
     {
         if ($this->currentComplete) {
             return $this->currentData;
         }
-        
+
         $this->load();
         return $this->currentData;
     }
@@ -104,7 +101,7 @@ class Result implements \Iterator, ResultInterface
      *
      * @return bool
      */
-    public function next ()
+    public function next()
     {
         $this->load();
         return true;
@@ -113,15 +110,14 @@ class Result implements \Iterator, ResultInterface
     /**
      * Load
      *
-     * @param int $row            
+     * @param  int $row
      * @return mixed
      */
-    protected function load ($row = SQLSRV_SCROLL_NEXT)
+    protected function load($row = SQLSRV_SCROLL_NEXT)
     {
-        $this->currentData = sqlsrv_fetch_array($this->resource, 
-                SQLSRV_FETCH_ASSOC, $row);
+        $this->currentData = sqlsrv_fetch_array($this->resource, SQLSRV_FETCH_ASSOC, $row);
         $this->currentComplete = true;
-        $this->position ++;
+        $this->position++;
         return $this->currentData;
     }
 
@@ -130,7 +126,7 @@ class Result implements \Iterator, ResultInterface
      *
      * @return mixed
      */
-    public function key ()
+    public function key()
     {
         return $this->position;
     }
@@ -140,7 +136,7 @@ class Result implements \Iterator, ResultInterface
      *
      * @return bool
      */
-    public function rewind ()
+    public function rewind()
     {
         $this->position = 0;
         $this->load(SQLSRV_SCROLL_FIRST);
@@ -152,12 +148,12 @@ class Result implements \Iterator, ResultInterface
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         if ($this->currentComplete && $this->currentData) {
             return true;
         }
-        
+
         return $this->load();
     }
 
@@ -166,16 +162,15 @@ class Result implements \Iterator, ResultInterface
      *
      * @return int
      */
-    public function count ()
+    public function count()
     {
         return sqlsrv_num_rows($this->resource);
     }
 
     /**
-     *
      * @return bool|int
      */
-    public function getFieldCount ()
+    public function getFieldCount()
     {
         return sqlsrv_num_fields($this->resource);
     }
@@ -185,7 +180,7 @@ class Result implements \Iterator, ResultInterface
      *
      * @return bool
      */
-    public function isQueryResult ()
+    public function isQueryResult()
     {
         if (is_bool($this->resource)) {
             return false;
@@ -198,16 +193,15 @@ class Result implements \Iterator, ResultInterface
      *
      * @return int
      */
-    public function getAffectedRows ()
+    public function getAffectedRows()
     {
         return sqlsrv_rows_affected($this->resource);
     }
 
     /**
-     *
      * @return mixed|null
      */
-    public function getGeneratedValue ()
+    public function getGeneratedValue()
     {
         return $this->generatedValue;
     }

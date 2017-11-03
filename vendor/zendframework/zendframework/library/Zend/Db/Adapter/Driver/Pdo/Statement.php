@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter\Driver\Pdo;
+
 use Zend\Db\Adapter\Driver\StatementInterface;
 use Zend\Db\Adapter\Exception;
 use Zend\Db\Adapter\ParameterContainer;
@@ -14,21 +16,17 @@ use Zend\Db\Adapter\Profiler;
 
 class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
 {
-
     /**
-     *
      * @var \PDO
      */
     protected $pdo = null;
 
     /**
-     *
      * @var Profiler\ProfilerInterface
      */
     protected $profiler = null;
 
     /**
-     *
      * @var Pdo
      */
     protected $driver = null;
@@ -52,13 +50,11 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     protected $parameterContainer = null;
 
     /**
-     *
      * @var bool
      */
     protected $parametersBound = false;
 
     /**
-     *
      * @var \PDOStatement
      */
     protected $resource = null;
@@ -72,31 +68,29 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set driver
      *
-     * @param Pdo $driver            
+     * @param  Pdo $driver
      * @return Statement
      */
-    public function setDriver (Pdo $driver)
+    public function setDriver(Pdo $driver)
     {
         $this->driver = $driver;
         return $this;
     }
 
     /**
-     *
-     * @param Profiler\ProfilerInterface $profiler            
+     * @param Profiler\ProfilerInterface $profiler
      * @return Statement
      */
-    public function setProfiler (Profiler\ProfilerInterface $profiler)
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
     {
         $this->profiler = $profiler;
         return $this;
     }
 
     /**
-     *
      * @return null|Profiler\ProfilerInterface
      */
-    public function getProfiler ()
+    public function getProfiler()
     {
         return $this->profiler;
     }
@@ -104,10 +98,10 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Initialize
      *
-     * @param \PDO $connectionResource            
+     * @param  \PDO $connectionResource
      * @return Statement
      */
-    public function initialize (\PDO $connectionResource)
+    public function initialize(\PDO $connectionResource)
     {
         $this->pdo = $connectionResource;
         return $this;
@@ -116,10 +110,10 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set resource
      *
-     * @param \PDOStatement $pdoStatement            
+     * @param  \PDOStatement $pdoStatement
      * @return Statement
      */
-    public function setResource (\PDOStatement $pdoStatement)
+    public function setResource(\PDOStatement $pdoStatement)
     {
         $this->resource = $pdoStatement;
         return $this;
@@ -130,7 +124,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
      *
      * @return mixed
      */
-    public function getResource ()
+    public function getResource()
     {
         return $this->resource;
     }
@@ -138,10 +132,10 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set sql
      *
-     * @param string $sql            
+     * @param string $sql
      * @return Statement
      */
-    public function setSql ($sql)
+    public function setSql($sql)
     {
         $this->sql = $sql;
         return $this;
@@ -152,83 +146,74 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
      *
      * @return string
      */
-    public function getSql ()
+    public function getSql()
     {
         return $this->sql;
     }
 
     /**
-     *
-     * @param ParameterContainer $parameterContainer            
+     * @param ParameterContainer $parameterContainer
      * @return Statement
      */
-    public function setParameterContainer (
-            ParameterContainer $parameterContainer)
+    public function setParameterContainer(ParameterContainer $parameterContainer)
     {
         $this->parameterContainer = $parameterContainer;
         return $this;
     }
 
     /**
-     *
      * @return ParameterContainer
      */
-    public function getParameterContainer ()
+    public function getParameterContainer()
     {
         return $this->parameterContainer;
     }
 
     /**
-     *
-     * @param string $sql            
+     * @param string $sql
      * @throws Exception\RuntimeException
      */
-    public function prepare ($sql = null)
+    public function prepare($sql = null)
     {
         if ($this->isPrepared) {
-            throw new Exception\RuntimeException(
-                    'This statement has been prepared already');
+            throw new Exception\RuntimeException('This statement has been prepared already');
         }
-        
-        if ($sql == null) {
+
+        if ($sql === null) {
             $sql = $this->sql;
         }
-        
+
         $this->resource = $this->pdo->prepare($sql);
-        
+
         if ($this->resource === false) {
             $error = $this->pdo->errorInfo();
             throw new Exception\RuntimeException($error[2]);
         }
-        
+
         $this->isPrepared = true;
     }
 
     /**
-     *
      * @return bool
      */
-    public function isPrepared ()
+    public function isPrepared()
     {
         return $this->isPrepared;
     }
 
     /**
-     *
-     * @param mixed $parameters            
+     * @param null|array|ParameterContainer $parameters
      * @throws Exception\InvalidQueryException
      * @return Result
      */
-    public function execute ($parameters = null)
+    public function execute($parameters = null)
     {
-        if (! $this->isPrepared) {
+        if (!$this->isPrepared) {
             $this->prepare();
         }
-        
-        /**
-         * START Standard ParameterContainer Merging Block
-         */
-        if (! $this->parameterContainer instanceof ParameterContainer) {
+
+        /** START Standard ParameterContainer Merging Block */
+        if (!$this->parameterContainer instanceof ParameterContainer) {
             if ($parameters instanceof ParameterContainer) {
                 $this->parameterContainer = $parameters;
                 $parameters = null;
@@ -236,22 +221,20 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
                 $this->parameterContainer = new ParameterContainer();
             }
         }
-        
+
         if (is_array($parameters)) {
             $this->parameterContainer->setFromArray($parameters);
         }
-        
+
         if ($this->parameterContainer->count() > 0) {
             $this->bindParametersFromContainer();
         }
-        /**
-         * END Standard ParameterContainer Merging Block
-         */
-        
+        /** END Standard ParameterContainer Merging Block */
+
         if ($this->profiler) {
             $this->profiler->profilerStart($this);
         }
-        
+
         try {
             $this->resource->execute();
         } catch (\PDOException $e) {
@@ -259,13 +242,16 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
                 $this->profiler->profilerFinish();
             }
             throw new Exception\InvalidQueryException(
-                    'Statement could not be executed', null, $e);
+                'Statement could not be executed (' . implode(' - ', $this->resource->errorInfo()) . ')',
+                null,
+                $e
+            );
         }
-        
+
         if ($this->profiler) {
             $this->profiler->profilerFinish();
         }
-        
+
         $result = $this->driver->createResult($this->resource, $this);
         return $result;
     }
@@ -273,15 +259,21 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Bind parameters from container
      */
-    protected function bindParametersFromContainer ()
+    protected function bindParametersFromContainer()
     {
         if ($this->parametersBound) {
             return;
         }
-        
+
         $parameters = $this->parameterContainer->getNamedArray();
         foreach ($parameters as $name => &$value) {
-            $type = \PDO::PARAM_STR;
+            if (is_bool($value)) {
+                $type = \PDO::PARAM_BOOL;
+            } elseif (is_int($value)) {
+                $type = \PDO::PARAM_INT;
+            } else {
+                $type = \PDO::PARAM_STR;
+            }
             if ($this->parameterContainer->offsetHasErrata($name)) {
                 switch ($this->parameterContainer->offsetGetErrata($name)) {
                     case ParameterContainer::TYPE_INTEGER:
@@ -293,12 +285,9 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
                     case ParameterContainer::TYPE_LOB:
                         $type = \PDO::PARAM_LOB;
                         break;
-                    case (is_bool($value)):
-                        $type = \PDO::PARAM_BOOL;
-                        break;
                 }
             }
-            
+
             // parameter is named or positional, value is reference
             $parameter = is_int($name) ? ($name + 1) : $name;
             $this->resource->bindParam($parameter, $value, $type);
@@ -307,10 +296,9 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
 
     /**
      * Perform a deep clone
-     *
      * @return Statement A cloned statement
      */
-    public function __clone ()
+    public function __clone()
     {
         $this->isPrepared = false;
         $this->parametersBound = false;

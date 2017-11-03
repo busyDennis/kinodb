@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
 
 /**
@@ -13,7 +14,6 @@ namespace Zend\Cache\Storage\Adapter;
  */
 class XCacheOptions extends AdapterOptions
 {
-
     /**
      * Namespace separator
      *
@@ -45,10 +45,10 @@ class XCacheOptions extends AdapterOptions
     /**
      * Set namespace separator
      *
-     * @param string $namespaceSeparator            
+     * @param  string $namespaceSeparator
      * @return XCacheOptions
      */
-    public function setNamespaceSeparator ($namespaceSeparator)
+    public function setNamespaceSeparator($namespaceSeparator)
     {
         $namespaceSeparator = (string) $namespaceSeparator;
         $this->triggerOptionEvent('namespace_separator', $namespaceSeparator);
@@ -61,7 +61,7 @@ class XCacheOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getNamespaceSeparator ()
+    public function getNamespaceSeparator()
     {
         return $this->namespaceSeparator;
     }
@@ -69,10 +69,10 @@ class XCacheOptions extends AdapterOptions
     /**
      * Set username to call admin functions
      *
-     * @param null|string $adminUser            
+     * @param  null|string $adminUser
      * @return XCacheOptions
      */
-    public function setAdminUser ($adminUser)
+    public function setAdminUser($adminUser)
     {
         $adminUser = ($adminUser === null) ? null : (string) $adminUser;
         if ($this->adminUser !== $adminUser) {
@@ -87,7 +87,7 @@ class XCacheOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getAdminUser ()
+    public function getAdminUser()
     {
         return $this->adminUser;
     }
@@ -95,10 +95,10 @@ class XCacheOptions extends AdapterOptions
     /**
      * Enable/Disable admin authentication handling
      *
-     * @param bool $adminAuth            
+     * @param  bool $adminAuth
      * @return XCacheOptions
      */
-    public function setAdminAuth ($adminAuth)
+    public function setAdminAuth($adminAuth)
     {
         $adminAuth = (bool) $adminAuth;
         if ($this->adminAuth !== $adminAuth) {
@@ -113,7 +113,7 @@ class XCacheOptions extends AdapterOptions
      *
      * @return bool
      */
-    public function getAdminAuth ()
+    public function getAdminAuth()
     {
         return $this->adminAuth;
     }
@@ -121,10 +121,10 @@ class XCacheOptions extends AdapterOptions
     /**
      * Set password to call admin functions
      *
-     * @param null|string $adminPass            
+     * @param  null|string $adminPass
      * @return XCacheOptions
      */
-    public function setAdminPass ($adminPass)
+    public function setAdminPass($adminPass)
     {
         $adminPass = ($adminPass === null) ? null : (string) $adminPass;
         if ($this->adminPass !== $adminPass) {
@@ -139,7 +139,7 @@ class XCacheOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getAdminPass ()
+    public function getAdminPass()
     {
         return $this->adminPass;
     }

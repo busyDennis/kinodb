@@ -3,19 +3,20 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Stdlib;
+
 use ErrorException;
 
 /**
  * ErrorHandler that can be used to catch internal PHP errors
- * and convert to a ErrorException instance.
+ * and convert to an ErrorException instance.
  */
 abstract class ErrorHandler
 {
-
     /**
      * Active stack
      *
@@ -28,7 +29,7 @@ abstract class ErrorHandler
      *
      * @return bool
      */
-    public static function started ()
+    public static function started()
     {
         return (bool) static::getNestedLevel();
     }
@@ -38,7 +39,7 @@ abstract class ErrorHandler
      *
      * @return int
      */
-    public static function getNestedLevel ()
+    public static function getNestedLevel()
     {
         return count(static::$stack);
     }
@@ -46,45 +47,40 @@ abstract class ErrorHandler
     /**
      * Starting the error handler
      *
-     * @param int $errorLevel            
+     * @param int $errorLevel
      */
-    public static function start ($errorLevel = \E_WARNING)
+    public static function start($errorLevel = \E_WARNING)
     {
-        if (! static::$stack) {
-            set_error_handler(
-                    array(
-                            get_called_class(),
-                            'addError'
-                    ), $errorLevel);
+        if (!static::$stack) {
+            set_error_handler(array(get_called_class(), 'addError'), $errorLevel);
         }
-        
+
         static::$stack[] = null;
     }
 
     /**
      * Stopping the error handler
      *
-     * @param bool $throw
-     *            Throw the ErrorException if any
+     * @param  bool $throw Throw the ErrorException if any
      * @return null|ErrorException
      * @throws ErrorException If an error has been catched and $throw is true
      */
-    public static function stop ($throw = false)
+    public static function stop($throw = false)
     {
         $errorException = null;
-        
+
         if (static::$stack) {
             $errorException = array_pop(static::$stack);
-            
-            if (! static::$stack) {
+
+            if (!static::$stack) {
                 restore_error_handler();
             }
-            
+
             if ($errorException && $throw) {
                 throw $errorException;
             }
         }
-        
+
         return $errorException;
     }
 
@@ -93,29 +89,27 @@ abstract class ErrorHandler
      *
      * @return void
      */
-    public static function clean ()
+    public static function clean()
     {
         if (static::$stack) {
             restore_error_handler();
         }
-        
+
         static::$stack = array();
     }
 
     /**
      * Add an error to the stack
      *
-     * @param int $errno            
-     * @param string $errstr            
-     * @param string $errfile            
-     * @param int $errline            
+     * @param int    $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int    $errline
      * @return void
      */
-    public static function addError ($errno, $errstr = '', $errfile = '', 
-            $errline = 0)
+    public static function addError($errno, $errstr = '', $errfile = '', $errline = 0)
     {
         $stack = & static::$stack[count(static::$stack) - 1];
-        $stack = new ErrorException($errstr, 0, $errno, $errfile, $errline, 
-                $stack);
+        $stack = new ErrorException($errstr, 0, $errno, $errfile, $errline, $stack);
     }
 }

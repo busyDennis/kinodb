@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Config\Processor;
 
 class Constant extends Token implements ProcessorInterface
 {
-
     /**
      * Replace only user-defined tokens
      *
@@ -22,29 +22,24 @@ class Constant extends Token implements ProcessorInterface
      * Constant Processor walks through a Config structure and replaces all
      * PHP constants with their respective values
      *
-     * @param bool $userOnly
-     *            True to process only user-defined constants, false to process
-     *            all PHP constants
-     * @param string $prefix
-     *            Optional prefix
-     * @param string $suffix
-     *            Optional suffix
+     * @param bool   $userOnly              True to process only user-defined constants, false to process all PHP constants
+     * @param string $prefix                Optional prefix
+     * @param string $suffix                Optional suffix
      * @return \Zend\Config\Processor\Constant
      */
-    public function __construct ($userOnly = true, $prefix = '', $suffix = '')
+    public function __construct($userOnly = true, $prefix = '', $suffix = '')
     {
         $this->setUserOnly($userOnly);
         $this->setPrefix($prefix);
         $this->setSuffix($suffix);
-        
+
         $this->loadConstants();
     }
 
     /**
-     *
      * @return bool
      */
-    public function getUserOnly ()
+    public function getUserOnly()
     {
         return $this->userOnly;
     }
@@ -52,10 +47,10 @@ class Constant extends Token implements ProcessorInterface
     /**
      * Should we use only user-defined constants?
      *
-     * @param bool $userOnly            
+     * @param  bool $userOnly
      * @return Constant
      */
-    public function setUserOnly ($userOnly)
+    public function setUserOnly($userOnly)
     {
         $this->userOnly = (bool) $userOnly;
         return $this;
@@ -66,7 +61,7 @@ class Constant extends Token implements ProcessorInterface
      *
      * @return void
      */
-    public function loadConstants ()
+    public function loadConstants()
     {
         if ($this->userOnly) {
             $constants = get_defined_constants(true);
@@ -79,10 +74,9 @@ class Constant extends Token implements ProcessorInterface
 
     /**
      * Get current token registry.
-     *
      * @return array
      */
-    public function getTokens ()
+    public function getTokens()
     {
         return $this->tokens;
     }

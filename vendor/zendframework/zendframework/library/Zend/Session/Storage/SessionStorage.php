@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Session\Storage;
+
 use Zend\Stdlib\ArrayObject;
 
 /**
@@ -17,32 +19,30 @@ use Zend\Stdlib\ArrayObject;
  */
 class SessionStorage extends ArrayStorage
 {
-
     /**
      * Constructor
      *
      * Sets the $_SESSION superglobal to an ArrayObject, maintaining previous
      * values if any discovered.
      *
-     * @param array|null $input            
-     * @param int $flags            
-     * @param string $iteratorClass            
+     * @param array|null $input
+     * @param int        $flags
+     * @param string     $iteratorClass
      */
-    public function __construct ($input = null, $flags = ArrayObject::ARRAY_AS_PROPS, 
-            $iteratorClass = '\\ArrayIterator')
+    public function __construct($input = null, $flags = ArrayObject::ARRAY_AS_PROPS, $iteratorClass = '\\ArrayIterator')
     {
         $resetSession = true;
         if ((null === $input) && isset($_SESSION)) {
             $input = $_SESSION;
             if (is_object($input) && $_SESSION instanceof ArrayObject) {
                 $resetSession = false;
-            } elseif (is_object($input) && ! $_SESSION instanceof ArrayObject) {
+            } elseif (is_object($input) && !$_SESSION instanceof ArrayObject) {
                 $input = (array) $input;
             }
         } elseif (null === $input) {
             $input = array();
         }
-        
+
         parent::__construct($input, $flags, $iteratorClass);
         if ($resetSession) {
             $_SESSION = $this;
@@ -57,7 +57,7 @@ class SessionStorage extends ArrayStorage
      *
      * @return void
      */
-    public function __destruct ()
+    public function __destruct()
     {
         $_SESSION = (array) $this->getArrayCopy();
     }
@@ -67,16 +67,16 @@ class SessionStorage extends ArrayStorage
      *
      * Ensures $_SESSION is set to an instance of the object when complete.
      *
-     * @param array $array            
+     * @param  array          $array
      * @return SessionStorage
      */
-    public function fromArray (array $array)
+    public function fromArray(array $array)
     {
         parent::fromArray($array);
         if ($_SESSION !== $this) {
             $_SESSION = $this;
         }
-        
+
         return $this;
     }
 
@@ -85,10 +85,10 @@ class SessionStorage extends ArrayStorage
      *
      * @return SessionStorage
      */
-    public function markImmutable ()
+    public function markImmutable()
     {
         $this['_IMMUTABLE'] = true;
-        
+
         return $this;
     }
 
@@ -97,7 +97,7 @@ class SessionStorage extends ArrayStorage
      *
      * @return bool
      */
-    public function isImmutable ()
+    public function isImmutable()
     {
         return (isset($this['_IMMUTABLE']) && $this['_IMMUTABLE']);
     }

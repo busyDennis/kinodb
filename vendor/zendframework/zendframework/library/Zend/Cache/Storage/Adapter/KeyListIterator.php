@@ -3,17 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
+
 use Countable;
 use Zend\Cache\Storage\IteratorInterface;
 use Zend\Cache\Storage\StorageInterface;
 
 class KeyListIterator implements IteratorInterface, Countable
 {
-
     /**
      * The storage instance
      *
@@ -52,14 +53,14 @@ class KeyListIterator implements IteratorInterface, Countable
     /**
      * Constructor
      *
-     * @param StorageInterface $storage            
-     * @param array $keys            
+     * @param StorageInterface $storage
+     * @param array            $keys
      */
-    public function __construct (StorageInterface $storage, array $keys)
+    public function __construct(StorageInterface $storage, array $keys)
     {
         $this->storage = $storage;
-        $this->keys = $keys;
-        $this->count = count($keys);
+        $this->keys    = $keys;
+        $this->count   = count($keys);
     }
 
     /**
@@ -67,7 +68,7 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return StorageInterface
      */
-    public function getStorage ()
+    public function getStorage()
     {
         return $this->storage;
     }
@@ -77,7 +78,7 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return int Value of IteratorInterface::CURRENT_AS_*
      */
-    public function getMode ()
+    public function getMode()
     {
         return $this->mode;
     }
@@ -85,10 +86,10 @@ class KeyListIterator implements IteratorInterface, Countable
     /**
      * Set iterator mode
      *
-     * @param int $mode            
+     * @param int $mode
      * @return KeyListIterator Fluent interface
      */
-    public function setMode ($mode)
+    public function setMode($mode)
     {
         $this->mode = (int) $mode;
         return $this;
@@ -99,20 +100,20 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return mixed
      */
-    public function current ()
+    public function current()
     {
         if ($this->mode == IteratorInterface::CURRENT_AS_SELF) {
             return $this;
         }
-        
+
         $key = $this->key();
-        
+
         if ($this->mode == IteratorInterface::CURRENT_AS_METADATA) {
             return $this->storage->getMetadata($key);
         } elseif ($this->mode == IteratorInterface::CURRENT_AS_VALUE) {
             return $this->storage->getItem($key);
         }
-        
+
         return $key;
     }
 
@@ -121,7 +122,7 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return string
      */
-    public function key ()
+    public function key()
     {
         return $this->keys[$this->position];
     }
@@ -131,7 +132,7 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return $this->position < $this->count;
     }
@@ -141,9 +142,9 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return void
      */
-    public function next ()
+    public function next()
     {
-        $this->position ++;
+        $this->position++;
     }
 
     /**
@@ -151,7 +152,7 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return void
      */
-    public function rewind ()
+    public function rewind()
     {
         $this->position = 0;
     }
@@ -161,7 +162,7 @@ class KeyListIterator implements IteratorInterface, Countable
      *
      * @return int
      */
-    public function count ()
+    public function count()
     {
         return $this->count;
     }

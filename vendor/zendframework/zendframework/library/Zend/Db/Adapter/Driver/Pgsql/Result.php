@@ -3,36 +3,33 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter\Driver\Pgsql;
+
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\Adapter\Exception;
 
 class Result implements ResultInterface
 {
-
     /**
-     *
      * @var resource
      */
     protected $resource = null;
 
     /**
-     *
      * @var int
      */
     protected $position = 0;
 
     /**
-     *
      * @var int
      */
     protected $count = 0;
 
     /**
-     *
      * @var null|mixed
      */
     protected $generatedValue = null;
@@ -40,21 +37,17 @@ class Result implements ResultInterface
     /**
      * Initialize
      *
-     * @param
-     *            $resource
-     * @param
-     *            $generatedValue
+     * @param $resource
+     * @param $generatedValue
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function initialize ($resource, $generatedValue)
+    public function initialize($resource, $generatedValue)
     {
-        if (! is_resource($resource) ||
-                 get_resource_type($resource) != 'pgsql result') {
-            throw new Exception\InvalidArgumentException(
-                    'Resource not of the correct type.');
+        if (!is_resource($resource) || get_resource_type($resource) != 'pgsql result') {
+            throw new Exception\InvalidArgumentException('Resource not of the correct type.');
         }
-        
+
         $this->resource = $resource;
         $this->count = pg_num_rows($this->resource);
         $this->generatedValue = $generatedValue;
@@ -65,7 +58,7 @@ class Result implements ResultInterface
      *
      * @return array|bool|mixed
      */
-    public function current ()
+    public function current()
     {
         if ($this->count === 0) {
             return false;
@@ -78,9 +71,9 @@ class Result implements ResultInterface
      *
      * @return void
      */
-    public function next ()
+    public function next()
     {
-        $this->position ++;
+        $this->position++;
     }
 
     /**
@@ -88,7 +81,7 @@ class Result implements ResultInterface
      *
      * @return int|mixed
      */
-    public function key ()
+    public function key()
     {
         return $this->position;
     }
@@ -98,7 +91,7 @@ class Result implements ResultInterface
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return ($this->position < $this->count);
     }
@@ -108,7 +101,7 @@ class Result implements ResultInterface
      *
      * @return void
      */
-    public function rewind ()
+    public function rewind()
     {
         $this->position = 0;
     }
@@ -118,9 +111,9 @@ class Result implements ResultInterface
      *
      * @return null
      */
-    public function buffer ()
+    public function buffer()
     {
-        return null;
+        return;
     }
 
     /**
@@ -128,7 +121,7 @@ class Result implements ResultInterface
      *
      * @return false
      */
-    public function isBuffered ()
+    public function isBuffered()
     {
         return false;
     }
@@ -138,7 +131,7 @@ class Result implements ResultInterface
      *
      * @return bool
      */
-    public function isQueryResult ()
+    public function isQueryResult()
     {
         return (pg_num_fields($this->resource) > 0);
     }
@@ -148,7 +141,7 @@ class Result implements ResultInterface
      *
      * @return int
      */
-    public function getAffectedRows ()
+    public function getAffectedRows()
     {
         return pg_affected_rows($this->resource);
     }
@@ -158,7 +151,7 @@ class Result implements ResultInterface
      *
      * @return mixed|null
      */
-    public function getGeneratedValue ()
+    public function getGeneratedValue()
     {
         return $this->generatedValue;
     }
@@ -166,7 +159,7 @@ class Result implements ResultInterface
     /**
      * Get resource
      */
-    public function getResource ()
+    public function getResource()
     {
         // TODO: Implement getResource() method.
     }
@@ -176,14 +169,13 @@ class Result implements ResultInterface
      *
      * (PHP 5 &gt;= 5.1.0)<br/>
      * Count elements of an object
-     *
      * @link http://php.net/manual/en/countable.count.php
      * @return int The custom count as an integer.
-     *         </p>
-     *         <p>
-     *         The return value is cast to an integer.
+     * </p>
+     * <p>
+     * The return value is cast to an integer.
      */
-    public function count ()
+    public function count()
     {
         return $this->count;
     }
@@ -193,7 +185,7 @@ class Result implements ResultInterface
      *
      * @return int
      */
-    public function getFieldCount ()
+    public function getFieldCount()
     {
         return pg_num_fields($this->resource);
     }

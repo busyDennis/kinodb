@@ -3,53 +3,49 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Code\Reflection\DocBlock\Tag;
 
-class GenericTag implements TagInterface
-{
+use Zend\Code\Generic\Prototype\PrototypeGenericInterface;
 
+class GenericTag implements TagInterface, PrototypeGenericInterface
+{
     /**
-     *
      * @var string
      */
     protected $name = null;
 
     /**
-     *
      * @var string
      */
     protected $content = null;
 
     /**
-     *
      * @var null|string
      */
     protected $contentSplitCharacter = null;
 
     /**
-     *
      * @var array
      */
     protected $values = array();
 
     /**
-     *
-     * @param string $contentSplitCharacter            
+     * @param  string $contentSplitCharacter
      */
-    public function __construct ($contentSplitCharacter = ' ')
+    public function __construct($contentSplitCharacter = ' ')
     {
         $this->contentSplitCharacter = $contentSplitCharacter;
     }
 
     /**
-     *
-     * @param string $tagDocBlockLine            
+     * @param  string $tagDocBlockLine
      * @return void
      */
-    public function initialize ($tagDocBlockLine)
+    public function initialize($tagDocBlockLine)
     {
         $this->parse($tagDocBlockLine);
     }
@@ -59,35 +55,32 @@ class GenericTag implements TagInterface
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
 
     /**
-     *
-     * @param string $name            
+     * @param  string $name
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = $name;
     }
 
     /**
-     *
      * @return string
      */
-    public function getContent ()
+    public function getContent()
     {
         return $this->content;
     }
 
     /**
-     *
-     * @param int $position            
+     * @param  int $position
      * @return string
      */
-    public function returnValue ($position)
+    public function returnValue($position)
     {
         return $this->values[$position];
     }
@@ -97,19 +90,18 @@ class GenericTag implements TagInterface
      *
      * Required by Reflector
      *
-     * @todo What should this do?
+     * @todo   What should this do?
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return 'DocBlock Tag [ * @' . $this->name . ' ]' . PHP_EOL;
     }
 
     /**
-     *
-     * @param string $docBlockLine            
+     * @param  string $docBlockLine
      */
-    protected function parse ($docBlockLine)
+    protected function parse($docBlockLine)
     {
         $this->content = trim($docBlockLine);
         $this->values = explode($this->contentSplitCharacter, $docBlockLine);

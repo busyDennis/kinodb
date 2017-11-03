@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc;
+
 use Zend\EventManager\Event;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
@@ -15,62 +17,46 @@ use Zend\View\Model\ViewModel;
 
 class MvcEvent extends Event
 {
-
-    /**
-     * #@+
+    /**#@+
      * Mvc events triggered by eventmanager
      */
-    const EVENT_BOOTSTRAP = 'bootstrap';
-
-    const EVENT_DISPATCH = 'dispatch';
-
+    const EVENT_BOOTSTRAP      = 'bootstrap';
+    const EVENT_DISPATCH       = 'dispatch';
     const EVENT_DISPATCH_ERROR = 'dispatch.error';
+    const EVENT_FINISH         = 'finish';
+    const EVENT_RENDER         = 'render';
+    const EVENT_RENDER_ERROR   = 'render.error';
+    const EVENT_ROUTE          = 'route';
+    /**#@-*/
 
-    const EVENT_FINISH = 'finish';
-
-    const EVENT_RENDER = 'render';
-
-    const EVENT_RENDER_ERROR = 'render.error';
-
-    const EVENT_ROUTE = 'route';
-
-    /**
-     * #@-
-     */
     protected $application;
 
     /**
-     *
      * @var Request
      */
     protected $request;
 
     /**
-     *
      * @var Response
      */
     protected $response;
 
     /**
-     *
      * @var mixed
      */
     protected $result;
 
     /**
-     *
      * @var Router\RouteStackInterface
      */
     protected $router;
 
     /**
-     *
      * @var Router\RouteMatch
      */
     protected $routeMatch;
 
     /**
-     *
      * @var Model
      */
     protected $viewModel;
@@ -78,10 +64,10 @@ class MvcEvent extends Event
     /**
      * Set application instance
      *
-     * @param ApplicationInterface $application            
+     * @param  ApplicationInterface $application
      * @return MvcEvent
      */
-    public function setApplication (ApplicationInterface $application)
+    public function setApplication(ApplicationInterface $application)
     {
         $this->setParam('application', $application);
         $this->application = $application;
@@ -93,7 +79,7 @@ class MvcEvent extends Event
      *
      * @return ApplicationInterface
      */
-    public function getApplication ()
+    public function getApplication()
     {
         return $this->application;
     }
@@ -103,7 +89,7 @@ class MvcEvent extends Event
      *
      * @return Router\RouteStackInterface
      */
-    public function getRouter ()
+    public function getRouter()
     {
         return $this->router;
     }
@@ -111,10 +97,10 @@ class MvcEvent extends Event
     /**
      * Set router
      *
-     * @param Router\RouteStackInterface $router            
+     * @param Router\RouteStackInterface $router
      * @return MvcEvent
      */
-    public function setRouter (Router\RouteStackInterface $router)
+    public function setRouter(Router\RouteStackInterface $router)
     {
         $this->setParam('router', $router);
         $this->router = $router;
@@ -126,7 +112,7 @@ class MvcEvent extends Event
      *
      * @return Router\RouteMatch
      */
-    public function getRouteMatch ()
+    public function getRouteMatch()
     {
         return $this->routeMatch;
     }
@@ -134,10 +120,10 @@ class MvcEvent extends Event
     /**
      * Set route match
      *
-     * @param Router\RouteMatch $matches            
+     * @param Router\RouteMatch $matches
      * @return MvcEvent
      */
-    public function setRouteMatch (Router\RouteMatch $matches)
+    public function setRouteMatch(Router\RouteMatch $matches)
     {
         $this->setParam('route-match', $matches);
         $this->routeMatch = $matches;
@@ -149,7 +135,7 @@ class MvcEvent extends Event
      *
      * @return Request
      */
-    public function getRequest ()
+    public function getRequest()
     {
         return $this->request;
     }
@@ -157,10 +143,10 @@ class MvcEvent extends Event
     /**
      * Set request
      *
-     * @param Request $request            
+     * @param Request $request
      * @return MvcEvent
      */
-    public function setRequest (Request $request)
+    public function setRequest(Request $request)
     {
         $this->setParam('request', $request);
         $this->request = $request;
@@ -172,7 +158,7 @@ class MvcEvent extends Event
      *
      * @return Response
      */
-    public function getResponse ()
+    public function getResponse()
     {
         return $this->response;
     }
@@ -180,10 +166,10 @@ class MvcEvent extends Event
     /**
      * Set response
      *
-     * @param Response $response            
+     * @param Response $response
      * @return MvcEvent
      */
-    public function setResponse (Response $response)
+    public function setResponse(Response $response)
     {
         $this->setParam('response', $response);
         $this->response = $response;
@@ -193,10 +179,10 @@ class MvcEvent extends Event
     /**
      * Set the view model
      *
-     * @param Model $viewModel            
+     * @param  Model $viewModel
      * @return MvcEvent
      */
-    public function setViewModel (Model $viewModel)
+    public function setViewModel(Model $viewModel)
     {
         $this->viewModel = $viewModel;
         return $this;
@@ -207,7 +193,7 @@ class MvcEvent extends Event
      *
      * @return Model
      */
-    public function getViewModel ()
+    public function getViewModel()
     {
         if (null === $this->viewModel) {
             $this->setViewModel(new ViewModel());
@@ -220,7 +206,7 @@ class MvcEvent extends Event
      *
      * @return mixed
      */
-    public function getResult ()
+    public function getResult()
     {
         return $this->result;
     }
@@ -228,10 +214,10 @@ class MvcEvent extends Event
     /**
      * Set result
      *
-     * @param mixed $result            
+     * @param mixed $result
      * @return MvcEvent
      */
-    public function setResult ($result)
+    public function setResult($result)
     {
         $this->setParam('__RESULT__', $result);
         $this->result = $result;
@@ -243,7 +229,7 @@ class MvcEvent extends Event
      *
      * @return bool
      */
-    public function isError ()
+    public function isError()
     {
         return (bool) $this->getParam('error', false);
     }
@@ -251,10 +237,10 @@ class MvcEvent extends Event
     /**
      * Set the error message (indicating error in handling request)
      *
-     * @param string $message            
+     * @param  string $message
      * @return MvcEvent
      */
-    public function setError ($message)
+    public function setError($message)
     {
         $this->setParam('error', $message);
         return $this;
@@ -265,7 +251,7 @@ class MvcEvent extends Event
      *
      * @return string
      */
-    public function getError ()
+    public function getError()
     {
         return $this->getParam('error', '');
     }
@@ -275,7 +261,7 @@ class MvcEvent extends Event
      *
      * @return string
      */
-    public function getController ()
+    public function getController()
     {
         return $this->getParam('controller');
     }
@@ -283,10 +269,10 @@ class MvcEvent extends Event
     /**
      * Set controller name
      *
-     * @param string $name            
+     * @param  string $name
      * @return MvcEvent
      */
-    public function setController ($name)
+    public function setController($name)
     {
         $this->setParam('controller', $name);
         return $this;
@@ -297,7 +283,7 @@ class MvcEvent extends Event
      *
      * @return string
      */
-    public function getControllerClass ()
+    public function getControllerClass()
     {
         return $this->getParam('controller-class');
     }
@@ -305,10 +291,10 @@ class MvcEvent extends Event
     /**
      * Set controller class
      *
-     * @param string $class            
+     * @param string $class
      * @return MvcEvent
      */
-    public function setControllerClass ($class)
+    public function setControllerClass($class)
     {
         $this->setParam('controller-class', $class);
         return $this;

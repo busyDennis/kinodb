@@ -3,18 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Test\Util;
+
 use Zend\Mvc\Service;
 use Zend\ServiceManager\ServiceManager;
 
 class ModuleLoader
 {
-
     /**
-     *
      * @var ServiceManager
      */
     protected $serviceManager;
@@ -22,17 +21,17 @@ class ModuleLoader
     /**
      * Load list of modules or application configuration
      *
-     * @param array $configuration            
+     * @param array $configuration
      */
-    public function __construct (array $configuration)
+    public function __construct(array $configuration)
     {
-        if (! isset($configuration['modules'])) {
+        if (!isset($configuration['modules'])) {
             $modules = $configuration;
             $configuration = array(
-                    'module_listener_options' => array(
-                            'module_paths' => array()
-                    ),
-                    'modules' => array()
+                'module_listener_options' => array(
+                    'module_paths' => array(),
+                ),
+                'modules' => array(),
             );
             foreach ($modules as $key => $module) {
                 if (is_numeric($key)) {
@@ -43,10 +42,9 @@ class ModuleLoader
                 $configuration['module_listener_options']['module_paths'][$key] = $module;
             }
         }
-        
+
         $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : array();
-        $this->serviceManager = new ServiceManager(
-                new Service\ServiceManagerConfig($smConfig));
+        $this->serviceManager = new ServiceManager(new Service\ServiceManagerConfig($smConfig));
         $this->serviceManager->setService('ApplicationConfig', $configuration);
         $this->serviceManager->get('ModuleManager')->loadModules();
     }
@@ -54,9 +52,9 @@ class ModuleLoader
     /**
      * Get the application
      *
-     * @return Zend\Mvc\Application
+     * @return \Zend\Mvc\Application
      */
-    public function getApplication ()
+    public function getApplication()
     {
         return $this->getServiceManager()->get('Application');
     }
@@ -64,19 +62,20 @@ class ModuleLoader
     /**
      * Get the module manager
      *
-     * @return Zend\ModuleManager\ModuleManager
+     * @return \Zend\ModuleManager\ModuleManager
      */
-    public function getModuleManager ()
+    public function getModuleManager()
     {
         return $this->getServiceManager()->get('ModuleManager');
     }
 
     /**
-     * Get module
+     * Get module by name
      *
+     * @param $moduleName
      * @return mixed
      */
-    public function getModule ($moduleName)
+    public function getModule($moduleName)
     {
         return $this->getModuleManager()->getModule($moduleName);
     }
@@ -84,9 +83,9 @@ class ModuleLoader
     /**
      * Get the service manager
      *
-     * @var ServiceManager
+     * @return ServiceManager
      */
-    public function getServiceManager ()
+    public function getServiceManager()
     {
         return $this->serviceManager;
     }

@@ -3,24 +3,25 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Stdlib;
+
 use ArrayObject as PhpArrayObject;
 
 class Parameters extends PhpArrayObject implements ParametersInterface
 {
-
     /**
      * Constructor
      *
      * Enforces that we have an array, and enforces parameter access to array
      * elements.
      *
-     * @param array $values            
+     * @param  array $values
      */
-    public function __construct (array $values = null)
+    public function __construct(array $values = null)
     {
         if (null === $values) {
             $values = array();
@@ -31,10 +32,10 @@ class Parameters extends PhpArrayObject implements ParametersInterface
     /**
      * Populate from native PHP array
      *
-     * @param array $values            
+     * @param  array $values
      * @return void
      */
-    public function fromArray (array $values)
+    public function fromArray(array $values)
     {
         $this->exchangeArray($values);
     }
@@ -42,10 +43,10 @@ class Parameters extends PhpArrayObject implements ParametersInterface
     /**
      * Populate from query string
      *
-     * @param string $string            
+     * @param  string $string
      * @return void
      */
-    public function fromString ($string)
+    public function fromString($string)
     {
         $array = array();
         parse_str($string, $array);
@@ -57,7 +58,7 @@ class Parameters extends PhpArrayObject implements ParametersInterface
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         return $this->getArrayCopy();
     }
@@ -67,7 +68,7 @@ class Parameters extends PhpArrayObject implements ParametersInterface
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return http_build_query($this);
     }
@@ -77,39 +78,36 @@ class Parameters extends PhpArrayObject implements ParametersInterface
      *
      * Returns null if the key does not exist.
      *
-     * @param string $name            
+     * @param  string $name
      * @return mixed
      */
-    public function offsetGet ($name)
+    public function offsetGet($name)
     {
-        if (isset($this[$name])) {
+        if ($this->offsetExists($name)) {
             return parent::offsetGet($name);
         }
-        return null;
+        return;
     }
 
     /**
-     *
-     * @param string $name            
-     * @param mixed $default
-     *            optional default value
+     * @param string $name
+     * @param mixed $default optional default value
      * @return mixed
      */
-    public function get ($name, $default = null)
+    public function get($name, $default = null)
     {
-        if (isset($this[$name])) {
+        if ($this->offsetExists($name)) {
             return parent::offsetGet($name);
         }
         return $default;
     }
 
     /**
-     *
-     * @param string $name            
-     * @param mixed $value            
+     * @param string $name
+     * @param mixed $value
      * @return Parameters
      */
-    public function set ($name, $value)
+    public function set($name, $value)
     {
         $this[$name] = $value;
         return $this;

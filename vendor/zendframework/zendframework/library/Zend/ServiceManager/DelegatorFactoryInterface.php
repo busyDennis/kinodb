@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\ServiceManager;
 
 /**
@@ -13,22 +14,15 @@ namespace Zend\ServiceManager;
  */
 interface DelegatorFactoryInterface
 {
-
     /**
      * A factory that creates delegates of a given service
      *
-     * @param ServiceLocatorInterface $serviceLocator
-     *            the service locator which requested the service
-     * @param string $name
-     *            the normalized service name
-     * @param string $requestedName
-     *            the requested service name
-     * @param callable $callback
-     *            the callback that is responsible for creating the service
-     *            
+     * @param ServiceLocatorInterface $serviceLocator the service locator which requested the service
+     * @param string                  $name           the normalized service name
+     * @param string                  $requestedName  the requested service name
+     * @param callable                $callback       the callback that is responsible for creating the service
+     *
      * @return mixed
      */
-    public function createDelegatorWithName (
-            ServiceLocatorInterface $serviceLocator, $name, $requestedName, 
-            $callback);
+    public function createDelegatorWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName, $callback);
 }

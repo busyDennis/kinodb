@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Ldap\Filter;
 
 /**
@@ -13,7 +14,6 @@ namespace Zend\Ldap\Filter;
  */
 class StringFilter extends AbstractFilter
 {
-
     /**
      * The filter.
      *
@@ -24,9 +24,9 @@ class StringFilter extends AbstractFilter
     /**
      * Creates a Zend\Ldap\Filter\StringFilter.
      *
-     * @param string $filter            
+     * @param string $filter
      */
-    public function __construct ($filter)
+    public function __construct($filter)
     {
         $this->filter = $filter;
     }
@@ -36,7 +36,7 @@ class StringFilter extends AbstractFilter
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return '(' . $this->filter . ')';
     }

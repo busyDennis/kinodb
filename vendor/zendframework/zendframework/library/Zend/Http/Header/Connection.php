@@ -3,21 +3,20 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http\Header;
 
 /**
  * Connection Header
  *
- * @link http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.10
+ * @link       http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.10
  */
 class Connection implements HeaderInterface
 {
-
-    const CONNECTION_CLOSE = 'close';
-
+    const CONNECTION_CLOSE      = 'close';
     const CONNECTION_KEEP_ALIVE = 'keep-alive';
 
     /**
@@ -28,42 +27,37 @@ class Connection implements HeaderInterface
     protected $value = self::CONNECTION_KEEP_ALIVE;
 
     /**
-     *
-     * @param
-     *            $headerLine
+     * @param $headerLine
      * @return Connection
      * @throws Exception\InvalidArgumentException
      */
-    public static function fromString ($headerLine)
+    public static function fromString($headerLine)
     {
         $header = new static();
-        
-        list ($name, $value) = explode(': ', $headerLine, 2);
-        
+
+        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
+
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'connection') {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid header line for Connection string: "' . $name . '"');
+            throw new Exception\InvalidArgumentException('Invalid header line for Connection string: "' . $name . '"');
         }
-        
+
         $header->setValue(trim($value));
-        
+
         return $header;
     }
 
     /**
      * Set Connection header to define persistent connection
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return Connection
      */
-    public function setPersistent ($flag)
+    public function setPersistent($flag)
     {
-        if ((bool) $flag === true) {
-            $this->value = self::CONNECTION_KEEP_ALIVE;
-        } else {
-            $this->value = self::CONNECTION_CLOSE;
-        }
+        $this->value = (bool) $flag
+            ? self::CONNECTION_KEEP_ALIVE
+            : self::CONNECTION_CLOSE;
         return $this;
     }
 
@@ -72,7 +66,7 @@ class Connection implements HeaderInterface
      *
      * @return bool
      */
-    public function isPersistent ()
+    public function isPersistent()
     {
         return ($this->value === self::CONNECTION_KEEP_ALIVE);
     }
@@ -81,11 +75,12 @@ class Connection implements HeaderInterface
      * Set arbitrary header value
      * RFC allows any token as value, 'close' and 'keep-alive' are commonly used
      *
-     * @param string $value            
+     * @param string $value
      * @return Connection
      */
-    public function setValue ($value)
+    public function setValue($value)
     {
+        HeaderValue::assertValid($value);
         $this->value = strtolower($value);
         return $this;
     }
@@ -95,7 +90,7 @@ class Connection implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldName ()
+    public function getFieldName()
     {
         return 'Connection';
     }
@@ -105,7 +100,7 @@ class Connection implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldValue ()
+    public function getFieldValue()
     {
         return $this->value;
     }
@@ -115,7 +110,7 @@ class Connection implements HeaderInterface
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return 'Connection: ' . $this->getFieldValue();
     }

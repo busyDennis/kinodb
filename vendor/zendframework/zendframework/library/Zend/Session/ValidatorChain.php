@@ -3,10 +3,11 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Session;
+
 use Zend\EventManager\EventManager;
 use Zend\Session\Storage\StorageInterface as Storage;
 use Zend\Session\Validator\ValidatorInterface as Validator;
@@ -16,9 +17,7 @@ use Zend\Session\Validator\ValidatorInterface as Validator;
  */
 class ValidatorChain extends EventManager
 {
-
     /**
-     *
      * @var Storage
      */
     protected $storage;
@@ -28,20 +27,16 @@ class ValidatorChain extends EventManager
      *
      * Retrieves validators from session storage and attaches them.
      *
-     * @param Storage $storage            
+     * @param Storage $storage
      */
-    public function __construct (Storage $storage)
+    public function __construct(Storage $storage)
     {
         $this->storage = $storage;
-        
+
         $validators = $storage->getMetadata('_VALID');
         if ($validators) {
             foreach ($validators as $validator => $data) {
-                $this->attach('session.validate', 
-                        array(
-                                new $validator($data),
-                                'isValid'
-                        ));
+                $this->attach('session.validate', array(new $validator($data), 'isValid'));
             }
         }
     }
@@ -49,12 +44,12 @@ class ValidatorChain extends EventManager
     /**
      * Attach a listener to the session validator chain
      *
-     * @param string $event            
-     * @param callable $callback            
-     * @param int $priority            
+     * @param  string $event
+     * @param  callable $callback
+     * @param  int $priority
      * @return \Zend\Stdlib\CallbackHandler
      */
-    public function attach ($event, $callback = null, $priority = 1)
+    public function attach($event, $callback = null, $priority = 1)
     {
         $context = null;
         if ($callback instanceof Validator) {
@@ -69,12 +64,9 @@ class ValidatorChain extends EventManager
         if ($context instanceof Validator) {
             $data = $context->getData();
             $name = $context->getName();
-            $this->getStorage()->setMetadata('_VALID', 
-                    array(
-                            $name => $data
-                    ));
+            $this->getStorage()->setMetadata('_VALID', array($name => $data));
         }
-        
+
         $listener = parent::attach($event, $callback, $priority);
         return $listener;
     }
@@ -84,7 +76,7 @@ class ValidatorChain extends EventManager
      *
      * @return Storage
      */
-    public function getStorage ()
+    public function getStorage()
     {
         return $this->storage;
     }

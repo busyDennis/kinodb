@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
+
 use Zend\Cache\Exception;
 
 /**
@@ -14,7 +16,6 @@ use Zend\Cache\Exception;
  */
 class DbaOptions extends AdapterOptions
 {
-
     /**
      * Namespace separator
      *
@@ -46,10 +47,10 @@ class DbaOptions extends AdapterOptions
     /**
      * Set namespace separator
      *
-     * @param string $namespaceSeparator            
+     * @param  string $namespaceSeparator
      * @return DbaOptions
      */
-    public function setNamespaceSeparator ($namespaceSeparator)
+    public function setNamespaceSeparator($namespaceSeparator)
     {
         $namespaceSeparator = (string) $namespaceSeparator;
         $this->triggerOptionEvent('namespace_separator', $namespaceSeparator);
@@ -62,7 +63,7 @@ class DbaOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getNamespaceSeparator ()
+    public function getNamespaceSeparator()
     {
         return $this->namespaceSeparator;
     }
@@ -70,10 +71,10 @@ class DbaOptions extends AdapterOptions
     /**
      * Set pathname to database file
      *
-     * @param string $pathname            
+     * @param string $pathname
      * @return DbaOptions
      */
-    public function setPathname ($pathname)
+    public function setPathname($pathname)
     {
         $this->pathname = (string) $pathname;
         $this->triggerOptionEvent('pathname', $pathname);
@@ -85,44 +86,49 @@ class DbaOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getPathname ()
+    public function getPathname()
     {
         return $this->pathname;
     }
 
     /**
      *
-     * @param string $mode            
+     *
+     * @param string $mode
      * @return \Zend\Cache\Storage\Adapter\DbaOptions
      */
-    public function setMode ($mode)
+    public function setMode($mode)
     {
         $this->mode = (string) $mode;
         $this->triggerOptionEvent('mode', $mode);
         return $this;
     }
 
-    public function getMode ()
+    public function getMode()
     {
         return $this->mode;
     }
 
-    public function setHandler ($handler)
+    public function setHandler($handler)
     {
         $handler = (string) $handler;
-        
-        if (! function_exists('dba_handlers') ||
-                 ! in_array($handler, dba_handlers())) {
-            throw new Exception\ExtensionNotLoadedException(
-                    "DBA-Handler '{$handler}' not supported");
+
+        if (!function_exists('dba_handlers') || !in_array($handler, dba_handlers())) {
+            throw new Exception\ExtensionNotLoadedException("DBA-Handler '{$handler}' not supported");
         }
-        
+
+        if ($handler === 'inifile') {
+            throw new Exception\ExtensionNotLoadedException(
+                "DBA-Handler 'inifile' does not reliably support write operations"
+            );
+        }
+
         $this->triggerOptionEvent('handler', $handler);
         $this->handler = $handler;
         return $this;
     }
 
-    public function getHandler ()
+    public function getHandler()
     {
         return $this->handler;
     }

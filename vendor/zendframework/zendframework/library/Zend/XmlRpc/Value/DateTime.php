@@ -3,15 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\XmlRpc\Value;
+
 use Zend\XmlRpc\Exception;
 
 class DateTime extends AbstractScalar
 {
-
     /**
      * PHP compatible format string for XML/RPC datetime values
      *
@@ -31,35 +32,26 @@ class DateTime extends AbstractScalar
      *
      * The value is in iso8601 format, minus any timezone information or dashes
      *
-     * @param mixed $value
-     *            Integer of the unix timestamp or any string that can be parsed
-     *            to a unix timestamp using the PHP strtotime() function
-     * @throws Exception\ValueException if unable to create a DateTime object
-     *         from $value
+     * @param mixed $value Integer of the unix timestamp or any string that can be parsed
+     *                     to a unix timestamp using the PHP strtotime() function
+     * @throws Exception\ValueException if unable to create a DateTime object from $value
      */
-    public function __construct ($value)
+    public function __construct($value)
     {
         $this->type = self::XMLRPC_TYPE_DATETIME;
-        
+
         if ($value instanceof \DateTime) {
             $this->value = $value->format($this->phpFormatString);
-        } elseif (is_numeric($value)) { // The value is numeric, we make sure it
-                                        // is an integer
+        } elseif (is_numeric($value)) { // The value is numeric, we make sure it is an integer
             $this->value = date($this->phpFormatString, (int) $value);
         } else {
             try {
                 $dateTime = new \DateTime($value);
             } catch (\Exception $e) {
-                throw new Exception\ValueException($e->getMessage(), 
-                        $e->getCode(), $e);
+                throw new Exception\ValueException($e->getMessage(), $e->getCode(), $e);
             }
-            
-            $this->value = $dateTime->format($this->phpFormatString); // Convert
-                                                                          // the
-                                                                          // DateTime
-                                                                          // to
-                                                                          // iso8601
-                                                                          // format
+
+            $this->value = $dateTime->format($this->phpFormatString); // Convert the DateTime to iso8601 format
         }
     }
 
@@ -68,7 +60,7 @@ class DateTime extends AbstractScalar
      *
      * @return int As a Unix timestamp
      */
-    public function getValue ()
+    public function getValue()
     {
         return $this->value;
     }

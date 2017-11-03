@@ -3,57 +3,35 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Json\Server;
 
 class Error
 {
-
-    const ERROR_PARSE = - 32768;
-
-    const ERROR_INVALID_REQUEST = - 32600;
-
-    const ERROR_INVALID_METHOD = - 32601;
-
-    const ERROR_INVALID_PARAMS = - 32602;
-
-    const ERROR_INTERNAL = - 32603;
-
-    const ERROR_OTHER = - 32000;
-
-    /**
-     * Allowed error codes
-     *
-     * @var array
-     */
-    protected $allowedCodes = array(
-            self::ERROR_PARSE,
-            self::ERROR_INVALID_REQUEST,
-            self::ERROR_INVALID_METHOD,
-            self::ERROR_INVALID_PARAMS,
-            self::ERROR_INTERNAL,
-            self::ERROR_OTHER
-    );
+    const ERROR_PARSE           = -32700;
+    const ERROR_INVALID_REQUEST = -32600;
+    const ERROR_INVALID_METHOD  = -32601;
+    const ERROR_INVALID_PARAMS  = -32602;
+    const ERROR_INTERNAL        = -32603;
+    const ERROR_OTHER           = -32000;
 
     /**
      * Current code
-     *
      * @var int
      */
-    protected $code = - 32000;
+    protected $code = self::ERROR_OTHER;
 
     /**
      * Error data
-     *
      * @var mixed
      */
     protected $data;
 
     /**
      * Error message
-     *
      * @var string
      */
     protected $message;
@@ -61,36 +39,43 @@ class Error
     /**
      * Constructor
      *
-     * @param string $message            
-     * @param int $code            
-     * @param mixed $data            
+     * @param  string $message
+     * @param  int $code
+     * @param  mixed $data
      */
-    public function __construct ($message = null, $code = -32000, $data = null)
+    public function __construct($message = null, $code = self::ERROR_OTHER, $data = null)
     {
         $this->setMessage($message)
-            ->setCode($code)
-            ->setData($data);
+             ->setCode($code)
+             ->setData($data);
     }
 
     /**
-     * Set error code
+     * Set error code.
      *
-     * @param int $code            
+     * If the error code is 0, it will be set to -32000 (ERROR_OTHER).
+     *
+     * @param  int $code
      * @return \Zend\Json\Server\Error
      */
-    public function setCode ($code)
+    public function setCode($code)
     {
-        if (! is_scalar($code)) {
+        if (!is_scalar($code) || is_bool($code) || is_float($code)) {
             return $this;
         }
-        
+
+        if (is_string($code) && !is_numeric($code)) {
+            return $this;
+        }
+
         $code = (int) $code;
-        if (in_array($code, $this->allowedCodes)) {
-            $this->code = $code;
-        } elseif (in_array($code, range(- 32099, - 32000))) {
+
+        if (0 === $code) {
+            $this->code = self::ERROR_OTHER;
+        } else {
             $this->code = $code;
         }
-        
+
         return $this;
     }
 
@@ -99,7 +84,7 @@ class Error
      *
      * @return int|null
      */
-    public function getCode ()
+    public function getCode()
     {
         return $this->code;
     }
@@ -107,15 +92,15 @@ class Error
     /**
      * Set error message
      *
-     * @param string $message            
+     * @param  string $message
      * @return \Zend\Json\Server\Error
      */
-    public function setMessage ($message)
+    public function setMessage($message)
     {
-        if (! is_scalar($message)) {
+        if (!is_scalar($message)) {
             return $this;
         }
-        
+
         $this->message = (string) $message;
         return $this;
     }
@@ -125,7 +110,7 @@ class Error
      *
      * @return string
      */
-    public function getMessage ()
+    public function getMessage()
     {
         return $this->message;
     }
@@ -133,10 +118,10 @@ class Error
     /**
      * Set error data
      *
-     * @param mixed $data            
+     * @param  mixed $data
      * @return \Zend\Json\Server\Error
      */
-    public function setData ($data)
+    public function setData($data)
     {
         $this->data = $data;
         return $this;
@@ -147,7 +132,7 @@ class Error
      *
      * @return mixed
      */
-    public function getData ()
+    public function getData()
     {
         return $this->data;
     }
@@ -157,12 +142,12 @@ class Error
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         return array(
-                'code' => $this->getCode(),
-                'message' => $this->getMessage(),
-                'data' => $this->getData()
+            'code'    => $this->getCode(),
+            'message' => $this->getMessage(),
+            'data'    => $this->getData(),
         );
     }
 
@@ -171,7 +156,7 @@ class Error
      *
      * @return string
      */
-    public function toJson ()
+    public function toJson()
     {
         return \Zend\Json\Json::encode($this->toArray());
     }
@@ -181,7 +166,7 @@ class Error
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return $this->toJson();
     }

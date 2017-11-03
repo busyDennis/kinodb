@@ -3,17 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\Reader;
+
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
 
 abstract class AbstractFeed implements Feed\FeedInterface
 {
-
     /**
      * Parsed feed data
      *
@@ -66,16 +67,14 @@ abstract class AbstractFeed implements Feed\FeedInterface
     /**
      * Constructor
      *
-     * @param DomDocument $domDocument
-     *            The DOM object for the feed's XML
-     * @param string $type
-     *            Feed type
+     * @param DomDocument $domDocument The DOM object for the feed's XML
+     * @param string $type Feed type
      */
-    public function __construct (DOMDocument $domDocument, $type = null)
+    public function __construct(DOMDocument $domDocument, $type = null)
     {
         $this->domDocument = $domDocument;
         $this->xpath = new DOMXPath($this->domDocument);
-        
+
         if ($type !== null) {
             $this->data['type'] = $type;
         } else {
@@ -87,26 +86,24 @@ abstract class AbstractFeed implements Feed\FeedInterface
     }
 
     /**
-     * Set an original source URI for the feed being parsed.
-     * This value
+     * Set an original source URI for the feed being parsed. This value
      * is returned from getFeedLink() method if the feed does not carry
      * a self-referencing URI.
      *
-     * @param string $uri            
+     * @param string $uri
      */
-    public function setOriginalSourceUri ($uri)
+    public function setOriginalSourceUri($uri)
     {
         $this->originalSourceUri = $uri;
     }
 
     /**
-     * Get an original source URI for the feed being parsed.
-     * Returns null if
+     * Get an original source URI for the feed being parsed. Returns null if
      * unset or the feed was not imported from a URI.
      *
      * @return string|null
      */
-    public function getOriginalSourceUri ()
+    public function getOriginalSourceUri()
     {
         return $this->originalSourceUri;
     }
@@ -117,7 +114,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return int
      */
-    public function count ()
+    public function count()
     {
         return count($this->entries);
     }
@@ -127,18 +124,16 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return \Zend\Feed\Reader\AbstractEntry
      */
-    public function current ()
+    public function current()
     {
         if (substr($this->getType(), 0, 3) == 'rss') {
-            $reader = new Entry\RSS($this->entries[$this->key()], $this->key(), 
-                    $this->getType());
+            $reader = new Entry\RSS($this->entries[$this->key()], $this->key(), $this->getType());
         } else {
-            $reader = new Entry\Atom($this->entries[$this->key()], $this->key(), 
-                    $this->getType());
+            $reader = new Entry\Atom($this->entries[$this->key()], $this->key(), $this->getType());
         }
-        
+
         $reader->setXpath($this->xpath);
-        
+
         return $reader;
     }
 
@@ -147,7 +142,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return DOMDocument
      */
-    public function getDomDocument ()
+    public function getDomDocument()
     {
         return $this->domDocument;
     }
@@ -157,7 +152,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return string
      */
-    public function getEncoding ()
+    public function getEncoding()
     {
         $assumed = $this->getDomDocument()->encoding;
         if (empty($assumed)) {
@@ -171,7 +166,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return string
      */
-    public function saveXml ()
+    public function saveXml()
     {
         return $this->getDomDocument()->saveXml();
     }
@@ -181,7 +176,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return DOMElement
      */
-    public function getElement ()
+    public function getElement()
     {
         return $this->getDomDocument()->documentElement;
     }
@@ -191,7 +186,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return DOMXPath
      */
-    public function getXpath ()
+    public function getXpath()
     {
         return $this->xpath;
     }
@@ -201,7 +196,7 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         return $this->data['type'];
     }
@@ -211,23 +206,25 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return int
      */
-    public function key ()
+    public function key()
     {
         return $this->entriesKey;
     }
 
     /**
      * Move the feed pointer forward
+     *
      */
-    public function next ()
+    public function next()
     {
-        ++ $this->entriesKey;
+        ++$this->entriesKey;
     }
 
     /**
      * Reset the pointer in the feed object
+     *
      */
-    public function rewind ()
+    public function rewind()
     {
         $this->entriesKey = 0;
     }
@@ -237,51 +234,46 @@ abstract class AbstractFeed implements Feed\FeedInterface
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return 0 <= $this->entriesKey && $this->entriesKey < $this->count();
     }
 
-    public function getExtensions ()
+    public function getExtensions()
     {
         return $this->extensions;
     }
 
-    public function __call ($method, $args)
+    public function __call($method, $args)
     {
         foreach ($this->extensions as $extension) {
             if (method_exists($extension, $method)) {
-                return call_user_func_array(
-                        array(
-                                $extension,
-                                $method
-                        ), $args);
+                return call_user_func_array(array($extension, $method), $args);
             }
         }
-        throw new Exception\BadMethodCallException(
-                'Method: ' . $method .
-                         'does not exist and could not be located on a registered Extension');
+        throw new Exception\BadMethodCallException('Method: ' . $method
+        . 'does not exist and could not be located on a registered Extension');
     }
 
     /**
      * Return an Extension object with the matching name (postfixed with _Feed)
      *
-     * @param string $name            
+     * @param string $name
      * @return \Zend\Feed\Reader\Extension\AbstractFeed
      */
-    public function getExtension ($name)
+    public function getExtension($name)
     {
         if (array_key_exists($name . '\Feed', $this->extensions)) {
             return $this->extensions[$name . '\Feed'];
         }
-        return null;
+        return;
     }
 
-    protected function loadExtensions ()
+    protected function loadExtensions()
     {
-        $all = Reader::getExtensions();
+        $all     = Reader::getExtensions();
         $manager = Reader::getExtensionManager();
-        $feed = $all['feed'];
+        $feed    = $all['feed'];
         foreach ($feed as $extension) {
             if (in_array($extension, $all['core'])) {
                 continue;
@@ -296,11 +288,13 @@ abstract class AbstractFeed implements Feed\FeedInterface
 
     /**
      * Read all entries to the internal entries array
+     *
      */
-    abstract protected function indexEntries ();
+    abstract protected function indexEntries();
 
     /**
      * Register the default namespaces for the current feed format
+     *
      */
-    abstract protected function registerNamespaces ();
+    abstract protected function registerNamespaces();
 }

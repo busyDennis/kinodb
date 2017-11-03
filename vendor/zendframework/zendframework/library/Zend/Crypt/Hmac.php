@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Crypt;
 
 /**
@@ -13,9 +14,7 @@ namespace Zend\Crypt;
  */
 class Hmac
 {
-
     const OUTPUT_STRING = false;
-
     const OUTPUT_BINARY = true;
 
     /**
@@ -30,38 +29,36 @@ class Hmac
      * algorithm, the data to compute MAC of, and an output format of String,
      * or Binary.
      *
-     * @param string $key            
-     * @param string $hash            
-     * @param string $data            
-     * @param bool $output            
+     * @param  string  $key
+     * @param  string  $hash
+     * @param  string  $data
+     * @param  bool $output
      * @throws Exception\InvalidArgumentException
      * @return string
      */
-    public static function compute ($key, $hash, $data, 
-            $output = self::OUTPUT_STRING)
+    public static function compute($key, $hash, $data, $output = self::OUTPUT_STRING)
     {
         if (empty($key)) {
-            throw new Exception\InvalidArgumentException(
-                    'Provided key is null or empty');
+            throw new Exception\InvalidArgumentException('Provided key is null or empty');
         }
-        
-        if (! $hash || ($hash !== static::$lastAlgorithmSupported &&
-                 ! static::isSupported($hash))) {
+
+        if (!$hash || ($hash !== static::$lastAlgorithmSupported && !static::isSupported($hash))) {
             throw new Exception\InvalidArgumentException(
-                    "Hash algorithm is not supported on this PHP installation; provided '{$hash}'");
+                "Hash algorithm is not supported on this PHP installation; provided '{$hash}'"
+            );
         }
-        
+
         return hash_hmac($hash, $data, $key, $output);
     }
 
     /**
      * Get the output size according to the hash algorithm and the output format
      *
-     * @param string $hash            
-     * @param bool $output            
+     * @param  string  $hash
+     * @param  bool $output
      * @return int
      */
-    public static function getOutputSize ($hash, $output = self::OUTPUT_STRING)
+    public static function getOutputSize($hash, $output = self::OUTPUT_STRING)
     {
         return strlen(static::compute('key', $hash, 'data', $output));
     }
@@ -71,7 +68,7 @@ class Hmac
      *
      * @return array
      */
-    public static function getSupportedAlgorithms ()
+    public static function getSupportedAlgorithms()
     {
         return hash_algos();
     }
@@ -79,27 +76,27 @@ class Hmac
     /**
      * Is the hash algorithm supported?
      *
-     * @param string $algorithm            
+     * @param  string $algorithm
      * @return bool
      */
-    public static function isSupported ($algorithm)
+    public static function isSupported($algorithm)
     {
         if ($algorithm === static::$lastAlgorithmSupported) {
             return true;
         }
-        
+
         if (in_array(strtolower($algorithm), hash_algos(), true)) {
             static::$lastAlgorithmSupported = $algorithm;
             return true;
         }
-        
+
         return false;
     }
 
     /**
      * Clear the cache of last algorithm supported
      */
-    public static function clearLastAlgorithmCache ()
+    public static function clearLastAlgorithmCache()
     {
         static::$lastAlgorithmSupported = null;
     }

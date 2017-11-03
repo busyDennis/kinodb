@@ -3,90 +3,92 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form;
+
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
 
-class Element implements ElementAttributeRemovalInterface, ElementInterface, 
-        InitializableInterface
+class Element implements
+    ElementAttributeRemovalInterface,
+    ElementInterface,
+    InitializableInterface,
+    LabelAwareInterface
 {
-
     /**
-     *
      * @var array
      */
     protected $attributes = array();
 
     /**
-     *
-     * @var string
+     * @var null|string
      */
     protected $label;
 
     /**
+     * @var array
+     */
+    protected $labelAttributes = array();
+
+    /**
+     * Label specific options
      *
      * @var array
      */
-    protected $labelAttributes;
+    protected $labelOptions = array();
 
     /**
-     *
      * @var array Validation error messages
      */
     protected $messages = array();
 
     /**
-     *
      * @var array custom options
      */
     protected $options = array();
 
     /**
-     *
      * @var mixed
      */
     protected $value;
 
     /**
-     *
-     * @param null|int|string $name
-     *            Optional name for the element
-     * @param array $options
-     *            Optional options for the element
+     * @param  null|int|string  $name    Optional name for the element
+     * @param  array            $options Optional options for the element
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct ($name = null, $options = array())
+    public function __construct($name = null, $options = array())
     {
         if (null !== $name) {
             $this->setName($name);
         }
-        
-        if (! empty($options)) {
+
+        if (!empty($options)) {
             $this->setOptions($options);
         }
     }
 
     /**
-     * This function is automatically called when creating element with factory.
-     * It
+     * This function is automatically called when creating element with factory. It
      * allows to perform various operations (add elements...)
      *
      * @return void
      */
-    public function init ()
-    {}
+    public function init()
+    {
+    }
 
     /**
      * Set value for name
      *
-     * @param string $name            
+     * @param  string $name
      * @return Element|ElementInterface
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->setAttribute('name', $name);
         return $this;
@@ -97,40 +99,45 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return string|int
      */
-    public function getName ()
+    public function getName()
     {
         return $this->getAttribute('name');
     }
 
     /**
-     * Set options for an element.
-     * Accepted options are:
+     * Set options for an element. Accepted options are:
      * - label: label to associate with the element
      * - label_attributes: attributes to use when the label is rendered
+     * - label_options: label specific options
      *
-     * @param array|Traversable $options            
+     * @param  array|Traversable $options
      * @return Element|ElementInterface
      * @throws Exception\InvalidArgumentException
      */
-    public function setOptions ($options)
+    public function setOptions($options)
     {
         if ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
-        } elseif (! is_array($options)) {
+        } elseif (!is_array($options)) {
             throw new Exception\InvalidArgumentException(
-                    'The options parameter must be an array or a Traversable');
+                'The options parameter must be an array or a Traversable'
+            );
         }
-        
+
         if (isset($options['label'])) {
             $this->setLabel($options['label']);
         }
-        
+
         if (isset($options['label_attributes'])) {
             $this->setLabelAttributes($options['label_attributes']);
         }
-        
+
+        if (isset($options['label_options'])) {
+            $this->setLabelOptions($options['label_options']);
+        }
+
         $this->options = $options;
-        
+
         return $this;
     }
 
@@ -139,7 +146,7 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return array
      */
-    public function getOptions ()
+    public function getOptions()
     {
         return $this->options;
     }
@@ -147,26 +154,39 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Return the specified option
      *
-     * @param string $option            
+     * @param string $option
      * @return NULL|mixed
      */
-    public function getOption ($option)
+    public function getOption($option)
     {
-        if (! isset($this->options[$option])) {
-            return null;
+        if (!isset($this->options[$option])) {
+            return;
         }
-        
+
         return $this->options[$option];
+    }
+
+    /**
+     * Set a single option for an element
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @return self
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+        return $this;
     }
 
     /**
      * Set a single element attribute
      *
-     * @param string $key            
-     * @param mixed $value            
+     * @param  string $key
+     * @param  mixed  $value
      * @return Element|ElementInterface
      */
-    public function setAttribute ($key, $value)
+    public function setAttribute($key, $value)
     {
         // Do not include the value in the list of attributes
         if ($key === 'value') {
@@ -180,25 +200,25 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Retrieve a single element attribute
      *
-     * @param
-     *            $key
+     * @param  $key
      * @return mixed|null
      */
-    public function getAttribute ($key)
+    public function getAttribute($key)
     {
-        if (! array_key_exists($key, $this->attributes)) {
-            return null;
+        if (!isset($this->attributes[$key])) {
+            return;
         }
+
         return $this->attributes[$key];
     }
 
     /**
      * Remove a single attribute
      *
-     * @param string $key            
+     * @param string $key
      * @return ElementInterface
      */
-    public function removeAttribute ($key)
+    public function removeAttribute($key)
     {
         unset($this->attributes[$key]);
         return $this;
@@ -207,10 +227,10 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Does the element has a specific attribute ?
      *
-     * @param string $key            
+     * @param  string $key
      * @return bool
      */
-    public function hasAttribute ($key)
+    public function hasAttribute($key)
     {
         return array_key_exists($key, $this->attributes);
     }
@@ -220,21 +240,18 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * Implementation will decide if this will overwrite or merge.
      *
-     * @param array|Traversable $arrayOrTraversable            
+     * @param  array|Traversable $arrayOrTraversable
      * @return Element|ElementInterface
      * @throws Exception\InvalidArgumentException
      */
-    public function setAttributes ($arrayOrTraversable)
+    public function setAttributes($arrayOrTraversable)
     {
-        if (! is_array($arrayOrTraversable) &&
-                 ! $arrayOrTraversable instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            '%s expects an array or Traversable argument; received "%s"', 
-                            __METHOD__, 
-                            (is_object($arrayOrTraversable) ? get_class(
-                                    $arrayOrTraversable) : gettype(
-                                    $arrayOrTraversable))));
+        if (!is_array($arrayOrTraversable) && !$arrayOrTraversable instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects an array or Traversable argument; received "%s"',
+                __METHOD__,
+                (is_object($arrayOrTraversable) ? get_class($arrayOrTraversable) : gettype($arrayOrTraversable))
+            ));
         }
         foreach ($arrayOrTraversable as $key => $value) {
             $this->setAttribute($key, $value);
@@ -247,7 +264,7 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return array|Traversable
      */
-    public function getAttributes ()
+    public function getAttributes()
     {
         return $this->attributes;
     }
@@ -255,15 +272,15 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Remove many attributes at once
      *
-     * @param array $keys            
+     * @param array $keys
      * @return ElementInterface
      */
-    public function removeAttributes (array $keys)
+    public function removeAttributes(array $keys)
     {
         foreach ($keys as $key) {
             unset($this->attributes[$key]);
         }
-        
+
         return $this;
     }
 
@@ -272,7 +289,7 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return Element|ElementInterface
      */
-    public function clearAttributes ()
+    public function clearAttributes()
     {
         $this->attributes = array();
         return $this;
@@ -281,10 +298,10 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Set the element value
      *
-     * @param mixed $value            
+     * @param  mixed $value
      * @return Element
      */
-    public function setValue ($value)
+    public function setValue($value)
     {
         $this->value = $value;
         return $this;
@@ -295,7 +312,7 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return mixed
      */
-    public function getValue ()
+    public function getValue()
     {
         return $this->value;
     }
@@ -303,25 +320,24 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Set the label used for this element
      *
-     * @param
-     *            $label
+     * @param $label
      * @return Element|ElementInterface
      */
-    public function setLabel ($label)
+    public function setLabel($label)
     {
         if (is_string($label)) {
             $this->label = $label;
         }
-        
+
         return $this;
     }
 
     /**
      * Retrieve the label used for this element
      *
-     * @return string
+     * @return null|string
      */
-    public function getLabel ()
+    public function getLabel()
     {
         return $this->label;
     }
@@ -329,10 +345,10 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
     /**
      * Set the attributes to use with the label
      *
-     * @param array $labelAttributes            
+     * @param array $labelAttributes
      * @return Element|ElementInterface
      */
-    public function setLabelAttributes (array $labelAttributes)
+    public function setLabelAttributes(array $labelAttributes)
     {
         $this->labelAttributes = $labelAttributes;
         return $this;
@@ -343,29 +359,139 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return array
      */
-    public function getLabelAttributes ()
+    public function getLabelAttributes()
     {
         return $this->labelAttributes;
     }
 
     /**
-     * Set a list of messages to report when validation fails
+     * Set many label options at once
      *
-     * @param array|Traversable $messages            
+     * Implementation will decide if this will overwrite or merge.
+     *
+     * @param  array|Traversable $arrayOrTraversable
      * @return Element|ElementInterface
      * @throws Exception\InvalidArgumentException
      */
-    public function setMessages ($messages)
+    public function setLabelOptions($arrayOrTraversable)
     {
-        if (! is_array($messages) && ! $messages instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            '%s expects an array or Traversable object of validation error messages; received "%s"', 
-                            __METHOD__, 
-                            (is_object($messages) ? get_class($messages) : gettype(
-                                    $messages))));
+        if (!is_array($arrayOrTraversable) && !$arrayOrTraversable instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects an array or Traversable argument; received "%s"',
+                __METHOD__,
+                (is_object($arrayOrTraversable) ? get_class($arrayOrTraversable) : gettype($arrayOrTraversable))
+            ));
         }
-        
+        foreach ($arrayOrTraversable as $key => $value) {
+            $this->setLabelOption($key, $value);
+        }
+        return $this;
+    }
+
+    /**
+     * Get label specific options
+     *
+     * @return array
+     */
+    public function getLabelOptions()
+    {
+        return $this->labelOptions;
+    }
+
+    /**
+     * Clear all label options
+     *
+     * @return Element|ElementInterface
+     */
+    public function clearLabelOptions()
+    {
+        $this->labelOptions = array();
+        return $this;
+    }
+
+    /**
+     * Remove many attributes at once
+     *
+     * @param array $keys
+     * @return ElementInterface
+     */
+    public function removeLabelOptions(array $keys)
+    {
+        foreach ($keys as $key) {
+            unset($this->labelOptions[$key]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set a single label optionn
+     *
+     * @param  string $key
+     * @param  mixed  $value
+     * @return Element|ElementInterface
+     */
+    public function setLabelOption($key, $value)
+    {
+        $this->labelOptions[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Retrieve a single label option
+     *
+     * @param  $key
+     * @return mixed|null
+     */
+    public function getLabelOption($key)
+    {
+        if (!isset($this->labelOptions[$key])) {
+            return;
+        }
+
+        return $this->labelOptions[$key];
+    }
+
+    /**
+     * Remove a single label option
+     *
+     * @param string $key
+     * @return ElementInterface
+     */
+    public function removeLabelOption($key)
+    {
+        unset($this->labelOptions[$key]);
+        return $this;
+    }
+
+    /**
+     * Does the element has a specific label option ?
+     *
+     * @param  string $key
+     * @return bool
+     */
+    public function hasLabelOption($key)
+    {
+        return array_key_exists($key, $this->labelOptions);
+    }
+
+    /**
+     * Set a list of messages to report when validation fails
+     *
+     * @param  array|Traversable $messages
+     * @return Element|ElementInterface
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setMessages($messages)
+    {
+        if (!is_array($messages) && !$messages instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects an array or Traversable object of validation error messages; received "%s"',
+                __METHOD__,
+                (is_object($messages) ? get_class($messages) : gettype($messages))
+            ));
+        }
+
         $this->messages = $messages;
         return $this;
     }
@@ -377,7 +503,7 @@ class Element implements ElementAttributeRemovalInterface, ElementInterface,
      *
      * @return array|Traversable
      */
-    public function getMessages ()
+    public function getMessages()
     {
         return $this->messages;
     }

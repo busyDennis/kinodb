@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Console\Adapter;
+
 use Zend\Console\Charset;
 
 /**
@@ -14,7 +16,6 @@ use Zend\Console\Charset;
  */
 class Virtual extends AbstractAdapter
 {
-
     /**
      * Whether or not mbstring is enabled
      *
@@ -34,24 +35,24 @@ class Virtual extends AbstractAdapter
      *
      * @return int
      */
-    public function getWidth ()
+    public function getWidth()
     {
         static $width;
         if ($width > 0) {
             return $width;
         }
-        
+
         // Try to read console size from "mode" command
         if ($this->modeResult === null) {
             $this->runProbeCommand();
         }
-        
+
         if (preg_match('/Columns\:\s+(\d+)/', $this->modeResult, $matches)) {
             $width = $matches[1];
         } else {
             $width = parent::getWidth();
         }
-        
+
         return $width;
     }
 
@@ -60,24 +61,24 @@ class Virtual extends AbstractAdapter
      *
      * @return false|int
      */
-    public function getHeight ()
+    public function getHeight()
     {
         static $height;
         if ($height > 0) {
             return $height;
         }
-        
+
         // Try to read console size from "mode" command
         if ($this->modeResult === null) {
             $this->runProbeCommand();
         }
-        
+
         if (preg_match('/Rows\:\s+(\d+)/', $this->modeResult, $matches)) {
             $height = $matches[1];
         } else {
             $height = parent::getHeight();
         }
-        
+
         return $height;
     }
 
@@ -86,10 +87,10 @@ class Virtual extends AbstractAdapter
      *
      * @return void
      */
-    protected function runProbeCommand ()
+    protected function runProbeCommand()
     {
         exec('mode', $output, $return);
-        if ($return || ! count($output)) {
+        if ($return || !count($output)) {
             $this->modeResult = '';
         } else {
             $this->modeResult = trim(implode('', $output));
@@ -101,17 +102,17 @@ class Virtual extends AbstractAdapter
      *
      * @return bool
      */
-    public function isUtf8 ()
+    public function isUtf8()
     {
         // Try to read code page info from "mode" command
         if ($this->modeResult === null) {
             $this->runProbeCommand();
         }
-        
+
         if (preg_match('/Code page\:\s+(\d+)/', $this->modeResult, $matches)) {
             return (int) $matches[1] == 65001;
         }
-        
+
         return false;
     }
 
@@ -120,24 +121,23 @@ class Virtual extends AbstractAdapter
      *
      * @return string
      */
-    public function getTitle ()
+    public function getTitle()
     {
         // Try to use powershell to retrieve console window title
-        exec('powershell -command "write $Host.UI.RawUI.WindowTitle"', $output, 
-                $result);
-        if ($result || ! $output) {
+        exec('powershell -command "write $Host.UI.RawUI.WindowTitle"', $output, $result);
+        if ($result || !$output) {
             return '';
         }
-        
+
         return trim($output, "\r\n");
     }
 
     /**
      * Set Console charset to use.
      *
-     * @param Charset\CharsetInterface $charset            
+     * @param Charset\CharsetInterface $charset
      */
-    public function setCharset (Charset\CharsetInterface $charset)
+    public function setCharset(Charset\CharsetInterface $charset)
     {
         $this->charset = $charset;
     }
@@ -147,22 +147,21 @@ class Virtual extends AbstractAdapter
      *
      * @return Charset\CharsetInterface $charset
      */
-    public function getCharset ()
+    public function getCharset()
     {
         if ($this->charset === null) {
             $this->charset = $this->getDefaultCharset();
         }
-        
+
         return $this->charset;
     }
 
     /**
-     *
      * @return Charset\AsciiExtended
      */
-    public function getDefaultCharset ()
+    public function getDefaultCharset()
     {
-        return new Charset\AsciiExtended();
+        return new Charset\AsciiExtended;
     }
 
     /**
@@ -170,7 +169,7 @@ class Virtual extends AbstractAdapter
      *
      * @return void
      */
-    protected function switchToUtf8 ()
+    protected function switchToUtf8()
     {
         shell_exec('mode con cp select=65001');
     }

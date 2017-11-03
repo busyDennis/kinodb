@@ -3,11 +3,15 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Stdlib;
+
 use Traversable;
+use Zend\Stdlib\ArrayUtils\MergeRemoveKey;
+use Zend\Stdlib\ArrayUtils\MergeReplaceKeyInterface;
 
 /**
  * Utility class for testing and manipulation of PHP arrays.
@@ -16,46 +20,53 @@ use Traversable;
  */
 abstract class ArrayUtils
 {
+    /**
+     * Compatibility Flag for ArrayUtils::filter
+     */
+    const ARRAY_FILTER_USE_BOTH = 1;
+
+    /**
+     * Compatibility Flag for ArrayUtils::filter
+     */
+    const ARRAY_FILTER_USE_KEY  = 2;
 
     /**
      * Test whether an array contains one or more string keys
      *
-     * @param mixed $value            
-     * @param bool $allowEmpty
-     *            Should an empty array() return true
+     * @param  mixed $value
+     * @param  bool  $allowEmpty    Should an empty array() return true
      * @return bool
      */
-    public static function hasStringKeys ($value, $allowEmpty = false)
+    public static function hasStringKeys($value, $allowEmpty = false)
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
-        
-        if (! $value) {
+
+        if (!$value) {
             return $allowEmpty;
         }
-        
+
         return count(array_filter(array_keys($value), 'is_string')) > 0;
     }
 
     /**
      * Test whether an array contains one or more integer keys
      *
-     * @param mixed $value            
-     * @param bool $allowEmpty
-     *            Should an empty array() return true
+     * @param  mixed $value
+     * @param  bool  $allowEmpty    Should an empty array() return true
      * @return bool
      */
-    public static function hasIntegerKeys ($value, $allowEmpty = false)
+    public static function hasIntegerKeys($value, $allowEmpty = false)
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
-        
-        if (! $value) {
+
+        if (!$value) {
             return $allowEmpty;
         }
-        
+
         return count(array_filter(array_keys($value), 'is_int')) > 0;
     }
 
@@ -67,23 +78,22 @@ abstract class ArrayUtils
      * - a string with a number '20'
      * - a string with negative number: '-1000'
      * - a float: 2.2120, -78.150999
-     * - a string with float: '4000.99999', '-10.10'
+     * - a string with float:  '4000.99999', '-10.10'
      *
-     * @param mixed $value            
-     * @param bool $allowEmpty
-     *            Should an empty array() return true
+     * @param  mixed $value
+     * @param  bool  $allowEmpty    Should an empty array() return true
      * @return bool
      */
-    public static function hasNumericKeys ($value, $allowEmpty = false)
+    public static function hasNumericKeys($value, $allowEmpty = false)
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
-        
-        if (! $value) {
+
+        if (!$value) {
             return $allowEmpty;
         }
-        
+
         return count(array_filter(array_keys($value), 'is_numeric')) > 0;
     }
 
@@ -97,27 +107,26 @@ abstract class ArrayUtils
      * <code>
      * $list = array('a', 'b', 'c', 'd');
      * $list = array(
-     * 0 => 'foo',
-     * 1 => 'bar',
-     * 2 => array('foo' => 'baz'),
+     *     0 => 'foo',
+     *     1 => 'bar',
+     *     2 => array('foo' => 'baz'),
      * );
      * </code>
      *
-     * @param mixed $value            
-     * @param bool $allowEmpty
-     *            Is an empty list a valid list?
+     * @param  mixed $value
+     * @param  bool  $allowEmpty    Is an empty list a valid list?
      * @return bool
      */
-    public static function isList ($value, $allowEmpty = false)
+    public static function isList($value, $allowEmpty = false)
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
-        
-        if (! $value) {
+
+        if (!$value) {
             return $allowEmpty;
         }
-        
+
         return (array_values($value) === $value);
     }
 
@@ -132,35 +141,34 @@ abstract class ArrayUtils
      * For example:
      * <code>
      * $hash = array(
-     * 'foo' => 15,
-     * 'bar' => false,
+     *     'foo' => 15,
+     *     'bar' => false,
      * );
      * $hash = array(
-     * 1995 => 'Birth of PHP',
-     * 2009 => 'PHP 5.3.0',
-     * 2012 => 'PHP 5.4.0',
+     *     1995  => 'Birth of PHP',
+     *     2009  => 'PHP 5.3.0',
+     *     2012  => 'PHP 5.4.0',
      * );
      * $hash = array(
-     * 'formElement,
-     * 'options' => array( 'debug' => true ),
+     *     'formElement,
+     *     'options' => array( 'debug' => true ),
      * );
      * </code>
      *
-     * @param mixed $value            
-     * @param bool $allowEmpty
-     *            Is an empty array() a valid hash table?
+     * @param  mixed $value
+     * @param  bool  $allowEmpty    Is an empty array() a valid hash table?
      * @return bool
      */
-    public static function isHashTable ($value, $allowEmpty = false)
+    public static function isHashTable($value, $allowEmpty = false)
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
-        
-        if (! $value) {
+
+        if (!$value) {
             return $allowEmpty;
         }
-        
+
         return (array_values($value) !== $value);
     }
 
@@ -172,14 +180,14 @@ abstract class ArrayUtils
      * non-strict check is implemented. if $strict = -1, the default in_array
      * non-strict behaviour is used.
      *
-     * @param mixed $needle            
-     * @param array $haystack            
-     * @param int|bool $strict            
+     * @param mixed $needle
+     * @param array $haystack
+     * @param int|bool $strict
      * @return bool
      */
-    public static function inArray ($needle, array $haystack, $strict = false)
+    public static function inArray($needle, array $haystack, $strict = false)
     {
-        if (! $strict) {
+        if (!$strict) {
             if (is_int($needle) || is_float($needle)) {
                 $needle = (string) $needle;
             }
@@ -200,84 +208,128 @@ abstract class ArrayUtils
      * Converts an iterator to an array. The $recursive flag, on by default,
      * hints whether or not you want to do so recursively.
      *
-     * @param array|Traversable $iterator
-     *            The array or Traversable object to convert
-     * @param bool $recursive
-     *            Recursively check all nested structures
-     * @throws Exception\InvalidArgumentException if $iterator is not an array
-     *         or a Traversable object
+     * @param  array|Traversable  $iterator     The array or Traversable object to convert
+     * @param  bool               $recursive    Recursively check all nested structures
+     * @throws Exception\InvalidArgumentException if $iterator is not an array or a Traversable object
      * @return array
      */
-    public static function iteratorToArray ($iterator, $recursive = true)
+    public static function iteratorToArray($iterator, $recursive = true)
     {
-        if (! is_array($iterator) && ! $iterator instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(
-                    __METHOD__ . ' expects an array or Traversable object');
+        if (!is_array($iterator) && !$iterator instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(__METHOD__ . ' expects an array or Traversable object');
         }
-        
-        if (! $recursive) {
+
+        if (!$recursive) {
             if (is_array($iterator)) {
                 return $iterator;
             }
-            
+
             return iterator_to_array($iterator);
         }
-        
+
         if (method_exists($iterator, 'toArray')) {
             return $iterator->toArray();
         }
-        
+
         $array = array();
         foreach ($iterator as $key => $value) {
             if (is_scalar($value)) {
                 $array[$key] = $value;
                 continue;
             }
-            
+
             if ($value instanceof Traversable) {
                 $array[$key] = static::iteratorToArray($value, $recursive);
                 continue;
             }
-            
+
             if (is_array($value)) {
                 $array[$key] = static::iteratorToArray($value, $recursive);
                 continue;
             }
-            
+
             $array[$key] = $value;
         }
-        
+
         return $array;
     }
 
     /**
      * Merge two arrays together.
      *
-     * If an integer key exists in both arrays, the value from the second array
-     * will be appended the the first array. If both values are arrays, they
-     * are merged together, else the value of the second array overwrites the
-     * one of the first array.
+     * If an integer key exists in both arrays and preserveNumericKeys is false, the value
+     * from the second array will be appended to the first array. If both values are arrays, they
+     * are merged together, else the value of the second array overwrites the one of the first array.
      *
-     * @param array $a            
-     * @param array $b            
+     * @param  array $a
+     * @param  array $b
+     * @param  bool  $preserveNumericKeys
      * @return array
      */
-    public static function merge (array $a, array $b)
+    public static function merge(array $a, array $b, $preserveNumericKeys = false)
     {
         foreach ($b as $key => $value) {
-            if (array_key_exists($key, $a)) {
-                if (is_int($key)) {
+            if ($value instanceof MergeReplaceKeyInterface) {
+                $a[$key] = $value->getData();
+            } elseif (isset($a[$key]) || array_key_exists($key, $a)) {
+                if ($value instanceof MergeRemoveKey) {
+                    unset($a[$key]);
+                } elseif (!$preserveNumericKeys && is_int($key)) {
                     $a[] = $value;
                 } elseif (is_array($value) && is_array($a[$key])) {
-                    $a[$key] = static::merge($a[$key], $value);
+                    $a[$key] = static::merge($a[$key], $value, $preserveNumericKeys);
                 } else {
                     $a[$key] = $value;
                 }
             } else {
-                $a[$key] = $value;
+                if (!$value instanceof MergeRemoveKey) {
+                    $a[$key] = $value;
+                }
             }
         }
-        
+
         return $a;
+    }
+
+    /**
+     * Compatibility Method for array_filter on <5.6 systems
+     *
+     * @param array $data
+     * @param callable $callback
+     * @param null|int $flag
+     * @return array
+     */
+    public static function filter(array $data, $callback, $flag = null)
+    {
+        if (! is_callable($callback)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Second parameter of %s must be callable',
+                __METHOD__
+            ));
+        }
+
+        if (version_compare(PHP_VERSION, '5.6.0') >= 0) {
+            return array_filter($data, $callback, $flag);
+        }
+
+        $output = array();
+        foreach ($data as $key => $value) {
+            $params = array($value);
+
+            if ($flag === static::ARRAY_FILTER_USE_BOTH) {
+                $params[] = $key;
+            }
+
+            if ($flag === static::ARRAY_FILTER_USE_KEY) {
+                $params = array($key);
+            }
+
+            $response = call_user_func_array($callback, $params);
+            if ($response) {
+                $output[$key] = $value;
+            }
+        }
+
+        return $output;
     }
 }

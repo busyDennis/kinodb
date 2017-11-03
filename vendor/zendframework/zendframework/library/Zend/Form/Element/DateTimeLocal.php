@@ -3,15 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form\Element;
+
 use Zend\Validator\DateStep as DateStepValidator;
 
 class DateTimeLocal extends DateTime
 {
-
     const DATETIME_LOCAL_FORMAT = 'Y-m-d\TH:i';
 
     /**
@@ -20,7 +21,7 @@ class DateTimeLocal extends DateTime
      * @var array
      */
     protected $attributes = array(
-            'type' => 'datetime-local'
+        'type' => 'datetime-local',
     );
 
     /**
@@ -33,17 +34,18 @@ class DateTimeLocal extends DateTime
      *
      * @return \Zend\Validator\ValidatorInterface
      */
-    protected function getStepValidator ()
+    protected function getStepValidator()
     {
-        $stepValue = (isset($this->attributes['step'])) ? $this->attributes['step'] : 1; // Minutes
-        
-        $baseValue = (isset($this->attributes['min'])) ? $this->attributes['min'] : '1970-01-01T00:00';
-        
-        return new DateStepValidator(
-                array(
-                        'format' => $this->format,
-                        'baseValue' => $baseValue,
-                        'step' => new \DateInterval("PT{$stepValue}M")
-                ));
+        $stepValue = (isset($this->attributes['step']))
+                     ? $this->attributes['step'] : 1; // Minutes
+
+        $baseValue = (isset($this->attributes['min']))
+                     ? $this->attributes['min'] : '1970-01-01T00:00';
+
+        return new DateStepValidator(array(
+            'format'    => $this->format,
+            'baseValue' => $baseValue,
+            'step'      => new \DateInterval("PT{$stepValue}M"),
+        ));
     }
 }

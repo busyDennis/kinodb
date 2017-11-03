@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Memory\Container;
+
 use Zend\Memory;
 use Zend\Memory\Exception;
 
@@ -17,7 +19,6 @@ use Zend\Memory\Exception;
  */
 class Movable extends AbstractContainer
 {
-
     /**
      * Internal object Id
      *
@@ -39,14 +40,10 @@ class Movable extends AbstractContainer
      */
     private $value;
 
-    /**
-     * Value states
-     */
-    const LOADED = 1;
-
-    const SWAPPED = 2;
-
-    const LOCKED = 4;
+    /** Value states */
+    const LOADED   = 1;
+    const SWAPPED  = 2;
+    const LOCKED   = 4;
 
     /**
      * Value state (LOADED/SWAPPED/LOCKED)
@@ -58,15 +55,14 @@ class Movable extends AbstractContainer
     /**
      * Object constructor
      *
-     * @param \Zend\Memory\MemoryManager $memoryManager            
-     * @param int $id            
-     * @param string $value            
+     * @param \Zend\Memory\MemoryManager $memoryManager
+     * @param int $id
+     * @param string $value
      */
-    public function __construct (Memory\MemoryManager $memoryManager, $id, 
-            $value)
+    public function __construct(Memory\MemoryManager $memoryManager, $id, $value)
     {
         $this->memManager = $memoryManager;
-        $this->id = $id;
+        $this->id    = $id;
         $this->state = self::LOADED;
         $this->value = new Memory\Value($value, $this);
     }
@@ -74,30 +70,29 @@ class Movable extends AbstractContainer
     /**
      * Lock object in memory.
      */
-    public function lock ()
+    public function lock()
     {
-        if (! ($this->state & self::LOADED)) {
+        if (!($this->state & self::LOADED)) {
             $this->memManager->load($this, $this->id);
             $this->state |= self::LOADED;
         }
-        
+
         $this->state |= self::LOCKED;
-    
-    /**
-     *
-     * @todo It's possible to set "value" container attribute to avoid
-     *       modification tracing, while it's locked
-     *       Check, if it's more effective
-     */
+
+        /**
+         * @todo
+         * It's possible to set "value" container attribute to avoid modification tracing, while it's locked
+         * Check, if it's  more effective
+         */
     }
 
     /**
      * Unlock object
      */
-    public function unlock ()
+    public function unlock()
     {
         // Clear LOCKED state bit
-        $this->state &= ~ self::LOCKED;
+        $this->state &= ~self::LOCKED;
     }
 
     /**
@@ -105,9 +100,9 @@ class Movable extends AbstractContainer
      *
      * @return bool
      */
-    public function isLocked ()
+    public function isLocked()
     {
-        return $this->state & self::LOCKED;
+        return (bool) ($this->state & self::LOCKED);
     }
 
     /**
@@ -116,46 +111,43 @@ class Movable extends AbstractContainer
      * Loads object if necessary and moves it to the top of loaded objects list.
      * Swaps objects from the bottom of loaded objects list, if necessary.
      *
-     * @param string $property            
+     * @param string $property
      * @return string
      * @throws Exception\InvalidArgumentException
      */
-    public function __get ($property)
+    public function __get($property)
     {
         if ($property != 'value') {
-            throw new Exception\InvalidArgumentException(
-                    'Unknown property: \Zend\Memory\Container\Movable::$' .
-                             $property);
+            throw new Exception\InvalidArgumentException('Unknown property: \Zend\Memory\Container\Movable::$' . $property);
         }
-        
-        if (! ($this->state & self::LOADED)) {
+
+        if (!($this->state & self::LOADED)) {
             $this->memManager->load($this, $this->id);
             $this->state |= self::LOADED;
         }
-        
+
         return $this->value;
     }
 
     /**
      * Set handler
      *
-     * @param string $property            
-     * @param string $value            
+     * @param string $property
+     * @param  string $value
      * @throws Exception\InvalidArgumentException
      */
-    public function __set ($property, $value)
+    public function __set($property, $value)
     {
         if ($property != 'value') {
-            throw new Exception\InvalidArgumentException(
-                    'Unknown property: \Zend\Memory\Container\Movable::$' .
-                             $property);
+            throw new Exception\InvalidArgumentException('Unknown property: \Zend\Memory\Container\Movable::$' . $property);
         }
-        
+
         $this->state = self::LOADED;
         $this->value = new Memory\Value($value, $this);
-        
+
         $this->memManager->processUpdate($this, $this->id);
     }
+
 
     /**
      * Get string value reference
@@ -165,13 +157,13 @@ class Movable extends AbstractContainer
      *
      * @return &string
      */
-    public function &getRef ()
+    public function &getRef()
     {
-        if (! ($this->state & self::LOADED)) {
+        if (!($this->state & self::LOADED)) {
             $this->memManager->load($this, $this->id);
             $this->state |= self::LOADED;
         }
-        
+
         return $this->value->getRef();
     }
 
@@ -180,7 +172,7 @@ class Movable extends AbstractContainer
      *
      * Should be used together with getRef()
      */
-    public function touch ()
+    public function touch()
     {
         $this->memManager->processUpdate($this, $this->id);
     }
@@ -190,13 +182,12 @@ class Movable extends AbstractContainer
      * Must be called only by value object
      *
      * @internal
-     *
      */
-    public function processUpdate ()
+    public function processUpdate()
     {
         // Clear SWAPPED state bit
-        $this->state &= ~ self::SWAPPED;
-        
+        $this->state &= ~self::SWAPPED;
+
         $this->memManager->processUpdate($this, $this->id);
     }
 
@@ -204,15 +195,14 @@ class Movable extends AbstractContainer
      * Start modifications trace
      *
      * @internal
-     *
      */
-    public function startTrace ()
+    public function startTrace()
     {
-        if (! ($this->state & self::LOADED)) {
+        if (!($this->state & self::LOADED)) {
             $this->memManager->load($this, $this->id);
             $this->state |= self::LOADED;
         }
-        
+
         $this->value->startTrace();
     }
 
@@ -220,9 +210,8 @@ class Movable extends AbstractContainer
      * Set value (used by memory manager when value is loaded)
      *
      * @internal
-     *
      */
-    public function setValue ($value)
+    public function setValue($value)
     {
         $this->value = new Memory\Value($value, $this);
     }
@@ -231,13 +220,12 @@ class Movable extends AbstractContainer
      * Clear value (used by memory manager when value is swapped)
      *
      * @internal
-     *
      */
-    public function unloadValue ()
+    public function unloadValue()
     {
         // Clear LOADED state bit
-        $this->state &= ~ self::LOADED;
-        
+        $this->state &= ~self::LOADED;
+
         $this->value = null;
     }
 
@@ -245,9 +233,8 @@ class Movable extends AbstractContainer
      * Mark, that object is swapped
      *
      * @internal
-     *
      */
-    public function markAsSwapped ()
+    public function markAsSwapped()
     {
         // Clear LOADED state bit
         $this->state |= self::LOADED;
@@ -257,10 +244,9 @@ class Movable extends AbstractContainer
      * Check if object is marked as swapped
      *
      * @internal
-     *
      * @return bool
      */
-    public function isSwapped ()
+    public function isSwapped()
     {
         return $this->state & self::SWAPPED;
     }
@@ -269,26 +255,24 @@ class Movable extends AbstractContainer
      * Get object id
      *
      * @internal
-     *
      * @return int
      */
-    public function getId ()
+    public function getId()
     {
         return $this->id;
     }
-
     /**
      * Destroy memory container and remove it from memory manager list
      *
      * @internal
-     *
      */
-    public function destroy ()
+    public function destroy()
     {
         /**
          * We don't clean up swap because of performance considerations
          * Cleaning is performed by Memory Manager destructor
          */
+
         $this->memManager->unlink($this, $this->id);
     }
 }

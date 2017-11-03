@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Helper;
+
 use Zend\View\Model\ModelInterface as Model;
 
 /**
@@ -14,15 +16,12 @@ use Zend\View\Model\ModelInterface as Model;
  */
 class ViewModel extends AbstractHelper
 {
-
     /**
-     *
      * @var Model
      */
     protected $current;
 
     /**
-     *
      * @var Model
      */
     protected $root;
@@ -30,10 +29,10 @@ class ViewModel extends AbstractHelper
     /**
      * Set the current view model
      *
-     * @param Model $model            
+     * @param  Model $model
      * @return ViewModel
      */
-    public function setCurrent (Model $model)
+    public function setCurrent(Model $model)
     {
         $this->current = $model;
         return $this;
@@ -44,7 +43,7 @@ class ViewModel extends AbstractHelper
      *
      * @return null|Model
      */
-    public function getCurrent ()
+    public function getCurrent()
     {
         return $this->current;
     }
@@ -54,7 +53,7 @@ class ViewModel extends AbstractHelper
      *
      * @return bool
      */
-    public function hasCurrent ()
+    public function hasCurrent()
     {
         return ($this->current instanceof Model);
     }
@@ -62,10 +61,10 @@ class ViewModel extends AbstractHelper
     /**
      * Set the root view model
      *
-     * @param Model $model            
+     * @param  Model $model
      * @return ViewModel
      */
-    public function setRoot (Model $model)
+    public function setRoot(Model $model)
     {
         $this->root = $model;
         return $this;
@@ -76,7 +75,7 @@ class ViewModel extends AbstractHelper
      *
      * @return null|Model
      */
-    public function getRoot ()
+    public function getRoot()
     {
         return $this->root;
     }
@@ -86,7 +85,7 @@ class ViewModel extends AbstractHelper
      *
      * @return bool
      */
-    public function hasRoot ()
+    public function hasRoot()
     {
         return ($this->root instanceof Model);
     }

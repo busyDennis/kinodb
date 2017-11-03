@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View;
 
 /**
@@ -16,14 +17,13 @@ namespace Zend\View;
  * http://www.php.net/manual/en/function.stream-wrapper-register.php
  *
  * As well as the example provided at:
- * http://mikenaberezny.com/2006/02/19/symphony-templates-ruby-erb/
+ *     http://mikenaberezny.com/2006/02/19/symphony-templates-ruby-erb/
  * written by
- * Mike Naberezny (@link http://mikenaberezny.com)
- * Paul M. Jones (@link http://paul-m-jones.com)
+ *     Mike Naberezny (@link http://mikenaberezny.com)
+ *     Paul M. Jones  (@link http://paul-m-jones.com)
  */
 class Stream
 {
-
     /**
      * Current stream position.
      *
@@ -48,21 +48,18 @@ class Stream
     /**
      * Opens the script file and converts markup.
      *
-     * @param string $path            
-     * @param
-     *            $mode
-     * @param
-     *            $options
-     * @param
-     *            $opened_path
+     * @param  string $path
+     * @param         $mode
+     * @param         $options
+     * @param         $opened_path
      * @return bool
      */
-    public function stream_open ($path, $mode, $options, &$opened_path)
+    public function stream_open($path, $mode, $options, &$opened_path)
     {
         // get the view script source
-        $path = str_replace('zend.view://', '', $path);
+        $path        = str_replace('zend.view://', '', $path);
         $this->data = file_get_contents($path);
-        
+
         /**
          * If reading the file failed, update our local stat store
          * to reflect the real stat of the file, then return on failure
@@ -71,20 +68,21 @@ class Stream
             $this->stat = stat($path);
             return false;
         }
-        
+
         /**
          * Convert <?= ?> to long-form <?php echo ?> and <?php ?> to <?php ?>
+         *
          */
         $this->data = preg_replace('/\<\?\=/', "<?php echo ", $this->data);
         $this->data = preg_replace('/<\?(?!xml|php)/s', '<?php ', $this->data);
-        
+
         /**
          * file_get_contents() won't update PHP's stat cache, so we grab a stat
          * of the file to prevent additional reads should the script be
          * requested again, which will make include() happy.
          */
         $this->stat = stat($path);
-        
+
         return true;
     }
 
@@ -93,7 +91,7 @@ class Stream
      *
      * @return array
      */
-    public function url_stat ()
+    public function url_stat()
     {
         return $this->stat;
     }
@@ -101,10 +99,10 @@ class Stream
     /**
      * Reads from the stream.
      *
-     * @param int $count            
+     * @param  int $count
      * @return string
      */
-    public function stream_read ($count)
+    public function stream_read($count)
     {
         $ret = substr($this->data, $this->pos, $count);
         $this->pos += strlen($ret);
@@ -116,7 +114,7 @@ class Stream
      *
      * @return int
      */
-    public function stream_tell ()
+    public function stream_tell()
     {
         return $this->pos;
     }
@@ -126,7 +124,7 @@ class Stream
      *
      * @return bool
      */
-    public function stream_eof ()
+    public function stream_eof()
     {
         return $this->pos >= strlen($this->data);
     }
@@ -136,7 +134,7 @@ class Stream
      *
      * @return array
      */
-    public function stream_stat ()
+    public function stream_stat()
     {
         return $this->stat;
     }
@@ -144,13 +142,11 @@ class Stream
     /**
      * Seek to a specific point in the stream.
      *
-     * @param
-     *            $offset
-     * @param
-     *            $whence
+     * @param  $offset
+     * @param  $whence
      * @return bool
      */
-    public function stream_seek ($offset, $whence)
+    public function stream_seek($offset, $whence)
     {
         switch ($whence) {
             case SEEK_SET:
@@ -161,7 +157,7 @@ class Stream
                     return false;
                 }
                 break;
-            
+
             case SEEK_CUR:
                 if ($offset >= 0) {
                     $this->pos += $offset;
@@ -170,7 +166,7 @@ class Stream
                     return false;
                 }
                 break;
-            
+
             case SEEK_END:
                 if (strlen($this->data) + $offset >= 0) {
                     $this->pos = strlen($this->data) + $offset;
@@ -179,7 +175,7 @@ class Stream
                     return false;
                 }
                 break;
-            
+
             default:
                 return false;
         }

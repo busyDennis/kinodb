@@ -3,15 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Config;
+
 use Zend\Stdlib\ArrayUtils;
 
 class Factory
 {
-
     /**
      * Plugin manager for loading readers
      *
@@ -33,10 +34,11 @@ class Factory
      * @var array
      */
     protected static $extensions = array(
-            'ini' => 'ini',
-            'json' => 'json',
-            'xml' => 'xml',
-            'yaml' => 'yaml'
+        'ini'         => 'ini',
+        'json'        => 'json',
+        'xml'         => 'xml',
+        'yaml'        => 'yaml',
+        'properties'  => 'javaproperties',
     );
 
     /**
@@ -46,140 +48,166 @@ class Factory
      * @var array
      */
     protected static $writerExtensions = array(
-            'php' => 'php',
-            'ini' => 'ini',
-            'json' => 'json',
-            'xml' => 'xml',
-            'yaml' => 'yaml'
+        'php'  => 'php',
+        'ini'  => 'ini',
+        'json' => 'json',
+        'xml'  => 'xml',
+        'yaml' => 'yaml',
     );
 
     /**
      * Read a config from a file.
      *
-     * @param string $filename            
-     * @param bool $returnConfigObject            
+     * @param  string  $filename
+     * @param  bool $returnConfigObject
+     * @param  bool $useIncludePath
      * @return array|Config
      * @throws Exception\InvalidArgumentException
      * @throws Exception\RuntimeException
      */
-    public static function fromFile ($filename, $returnConfigObject = false)
+    public static function fromFile($filename, $returnConfigObject = false, $useIncludePath = false)
     {
-        $pathinfo = pathinfo($filename);
-        
-        if (! isset($pathinfo['extension'])) {
-            throw new Exception\RuntimeException(
-                    sprintf(
-                            'Filename "%s" is missing an extension and cannot be auto-detected', 
-                            $filename));
-        }
-        
-        $extension = strtolower($pathinfo['extension']);
-        
-        if ($extension === 'php') {
-            if (! is_file($filename) || ! is_readable($filename)) {
-                throw new Exception\RuntimeException(
-                        sprintf("File '%s' doesn't exist or not readable", 
-                                $filename));
+        $filepath = $filename;
+        if (!file_exists($filename)) {
+            if (!$useIncludePath) {
+                throw new Exception\RuntimeException(sprintf(
+                    'Filename "%s" cannot be found relative to the working directory',
+                    $filename
+                ));
             }
-            
-            $config = include $filename;
+
+            $fromIncludePath = stream_resolve_include_path($filename);
+            if (!$fromIncludePath) {
+                throw new Exception\RuntimeException(sprintf(
+                    'Filename "%s" cannot be found relative to the working directory or the include_path ("%s")',
+                    $filename,
+                    get_include_path()
+                ));
+            }
+            $filepath = $fromIncludePath;
+        }
+
+        $pathinfo = pathinfo($filepath);
+
+        if (!isset($pathinfo['extension'])) {
+            throw new Exception\RuntimeException(sprintf(
+                'Filename "%s" is missing an extension and cannot be auto-detected',
+                $filename
+            ));
+        }
+
+        $extension = strtolower($pathinfo['extension']);
+
+        if ($extension === 'php') {
+            if (!is_file($filepath) || !is_readable($filepath)) {
+                throw new Exception\RuntimeException(sprintf(
+                    "File '%s' doesn't exist or not readable",
+                    $filename
+                ));
+            }
+
+            $config = include $filepath;
         } elseif (isset(static::$extensions[$extension])) {
             $reader = static::$extensions[$extension];
-            if (! $reader instanceof Reader\ReaderInterface) {
+            if (!$reader instanceof Reader\ReaderInterface) {
                 $reader = static::getReaderPluginManager()->get($reader);
                 static::$extensions[$extension] = $reader;
             }
-            
-            /**
-             *
-             * @var Reader\ReaderInterface $reader
-             */
-            $config = $reader->fromFile($filename);
+
+            /** @var Reader\ReaderInterface $reader  */
+            $config = $reader->fromFile($filepath);
         } else {
-            throw new Exception\RuntimeException(
-                    sprintf('Unsupported config file extension: .%s', 
-                            $pathinfo['extension']));
+            throw new Exception\RuntimeException(sprintf(
+                'Unsupported config file extension: .%s',
+                $pathinfo['extension']
+            ));
         }
-        
+
         return ($returnConfigObject) ? new Config($config) : $config;
     }
 
     /**
      * Read configuration from multiple files and merge them.
      *
-     * @param array $files            
-     * @param bool $returnConfigObject            
+     * @param  array   $files
+     * @param  bool $returnConfigObject
+     * @param  bool $useIncludePath
      * @return array|Config
      */
-    public static function fromFiles (array $files, $returnConfigObject = false)
+    public static function fromFiles(array $files, $returnConfigObject = false, $useIncludePath = false)
     {
         $config = array();
-        
+
         foreach ($files as $file) {
-            $config = ArrayUtils::merge($config, static::fromFile($file));
+            $config = ArrayUtils::merge($config, static::fromFile($file, false, $useIncludePath));
         }
-        
+
         return ($returnConfigObject) ? new Config($config) : $config;
     }
 
     /**
      * Writes a config to a file
      *
-     * @param string $filename            
-     * @param array|Config $config            
+     * @param string $filename
+     * @param array|Config $config
      * @return bool TRUE on success | FALSE on failure
      * @throws Exception\RuntimeException
      * @throws Exception\InvalidArgumentException
      */
-    public static function toFile ($filename, $config)
+    public static function toFile($filename, $config)
     {
-        if ((is_object($config) && ! ($config instanceof Config)) ||
-                 (! is_object($config) && ! is_array($config))) {
+        if (
+            (is_object($config) && !($config instanceof Config)) ||
+            (!is_object($config) && !is_array($config))
+        ) {
             throw new Exception\InvalidArgumentException(
-                    __METHOD__ .
-                     " \$config should be an array or instance of Zend\\Config\\Config");
+                __METHOD__." \$config should be an array or instance of Zend\\Config\\Config"
+            );
         }
-        
+
         $extension = substr(strrchr($filename, '.'), 1);
         $directory = dirname($filename);
-        
-        if (! is_dir($directory)) {
+
+        if (!is_dir($directory)) {
             throw new Exception\RuntimeException(
-                    "Directory '{$directory}' does not exists!");
+                "Directory '{$directory}' does not exists!"
+            );
         }
-        
-        if (! is_writable($directory)) {
+
+        if (!is_writable($directory)) {
             throw new Exception\RuntimeException(
-                    "Cannot write in directory '{$directory}'");
+                "Cannot write in directory '{$directory}'"
+            );
         }
-        
-        if (! isset(self::$writerExtensions[$extension])) {
+
+        if (!isset(static::$writerExtensions[$extension])) {
             throw new Exception\RuntimeException(
-                    "Unsupported config file extension: '.{$extension}' for writing.");
+                "Unsupported config file extension: '.{$extension}' for writing."
+            );
         }
-        
-        $writer = self::$writerExtensions[$extension];
+
+        $writer = static::$writerExtensions[$extension];
         if (($writer instanceof Writer\AbstractWriter) === false) {
             $writer = self::getWriterPluginManager()->get($writer);
-            self::$writerExtensions[$extension] = $writer;
+            static::$writerExtensions[$extension] = $writer;
         }
-        
+
         if (is_object($config)) {
             $config = $config->toArray();
         }
-        
+
         $content = $writer->processConfig($config);
-        
+
         return (bool) (file_put_contents($filename, $content) !== false);
     }
 
     /**
      * Set reader plugin manager
      *
-     * @param ReaderPluginManager $readers            
+     * @param ReaderPluginManager $readers
      * @return void
      */
-    public static function setReaderPluginManager (ReaderPluginManager $readers)
+    public static function setReaderPluginManager(ReaderPluginManager $readers)
     {
         static::$readers = $readers;
     }
@@ -189,7 +217,7 @@ class Factory
      *
      * @return ReaderPluginManager
      */
-    public static function getReaderPluginManager ()
+    public static function getReaderPluginManager()
     {
         if (static::$readers === null) {
             static::$readers = new ReaderPluginManager();
@@ -200,12 +228,12 @@ class Factory
     /**
      * Set writer plugin manager
      *
-     * @param WriterPluginManager $writers            
+     * @param WriterPluginManager $writers
      * @return void
      */
-    public static function setWriterPluginManager (WriterPluginManager $writers)
+    public static function setWriterPluginManager(WriterPluginManager $writers)
     {
-        self::$writers = $writers;
+        static::$writers = $writers;
     }
 
     /**
@@ -213,62 +241,60 @@ class Factory
      *
      * @return WriterPluginManager
      */
-    public static function getWriterPluginManager ()
+    public static function getWriterPluginManager()
     {
         if (static::$writers === null) {
             static::$writers = new WriterPluginManager();
         }
-        
+
         return static::$writers;
     }
 
     /**
      * Set config reader for file extension
      *
-     * @param string $extension            
-     * @param string|Reader\ReaderInterface $reader            
+     * @param  string $extension
+     * @param  string|Reader\ReaderInterface $reader
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public static function registerReader ($extension, $reader)
+    public static function registerReader($extension, $reader)
     {
         $extension = strtolower($extension);
-        
-        if (! is_string($reader) && ! $reader instanceof Reader\ReaderInterface) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Reader should be plugin name, class name or ' .
-                                     'instance of %s\Reader\ReaderInterface; received "%s"', 
-                                    __NAMESPACE__, 
-                                    (is_object($reader) ? get_class($reader) : gettype(
-                                            $reader))));
+
+        if (!is_string($reader) && !$reader instanceof Reader\ReaderInterface) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Reader should be plugin name, class name or ' .
+                'instance of %s\Reader\ReaderInterface; received "%s"',
+                __NAMESPACE__,
+                (is_object($reader) ? get_class($reader) : gettype($reader))
+            ));
         }
-        
+
         static::$extensions[$extension] = $reader;
     }
 
     /**
      * Set config writer for file extension
      *
-     * @param string $extension            
-     * @param string|Writer\AbstractWriter $writer            
+     * @param string $extension
+     * @param string|Writer\AbstractWriter $writer
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public static function registerWriter ($extension, $writer)
+    public static function registerWriter($extension, $writer)
     {
         $extension = strtolower($extension);
-        
-        if (! is_string($writer) && ! $writer instanceof Writer\AbstractWriter) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Writer should be plugin name, class name or ' .
-                                     'instance of %s\Writer\AbstractWriter; received "%s"', 
-                                    __NAMESPACE__, 
-                                    (is_object($writer) ? get_class($writer) : gettype(
-                                            $writer))));
+
+        if (!is_string($writer) && !$writer instanceof Writer\AbstractWriter) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Writer should be plugin name, class name or ' .
+                'instance of %s\Writer\AbstractWriter; received "%s"',
+                __NAMESPACE__,
+                (is_object($writer) ? get_class($writer) : gettype($writer))
+            ));
         }
-        
-        self::$writerExtensions[$extension] = $writer;
+
+        static::$writerExtensions[$extension] = $writer;
     }
 }

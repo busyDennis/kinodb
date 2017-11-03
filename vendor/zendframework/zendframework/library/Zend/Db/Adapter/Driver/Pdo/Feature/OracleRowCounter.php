@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter\Driver\Pdo\Feature;
+
 use Zend\Db\Adapter\Driver\Feature\AbstractFeature;
 use Zend\Db\Adapter\Driver\Pdo;
 
@@ -15,27 +17,24 @@ use Zend\Db\Adapter\Driver\Pdo;
  */
 class OracleRowCounter extends AbstractFeature
 {
-
     /**
-     *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return 'OracleRowCounter';
     }
 
     /**
-     *
-     * @param \Zend\Db\Adapter\Driver\Pdo\Statement $statement            
+     * @param \Zend\Db\Adapter\Driver\Pdo\Statement $statement
      * @return int
      */
-    public function getCountForStatement (Pdo\Statement $statement)
+    public function getCountForStatement(Pdo\Statement $statement)
     {
         $countStmt = clone $statement;
         $sql = $statement->getSql();
         if ($sql == '' || stripos($sql, 'select') === false) {
-            return null;
+            return;
         }
         $countSql = 'SELECT COUNT(*) as "count" FROM (' . $sql . ')';
         $countStmt->prepare($countSql);
@@ -46,44 +45,34 @@ class OracleRowCounter extends AbstractFeature
     }
 
     /**
-     *
-     * @param
-     *            $sql
+     * @param $sql
      * @return null|int
      */
-    public function getCountForSql ($sql)
+    public function getCountForSql($sql)
     {
-        if (! stripos($sql, 'select')) {
-            return null;
+        if (stripos($sql, 'select') === false) {
+            return;
         }
         $countSql = 'SELECT COUNT(*) as count FROM (' . $sql . ')';
-        /**
-         *
-         * @var $pdo \PDO
-         */
-        $pdo = $this->pdoDriver->getConnection()->getResource();
+        /** @var $pdo \PDO */
+        $pdo = $this->driver->getConnection()->getResource();
         $result = $pdo->query($countSql);
         $countRow = $result->fetch(\PDO::FETCH_ASSOC);
         return $countRow['count'];
     }
 
     /**
-     *
-     * @param
-     *            $context
-     * @return closure
+     * @param $context
+     * @return \Closure
      */
-    public function getRowCountClosure ($context)
+    public function getRowCountClosure($context)
     {
         $oracleRowCounter = $this;
-        return function  () use( $oracleRowCounter, $context)
-        {
-            /**
-             *
-             * @var $oracleRowCounter OracleRowCounter
-             */
-            return ($context instanceof Pdo\Statement) ? $oracleRowCounter->getCountForStatement(
-                    $context) : $oracleRowCounter->getCountForSql($context);
+        return function () use ($oracleRowCounter, $context) {
+            /** @var $oracleRowCounter OracleRowCounter */
+            return ($context instanceof Pdo\Statement)
+                ? $oracleRowCounter->getCountForStatement($context)
+                : $oracleRowCounter->getCountForSql($context);
         };
     }
 }

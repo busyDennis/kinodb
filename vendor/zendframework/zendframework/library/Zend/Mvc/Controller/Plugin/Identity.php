@@ -3,11 +3,13 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\Controller\Plugin;
-use Zend\Authentication\AuthenticationService;
+
+use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Mvc\Exception;
 
 /**
@@ -15,28 +17,23 @@ use Zend\Mvc\Exception;
  */
 class Identity extends AbstractPlugin
 {
-
     /**
-     *
-     * @var AuthenticationService
+     * @var AuthenticationServiceInterface
      */
     protected $authenticationService;
 
     /**
-     *
-     * @return AuthenticationService
+     * @return AuthenticationServiceInterface
      */
-    public function getAuthenticationService ()
+    public function getAuthenticationService()
     {
         return $this->authenticationService;
     }
 
     /**
-     *
-     * @param AuthenticationService $authenticationService            
+     * @param AuthenticationServiceInterface $authenticationService
      */
-    public function setAuthenticationService (
-            AuthenticationService $authenticationService)
+    public function setAuthenticationService(AuthenticationServiceInterface $authenticationService)
     {
         $this->authenticationService = $authenticationService;
     }
@@ -49,14 +46,13 @@ class Identity extends AbstractPlugin
      * @return mixed|null
      * @throws Exception\RuntimeException
      */
-    public function __invoke ()
+    public function __invoke()
     {
-        if (! $this->authenticationService instanceof AuthenticationService) {
-            throw new Exception\RuntimeException(
-                    'No AuthenticationService instance provided');
+        if (!$this->authenticationService instanceof AuthenticationServiceInterface) {
+            throw new Exception\RuntimeException('No AuthenticationServiceInterface instance provided');
         }
-        if (! $this->authenticationService->hasIdentity()) {
-            return null;
+        if (!$this->authenticationService->hasIdentity()) {
+            return;
         }
         return $this->authenticationService->getIdentity();
     }

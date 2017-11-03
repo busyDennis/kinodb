@@ -3,33 +3,32 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Filter;
+
 use Traversable;
 
 class StringToLower extends AbstractUnicode
 {
-
     /**
-     *
      * @var array
      */
     protected $options = array(
-            'encoding' => null
+        'encoding' => null,
     );
 
     /**
      * Constructor
      *
-     * @param string|array|Traversable $encodingOrOptions
-     *            OPTIONAL
+     * @param string|array|Traversable $encodingOrOptions OPTIONAL
      */
-    public function __construct ($encodingOrOptions = null)
+    public function __construct($encodingOrOptions = null)
     {
         if ($encodingOrOptions !== null) {
-            if (! static::isOptions($encodingOrOptions)) {
+            if (!static::isOptions($encodingOrOptions)) {
                 $this->setEncoding($encodingOrOptions);
             } else {
                 $this->setOptions($encodingOrOptions);
@@ -40,18 +39,24 @@ class StringToLower extends AbstractUnicode
     /**
      * Defined by Zend\Filter\FilterInterface
      *
-     * Returns the string $value, converting characters to lowercase as
-     * necessary
+     * Returns the string $value, converting characters to lowercase as necessary
      *
-     * @param string $value            
-     * @return string
+     * If the value provided is non-scalar, the value will remain unfiltered
+     *
+     * @param  string $value
+     * @return string|mixed
      */
-    public function filter ($value)
+    public function filter($value)
     {
-        if ($this->options['encoding'] !== null) {
-            return mb_strtolower((string) $value, $this->options['encoding']);
+        if (!is_scalar($value)) {
+            return $value;
         }
-        
-        return strtolower((string) $value);
+        $value = (string) $value;
+
+        if (null !== $this->getEncoding()) {
+            return mb_strtolower($value, $this->options['encoding']);
+        }
+
+        return strtolower($value);
     }
 }

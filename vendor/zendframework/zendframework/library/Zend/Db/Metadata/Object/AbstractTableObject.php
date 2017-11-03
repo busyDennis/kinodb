@@ -3,19 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Metadata\Object;
 
 abstract class AbstractTableObject
 {
-
     /*
-     * protected $catalogName = null;
-     * protected $schemaName = null;
-     */
-    
+    protected $catalogName = null;
+    protected $schemaName = null;
+    */
+
     /**
      *
      * @var string
@@ -43,9 +43,9 @@ abstract class AbstractTableObject
     /**
      * Constructor
      *
-     * @param string $name            
+     * @param string $name
      */
-    public function __construct ($name)
+    public function __construct($name)
     {
         if ($name) {
             $this->setName($name);
@@ -55,9 +55,9 @@ abstract class AbstractTableObject
     /**
      * Set columns
      *
-     * @param array $columns            
+     * @param array $columns
      */
-    public function setColumns (array $columns)
+    public function setColumns(array $columns)
     {
         $this->columns = $columns;
     }
@@ -67,7 +67,7 @@ abstract class AbstractTableObject
      *
      * @return array
      */
-    public function getColumns ()
+    public function getColumns()
     {
         return $this->columns;
     }
@@ -75,9 +75,9 @@ abstract class AbstractTableObject
     /**
      * Set constraints
      *
-     * @param array $constraints            
+     * @param array $constraints
      */
-    public function setConstraints ($constraints)
+    public function setConstraints($constraints)
     {
         $this->constraints = $constraints;
     }
@@ -87,7 +87,7 @@ abstract class AbstractTableObject
      *
      * @return array
      */
-    public function getConstraints ()
+    public function getConstraints()
     {
         return $this->constraints;
     }
@@ -95,9 +95,9 @@ abstract class AbstractTableObject
     /**
      * Set name
      *
-     * @param string $name            
+     * @param string $name
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = $name;
     }
@@ -107,7 +107,7 @@ abstract class AbstractTableObject
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }

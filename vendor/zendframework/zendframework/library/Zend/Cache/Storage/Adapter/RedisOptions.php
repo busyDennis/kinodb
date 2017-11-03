@@ -3,25 +3,24 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
-use Redis as RedisResource;
-use Zend\Cache\Storage\Adapter\AdapterOptions;
+
+use Zend\Cache\Exception;
 
 class RedisOptions extends AdapterOptions
 {
-
     /**
      * The namespace separator
-     *
      * @var string
      */
     protected $namespaceSeparator = ':';
 
     /**
-     * The memcached resource manager
+     * The redis resource manager
      *
      * @var null|RedisResourceManager
      */
@@ -40,39 +39,37 @@ class RedisOptions extends AdapterOptions
      * The option Redis::OPT_PREFIX will be used as the namespace.
      * It can't be longer than 128 characters.
      *
-     * @param string $namespace
-     *            Prefix for each key stored in redis
+     * @param string $namespace Prefix for each key stored in redis
      * @return \Zend\Cache\Storage\Adapter\RedisOptions
      *
      * @see AdapterOptions::setNamespace()
      * @see RedisOptions::setPrefixKey()
      */
-    public function setNamespace ($namespace)
+    public function setNamespace($namespace)
     {
         $namespace = (string) $namespace;
-        
+
         if (128 < strlen($namespace)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            '%s expects a prefix key of no longer than 128 characters', 
-                            __METHOD__));
+            throw new Exception\InvalidArgumentException(sprintf(
+                '%s expects a prefix key of no longer than 128 characters',
+                __METHOD__
+            ));
         }
-        
+
         return parent::setNamespace($namespace);
     }
 
     /**
      * Set namespace separator
      *
-     * @param string $namespaceSeparator            
+     * @param  string $namespaceSeparator
      * @return RedisOptions
      */
-    public function setNamespaceSeparator ($namespaceSeparator)
+    public function setNamespaceSeparator($namespaceSeparator)
     {
         $namespaceSeparator = (string) $namespaceSeparator;
         if ($this->namespaceSeparator !== $namespaceSeparator) {
-            $this->triggerOptionEvent('namespace_separator', 
-                    $namespaceSeparator);
+            $this->triggerOptionEvent('namespace_separator', $namespaceSeparator);
             $this->namespaceSeparator = $namespaceSeparator;
         }
         return $this;
@@ -83,7 +80,7 @@ class RedisOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getNamespaceSeparator ()
+    public function getNamespaceSeparator()
     {
         return $this->namespaceSeparator;
     }
@@ -91,11 +88,10 @@ class RedisOptions extends AdapterOptions
     /**
      * Set the redis resource manager to use
      *
-     * @param null|RedisResourceManager $resourceManager            
+     * @param null|RedisResourceManager $resourceManager
      * @return RedisOptions
      */
-    public function setResourceManager (
-            RedisResourceManager $resourceManager = null)
+    public function setResourceManager(RedisResourceManager $resourceManager = null)
     {
         if ($this->resourceManager !== $resourceManager) {
             $this->triggerOptionEvent('resource_manager', $resourceManager);
@@ -109,9 +105,9 @@ class RedisOptions extends AdapterOptions
      *
      * @return RedisResourceManager
      */
-    public function getResourceManager ()
+    public function getResourceManager()
     {
-        if (! $this->resourceManager) {
+        if (!$this->resourceManager) {
             $this->resourceManager = new RedisResourceManager();
         }
         return $this->resourceManager;
@@ -122,7 +118,7 @@ class RedisOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getResourceId ()
+    public function getResourceId()
     {
         return $this->resourceId;
     }
@@ -130,10 +126,10 @@ class RedisOptions extends AdapterOptions
     /**
      * Set the redis resource id
      *
-     * @param string $resourceId            
+     * @param string $resourceId
      * @return RedisOptions
      */
-    public function setResourceId ($resourceId)
+    public function setResourceId($resourceId)
     {
         $resourceId = (string) $resourceId;
         if ($this->resourceId !== $resourceId) {
@@ -148,38 +144,35 @@ class RedisOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getPersistentId ()
+    public function getPersistentId()
     {
-        return $this->getResourceManager()->getPersistentId(
-                $this->getResourceId());
+        return $this->getResourceManager()->getPersistentId($this->getResourceId());
     }
 
     /**
      * Set the persistent id
      *
-     * @param string $persistentId            
+     * @param string $persistentId
      * @return RedisOptions
      */
-    public function setPersistentId ($persistentId)
+    public function setPersistentId($persistentId)
     {
         $this->triggerOptionEvent('persistent_id', $persistentId);
-        $this->getResourceManager()->setPersistentId($this->getResourceId(), 
-                $persistentId);
+        $this->getResourceManager()->setPersistentId($this->getResourceId(), $persistentId);
         return $this;
     }
 
-    /**
-     * Set redis options
-     *
-     * @param array $libOptions            
-     * @return RedisOptions
-     * @link http://github.com/nicolasff/phpredis#setoption
-     */
-    public function setLibOptions (array $libOptions)
+     /**
+    * Set redis options
+    *
+    * @param array $libOptions
+    * @return RedisOptions
+    * @link http://github.com/nicolasff/phpredis#setoption
+    */
+    public function setLibOptions(array $libOptions)
     {
         $this->triggerOptionEvent('lib_option', $libOptions);
-        $this->getResourceManager()->setLibOptions($this->getResourceId(), 
-                $libOptions);
+        $this->getResourceManager()->setLibOptions($this->getResourceId(), $libOptions);
         return $this;
     }
 
@@ -189,26 +182,24 @@ class RedisOptions extends AdapterOptions
      * @return array
      * @link http://github.com/nicolasff/phpredis#setoption
      */
-    public function getLibOptions ()
+    public function getLibOptions()
     {
-        return $this->getResourceManager()->getLibOptions(
-                $this->getResourceId());
+        return $this->getResourceManager()->getLibOptions($this->getResourceId());
     }
 
     /**
      * Set server
      *
      * Server can be described as follows:
-     * - URI: /path/to/sock.sock
-     * - Assoc: array('host' => <host>[, 'port' => <port>[, 'timeout' =>
-     * <timeout>]])
-     * - List: array(<host>[, <port>, [, <timeout>]])
+     * - URI:   /path/to/sock.sock
+     * - Assoc: array('host' => <host>[, 'port' => <port>[, 'timeout' => <timeout>]])
+     * - List:  array(<host>[, <port>, [, <timeout>]])
      *
-     * @param string|array $server            
+     * @param string|array $server
      *
      * @return RedisOptions
      */
-    public function setServer ($server)
+    public function setServer($server)
     {
         $this->getResourceManager()->setServer($this->getResourceId(), $server);
         return $this;
@@ -217,10 +208,9 @@ class RedisOptions extends AdapterOptions
     /**
      * Get server
      *
-     * @return array array('host' => <host>[, 'port' => <port>[, 'timeout' =>
-     *         <timeout>]])
+     * @return array array('host' => <host>[, 'port' => <port>[, 'timeout' => <timeout>]])
      */
-    public function getServer ()
+    public function getServer()
     {
         return $this->getResourceManager()->getServer($this->getResourceId());
     }
@@ -228,15 +218,13 @@ class RedisOptions extends AdapterOptions
     /**
      * Set resource database number
      *
-     * @param int $database
-     *            Database number
-     *            
+     * @param int $database Database number
+     *
      * @return RedisOptions
      */
-    public function setDatabase ($database)
+    public function setDatabase($database)
     {
-        $this->getResourceManager()->setDatabase($this->getResourceId(), 
-                $database);
+        $this->getResourceManager()->setDatabase($this->getResourceId(), $database);
         return $this;
     }
 
@@ -245,7 +233,7 @@ class RedisOptions extends AdapterOptions
      *
      * @return int Database number
      */
-    public function getDatabase ()
+    public function getDatabase()
     {
         return $this->getResourceManager()->getDatabase($this->getResourceId());
     }
@@ -253,15 +241,13 @@ class RedisOptions extends AdapterOptions
     /**
      * Set resource password
      *
-     * @param string $password
-     *            Password
-     *            
+     * @param string $password Password
+     *
      * @return RedisOptions
      */
-    public function setPassword ($password)
+    public function setPassword($password)
     {
-        $this->getResourceManager()->setPassword($this->getResourceId(), 
-                $password);
+        $this->getResourceManager()->setPassword($this->getResourceId(), $password);
         return $this;
     }
 
@@ -270,7 +256,7 @@ class RedisOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getPassword ()
+    public function getPassword()
     {
         return $this->getResourceManager()->getPassword($this->getResourceId());
     }

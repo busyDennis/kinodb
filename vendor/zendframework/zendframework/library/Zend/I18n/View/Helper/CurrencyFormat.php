@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\I18n\View\Helper;
+
 use Locale;
 use NumberFormatter;
 use Zend\I18n\Exception;
@@ -17,7 +19,6 @@ use Zend\View\Helper\AbstractHelper;
  */
 class CurrencyFormat extends AbstractHelper
 {
-
     /**
      * The 3-letter ISO 4217 currency code indicating the currency to use
      *
@@ -54,74 +55,97 @@ class CurrencyFormat extends AbstractHelper
     protected $showDecimals = true;
 
     /**
-     *
      * @throws Exception\ExtensionNotLoadedException if ext/intl is not present
      */
-    public function __construct ()
+    public function __construct()
     {
-        if (! extension_loaded('intl')) {
-            throw new Exception\ExtensionNotLoadedException(
-                    sprintf('%s component requires the intl PHP extension', 
-                            __NAMESPACE__));
+        if (!extension_loaded('intl')) {
+            throw new Exception\ExtensionNotLoadedException(sprintf(
+                '%s component requires the intl PHP extension',
+                __NAMESPACE__
+            ));
         }
     }
 
     /**
      * Format a number
      *
-     * @param float $number            
-     * @param string $currencyCode            
-     * @param bool $showDecimals            
-     * @param string $locale            
-     * @param string $pattern            
+     * @param  float  $number
+     * @param  string $currencyCode
+     * @param  bool   $showDecimals
+     * @param  string $locale
+     * @param  string $pattern
      * @return string
      */
-    public function __invoke ($number, $currencyCode = null, $showDecimals = null, 
-            $locale = null, $pattern = null)
-    {
+    public function __invoke(
+        $number,
+        $currencyCode = null,
+        $showDecimals = null,
+        $locale = null,
+        $pattern = null
+    ) {
         if (null === $locale) {
             $locale = $this->getLocale();
         }
         if (null === $currencyCode) {
             $currencyCode = $this->getCurrencyCode();
         }
-        if (null !== $showDecimals) {
-            $this->setShouldShowDecimals($showDecimals);
+        if (null === $showDecimals) {
+            $showDecimals = $this->shouldShowDecimals();
         }
         if (null === $pattern) {
             $pattern = $this->getCurrencyPattern();
         }
-        
+
+        return $this->formatCurrency($number, $currencyCode, $showDecimals, $locale, $pattern);
+    }
+
+    /**
+     * Format a number
+     *
+     * @param  float  $number
+     * @param  string $currencyCode
+     * @param  bool   $showDecimals
+     * @param  string $locale
+     * @param  string $pattern
+     * @return string
+     */
+    protected function formatCurrency(
+        $number,
+        $currencyCode,
+        $showDecimals,
+        $locale,
+        $pattern
+    ) {
         $formatterId = md5($locale);
-        
-        if (! isset($this->formatters[$formatterId])) {
-            $this->formatters[$formatterId] = new NumberFormatter($locale, 
-                    NumberFormatter::CURRENCY);
+
+        if (!isset($this->formatters[$formatterId])) {
+            $this->formatters[$formatterId] = new NumberFormatter(
+                $locale,
+                NumberFormatter::CURRENCY
+            );
         }
-        
+
         if ($pattern !== null) {
             $this->formatters[$formatterId]->setPattern($pattern);
         }
-        
-        if ($this->shouldShowDecimals()) {
-            $this->formatters[$formatterId]->setAttribute(
-                    NumberFormatter::FRACTION_DIGITS, 2);
+
+        if ($showDecimals) {
+            $this->formatters[$formatterId]->setAttribute(NumberFormatter::FRACTION_DIGITS, 2);
         } else {
-            $this->formatters[$formatterId]->setAttribute(
-                    NumberFormatter::FRACTION_DIGITS, 0);
+            $this->formatters[$formatterId]->setAttribute(NumberFormatter::FRACTION_DIGITS, 0);
         }
-        
-        return $this->formatters[$formatterId]->formatCurrency($number, 
-                $currencyCode);
+
+        return $this->formatters[$formatterId]->formatCurrency($number, $currencyCode);
     }
 
     /**
      * The 3-letter ISO 4217 currency code indicating the currency to use
      *
-     * @param string $currencyCode            
+     * @param  string $currencyCode
      * @return CurrencyFormat
      */
-    public function setCurrencyCode ($currencyCode)
+    public function setCurrencyCode($currencyCode)
     {
         $this->currencyCode = $currencyCode;
         return $this;
@@ -132,7 +156,7 @@ class CurrencyFormat extends AbstractHelper
      *
      * @return string
      */
-    public function getCurrencyCode ()
+    public function getCurrencyCode()
     {
         return $this->currencyCode;
     }
@@ -140,10 +164,10 @@ class CurrencyFormat extends AbstractHelper
     /**
      * Set the currency pattern
      *
-     * @param string $currencyPattern            
+     * @param  string $currencyPattern
      * @return CurrencyFormat
      */
-    public function setCurrencyPattern ($currencyPattern)
+    public function setCurrencyPattern($currencyPattern)
     {
         $this->currencyPattern = $currencyPattern;
         return $this;
@@ -154,7 +178,7 @@ class CurrencyFormat extends AbstractHelper
      *
      * @return string
      */
-    public function getCurrencyPattern ()
+    public function getCurrencyPattern()
     {
         return $this->currencyPattern;
     }
@@ -162,10 +186,10 @@ class CurrencyFormat extends AbstractHelper
     /**
      * Set locale to use instead of the default
      *
-     * @param string $locale            
+     * @param  string $locale
      * @return CurrencyFormat
      */
-    public function setLocale ($locale)
+    public function setLocale($locale)
     {
         $this->locale = (string) $locale;
         return $this;
@@ -176,22 +200,22 @@ class CurrencyFormat extends AbstractHelper
      *
      * @return string|null
      */
-    public function getLocale ()
+    public function getLocale()
     {
         if ($this->locale === null) {
             $this->locale = Locale::getDefault();
         }
-        
+
         return $this->locale;
     }
 
     /**
      * Set if the view helper should show two decimals
      *
-     * @param bool $showDecimals            
+     * @param  bool $showDecimals
      * @return CurrencyFormat
      */
-    public function setShouldShowDecimals ($showDecimals)
+    public function setShouldShowDecimals($showDecimals)
     {
         $this->showDecimals = (bool) $showDecimals;
         return $this;
@@ -202,7 +226,7 @@ class CurrencyFormat extends AbstractHelper
      *
      * @return bool
      */
-    public function shouldShowDecimals ()
+    public function shouldShowDecimals()
     {
         return $this->showDecimals;
     }

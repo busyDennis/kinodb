@@ -3,33 +3,32 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Sql\Predicate;
 
-class IsNull implements PredicateInterface
-{
+use Zend\Db\Sql\AbstractExpression;
 
+class IsNull extends AbstractExpression implements PredicateInterface
+{
     /**
-     *
      * @var string
      */
     protected $specification = '%1$s IS NULL';
 
     /**
-     *
      * @var
-     *
      */
     protected $identifier;
 
     /**
      * Constructor
      *
-     * @param string $identifier            
+     * @param  string $identifier
      */
-    public function __construct ($identifier = null)
+    public function __construct($identifier = null)
     {
         if ($identifier) {
             $this->setIdentifier($identifier);
@@ -39,10 +38,10 @@ class IsNull implements PredicateInterface
     /**
      * Set identifier for comparison
      *
-     * @param string $identifier            
+     * @param  string $identifier
      * @return IsNull
      */
-    public function setIdentifier ($identifier)
+    public function setIdentifier($identifier)
     {
         $this->identifier = $identifier;
         return $this;
@@ -53,7 +52,7 @@ class IsNull implements PredicateInterface
      *
      * @return null|string
      */
-    public function getIdentifier ()
+    public function getIdentifier()
     {
         return $this->identifier;
     }
@@ -61,10 +60,10 @@ class IsNull implements PredicateInterface
     /**
      * Set specification string to use in forming SQL predicate
      *
-     * @param string $specification            
+     * @param  string $specification
      * @return IsNull
      */
-    public function setSpecification ($specification)
+    public function setSpecification($specification)
     {
         $this->specification = $specification;
         return $this;
@@ -75,7 +74,7 @@ class IsNull implements PredicateInterface
      *
      * @return string
      */
-    public function getSpecification ()
+    public function getSpecification()
     {
         return $this->specification;
     }
@@ -85,18 +84,13 @@ class IsNull implements PredicateInterface
      *
      * @return array
      */
-    public function getExpressionData ()
+    public function getExpressionData()
     {
-        return array(
-                array(
-                        $this->getSpecification(),
-                        array(
-                                $this->identifier
-                        ),
-                        array(
-                                self::TYPE_IDENTIFIER
-                        )
-                )
-        );
+        $identifier = $this->normalizeArgument($this->identifier, self::TYPE_IDENTIFIER);
+        return array(array(
+            $this->getSpecification(),
+            array($identifier[0]),
+            array($identifier[1]),
+        ));
     }
 }

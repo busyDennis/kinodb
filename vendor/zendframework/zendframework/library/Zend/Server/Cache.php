@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server;
+
 use Zend\Stdlib\ErrorHandler;
 
 /**
@@ -14,9 +16,7 @@ use Zend\Stdlib\ErrorHandler;
  */
 class Cache
 {
-
     /**
-     *
      * @var array Methods to skip when caching server
      */
     protected static $skipMethods = array();
@@ -30,19 +30,18 @@ class Cache
      * Returns false on any error (typically, inability to write to file), true
      * on success.
      *
-     * @param string $filename            
-     * @param \Zend\Server\Server $server            
+     * @param  string $filename
+     * @param  \Zend\Server\Server $server
      * @return bool
      */
-    public static function save ($filename, Server $server)
+    public static function save($filename, Server $server)
     {
-        if (! is_string($filename) ||
-                 (! file_exists($filename) && ! is_writable(dirname($filename)))) {
+        if (!is_string($filename) || (!file_exists($filename) && !is_writable(dirname($filename)))) {
             return false;
         }
-        
+
         $methods = $server->getFunctions();
-        
+
         if ($methods instanceof Definition) {
             $definition = new Definition();
             foreach ($methods as $method) {
@@ -53,14 +52,14 @@ class Cache
             }
             $methods = $definition;
         }
-        
+
         ErrorHandler::start();
         $test = file_put_contents($filename, serialize($methods));
         ErrorHandler::stop();
         if (0 === $test) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -75,65 +74,64 @@ class Cache
      *
      * <code>
      * if (!Zend\Server\Cache::get($filename, $server)) {
-     * require_once 'Some/Service/ServiceClass.php';
-     * require_once 'Another/Service/ServiceClass.php';
+     *     require_once 'Some/Service/ServiceClass.php';
+     *     require_once 'Another/Service/ServiceClass.php';
      *
-     * // Attach Some\Service\ServiceClass with namespace 'some'
-     * $server->attach('Some\Service\ServiceClass', 'some');
+     *     // Attach Some\Service\ServiceClass with namespace 'some'
+     *     $server->attach('Some\Service\ServiceClass', 'some');
      *
-     * // Attach Another\Service\ServiceClass with namespace 'another'
-     * $server->attach('Another\Service\ServiceClass', 'another');
+     *     // Attach Another\Service\ServiceClass with namespace 'another'
+     *     $server->attach('Another\Service\ServiceClass', 'another');
      *
-     * Zend\Server\Cache::save($filename, $server);
+     *     Zend\Server\Cache::save($filename, $server);
      * }
      *
      * $response = $server->handle();
      * echo $response;
      * </code>
      *
-     * @param string $filename            
-     * @param \Zend\Server\Server $server            
+     * @param  string $filename
+     * @param  \Zend\Server\Server $server
      * @return bool
      */
-    public static function get ($filename, Server $server)
+    public static function get($filename, Server $server)
     {
-        if (! is_string($filename) || ! file_exists($filename) ||
-                 ! is_readable($filename)) {
+        if (!is_string($filename) || !file_exists($filename) || !is_readable($filename)) {
             return false;
         }
-        
+
         ErrorHandler::start();
         $dispatch = file_get_contents($filename);
         ErrorHandler::stop();
         if (false === $dispatch) {
             return false;
         }
-        
+
         ErrorHandler::start(E_NOTICE);
         $dispatchArray = unserialize($dispatch);
         ErrorHandler::stop();
         if (false === $dispatchArray) {
             return false;
         }
-        
+
         $server->loadFunctions($dispatchArray);
-        
+
         return true;
     }
 
     /**
      * Remove a cache file
      *
-     * @param string $filename            
+     * @param  string $filename
      * @return bool
      */
-    public static function delete ($filename)
+    public static function delete($filename)
     {
         if (is_string($filename) && file_exists($filename)) {
             unlink($filename);
             return true;
         }
-        
+
         return false;
     }
 }

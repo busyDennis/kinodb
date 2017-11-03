@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Permissions\Acl\Role;
 
 class GenericRole implements RoleInterface
 {
-
     /**
      * Unique id of Role
      *
@@ -21,9 +21,9 @@ class GenericRole implements RoleInterface
     /**
      * Sets the Role identifier
      *
-     * @param string $roleId            
+     * @param string $roleId
      */
-    public function __construct ($roleId)
+    public function __construct($roleId)
     {
         $this->roleId = (string) $roleId;
     }
@@ -33,7 +33,7 @@ class GenericRole implements RoleInterface
      *
      * @return string
      */
-    public function getRoleId ()
+    public function getRoleId()
     {
         return $this->roleId;
     }
@@ -44,7 +44,7 @@ class GenericRole implements RoleInterface
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return $this->getRoleId();
     }

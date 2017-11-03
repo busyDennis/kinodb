@@ -3,16 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Session\Validator;
+
 use Zend\Http\PhpEnvironment\RemoteAddress;
 use Zend\Session\Validator\ValidatorInterface as SessionValidator;
 
 class RemoteAddr implements SessionValidator
 {
-
     /**
      * Internal data.
      *
@@ -23,14 +24,10 @@ class RemoteAddr implements SessionValidator
     /**
      * Whether to use proxy addresses or not.
      *
-     * As default this setting is disabled - IP address is mostly needed to
-     * increase
-     * security. HTTP_* are not reliable since can easily be spoofed. It can be
-     * enabled
-     * just for more flexibility, but if user uses proxy to connect to trusted
-     * services
-     * it's his/her own risk, only reliable field for IP address is
-     * $_SERVER['REMOTE_ADDR'].
+     * As default this setting is disabled - IP address is mostly needed to increase
+     * security. HTTP_* are not reliable since can easily be spoofed. It can be enabled
+     * just for more flexibility, but if user uses proxy to connect to trusted services
+     * it's his/her own risk, only reliable field for IP address is $_SERVER['REMOTE_ADDR'].
      *
      * @var bool
      */
@@ -53,8 +50,10 @@ class RemoteAddr implements SessionValidator
     /**
      * Constructor
      * get the current user IP and store it in the session as 'valid data'
+     *
+     * @param null|string $data
      */
-    public function __construct ($data = null)
+    public function __construct($data = null)
     {
         if (empty($data)) {
             $data = $this->getIpAddress();
@@ -68,7 +67,7 @@ class RemoteAddr implements SessionValidator
      *
      * @return bool
      */
-    public function isValid ()
+    public function isValid()
     {
         return ($this->getIpAddress() === $this->getData());
     }
@@ -79,11 +78,10 @@ class RemoteAddr implements SessionValidator
      * This must be static method, since validators are recovered automatically
      * at session read, so this is the only way to switch setting.
      *
-     * @param bool $useProxy
-     *            Whether to check also proxied IP addresses.
+     * @param bool  $useProxy Whether to check also proxied IP addresses.
      * @return void
      */
-    public static function setUseProxy ($useProxy = true)
+    public static function setUseProxy($useProxy = true)
     {
         static::$useProxy = $useProxy;
     }
@@ -93,7 +91,7 @@ class RemoteAddr implements SessionValidator
      *
      * @return bool Current setting value.
      */
-    public static function getUseProxy ()
+    public static function getUseProxy()
     {
         return static::$useProxy;
     }
@@ -101,10 +99,10 @@ class RemoteAddr implements SessionValidator
     /**
      * Set list of trusted proxy addresses
      *
-     * @param array $trustedProxies            
+     * @param  array $trustedProxies
      * @return void
      */
-    public static function setTrustedProxies (array $trustedProxies)
+    public static function setTrustedProxies(array $trustedProxies)
     {
         static::$trustedProxies = $trustedProxies;
     }
@@ -112,10 +110,10 @@ class RemoteAddr implements SessionValidator
     /**
      * Set the header to introspect for proxy IPs
      *
-     * @param string $header            
+     * @param  string $header
      * @return void
      */
-    public static function setProxyHeader ($header = 'X-Forwarded-For')
+    public static function setProxyHeader($header = 'X-Forwarded-For')
     {
         static::$proxyHeader = $header;
     }
@@ -125,7 +123,7 @@ class RemoteAddr implements SessionValidator
      *
      * @return string IP address.
      */
-    protected function getIpAddress ()
+    protected function getIpAddress()
     {
         $remoteAddress = new RemoteAddress();
         $remoteAddress->setUseProxy(static::$useProxy);
@@ -139,7 +137,7 @@ class RemoteAddr implements SessionValidator
      *
      * @return string
      */
-    public function getData ()
+    public function getData()
     {
         return $this->data;
     }
@@ -149,7 +147,7 @@ class RemoteAddr implements SessionValidator
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return __CLASS__;
     }

@@ -3,13 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\Controller;
+
 use Zend\Mvc\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ConfigInterface;
 use Zend\Stdlib\DispatchableInterface;
 
 /**
@@ -20,15 +21,14 @@ use Zend\Stdlib\DispatchableInterface;
  */
 class PluginManager extends AbstractPluginManager
 {
-
     /**
      * Default set of plugins factories
      *
      * @var array
      */
     protected $factories = array(
-            'forward' => 'Zend\Mvc\Controller\Plugin\Service\ForwardFactory',
-            'identity' => 'Zend\Mvc\Controller\Plugin\Service\IdentityFactory'
+        'forward'  => 'Zend\Mvc\Controller\Plugin\Service\ForwardFactory',
+        'identity' => 'Zend\Mvc\Controller\Plugin\Service\IdentityFactory',
     );
 
     /**
@@ -37,14 +37,16 @@ class PluginManager extends AbstractPluginManager
      * @var array
      */
     protected $invokableClasses = array(
-            'acceptableviewmodelselector' => 'Zend\Mvc\Controller\Plugin\AcceptableViewModelSelector',
-            'filepostredirectget' => 'Zend\Mvc\Controller\Plugin\FilePostRedirectGet',
-            'flashmessenger' => 'Zend\Mvc\Controller\Plugin\FlashMessenger',
-            'layout' => 'Zend\Mvc\Controller\Plugin\Layout',
-            'params' => 'Zend\Mvc\Controller\Plugin\Params',
-            'postredirectget' => 'Zend\Mvc\Controller\Plugin\PostRedirectGet',
-            'redirect' => 'Zend\Mvc\Controller\Plugin\Redirect',
-            'url' => 'Zend\Mvc\Controller\Plugin\Url'
+        'acceptableviewmodelselector' => 'Zend\Mvc\Controller\Plugin\AcceptableViewModelSelector',
+        'filepostredirectget'         => 'Zend\Mvc\Controller\Plugin\FilePostRedirectGet',
+        'flashmessenger'              => 'Zend\Mvc\Controller\Plugin\FlashMessenger',
+        'layout'                      => 'Zend\Mvc\Controller\Plugin\Layout',
+        'params'                      => 'Zend\Mvc\Controller\Plugin\Params',
+        'postredirectget'             => 'Zend\Mvc\Controller\Plugin\PostRedirectGet',
+        'redirect'                    => 'Zend\Mvc\Controller\Plugin\Redirect',
+        'url'                         => 'Zend\Mvc\Controller\Plugin\Url',
+        'createhttpnotfoundmodel'     => 'Zend\Mvc\Controller\Plugin\CreateHttpNotFoundModel',
+        'createconsolenotfoundmodel'  => 'Zend\Mvc\Controller\Plugin\CreateConsoleNotFoundModel',
     );
 
     /**
@@ -53,12 +55,11 @@ class PluginManager extends AbstractPluginManager
      * @var array
      */
     protected $aliases = array(
-            'prg' => 'postredirectget',
-            'fileprg' => 'filepostredirectget'
+        'prg'     => 'postredirectget',
+        'fileprg' => 'filepostredirectget',
     );
 
     /**
-     *
      * @var DispatchableInterface
      */
     protected $controller;
@@ -73,29 +74,29 @@ class PluginManager extends AbstractPluginManager
      * as the first controller, the reference to the controller inside the
      * plugin is lost.
      *
-     * @param string $name            
-     * @param mixed $options            
-     * @param bool $usePeeringServiceManagers            
+     * @param  string $name
+     * @param  mixed  $options
+     * @param  bool   $usePeeringServiceManagers
      * @return mixed
      */
-    public function get ($name, $options = array(), $usePeeringServiceManagers = true)
+    public function get($name, $options = array(), $usePeeringServiceManagers = true)
     {
         $plugin = parent::get($name, $options, $usePeeringServiceManagers);
         $this->injectController($plugin);
-        
+
         return $plugin;
     }
 
     /**
      * Set controller
      *
-     * @param DispatchableInterface $controller            
+     * @param  DispatchableInterface $controller
      * @return PluginManager
      */
-    public function setController (DispatchableInterface $controller)
+    public function setController(DispatchableInterface $controller)
     {
         $this->controller = $controller;
-        
+
         return $this;
     }
 
@@ -104,7 +105,7 @@ class PluginManager extends AbstractPluginManager
      *
      * @return null|DispatchableInterface
      */
-    public function getController ()
+    public function getController()
     {
         return $this->controller;
     }
@@ -112,23 +113,23 @@ class PluginManager extends AbstractPluginManager
     /**
      * Inject a helper instance with the registered controller
      *
-     * @param object $plugin            
+     * @param  object $plugin
      * @return void
      */
-    public function injectController ($plugin)
+    public function injectController($plugin)
     {
-        if (! is_object($plugin)) {
+        if (!is_object($plugin)) {
             return;
         }
-        if (! method_exists($plugin, 'setController')) {
+        if (!method_exists($plugin, 'setController')) {
             return;
         }
-        
+
         $controller = $this->getController();
-        if (! $controller instanceof DispatchableInterface) {
+        if (!$controller instanceof DispatchableInterface) {
             return;
         }
-        
+
         $plugin->setController($controller);
     }
 
@@ -137,21 +138,21 @@ class PluginManager extends AbstractPluginManager
      *
      * Any plugin is considered valid in this context.
      *
-     * @param mixed $plugin            
+     * @param  mixed                            $plugin
      * @return void
      * @throws Exception\InvalidPluginException
      */
-    public function validatePlugin ($plugin)
+    public function validatePlugin($plugin)
     {
         if ($plugin instanceof Plugin\PluginInterface) {
             // we're okay
             return;
         }
-        
-        throw new Exception\InvalidPluginException(
-                sprintf(
-                        'Plugin of type %s is invalid; must implement %s\Plugin\PluginInterface', 
-                        (is_object($plugin) ? get_class($plugin) : gettype(
-                                $plugin)), __NAMESPACE__));
+
+        throw new Exception\InvalidPluginException(sprintf(
+            'Plugin of type %s is invalid; must implement %s\Plugin\PluginInterface',
+            (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
+            __NAMESPACE__
+        ));
     }
 }

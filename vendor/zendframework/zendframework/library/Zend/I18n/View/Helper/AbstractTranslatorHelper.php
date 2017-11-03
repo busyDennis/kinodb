@@ -3,18 +3,19 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\I18n\View\Helper;
-use Zend\I18n\Translator\Translator;
+
+use Zend\I18n\Translator\TranslatorInterface as Translator;
 use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\View\Helper\AbstractHelper;
 
-abstract class AbstractTranslatorHelper extends AbstractHelper implements 
-        TranslatorAwareInterface
+abstract class AbstractTranslatorHelper extends AbstractHelper implements
+    TranslatorAwareInterface
 {
-
     /**
      * Translator (optional)
      *
@@ -39,21 +40,19 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
     /**
      * Sets translator to use in helper
      *
-     * @param Translator $translator
-     *            [optional] translator.
-     *            Default is null, which sets no translator.
-     * @param string $textDomain
-     *            [optional] text domain
-     *            Default is null, which skips setTranslatorTextDomain
+     * @param  Translator $translator  [optional] translator.
+     *                                 Default is null, which sets no translator.
+     * @param  string     $textDomain  [optional] text domain
+     *                                 Default is null, which skips setTranslatorTextDomain
      * @return AbstractTranslatorHelper
      */
-    public function setTranslator (Translator $translator = null, $textDomain = null)
+    public function setTranslator(Translator $translator = null, $textDomain = null)
     {
         $this->translator = $translator;
         if (null !== $textDomain) {
             $this->setTranslatorTextDomain($textDomain);
         }
-        
+
         return $this;
     }
 
@@ -62,12 +61,12 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
      *
      * @return Translator|null
      */
-    public function getTranslator ()
+    public function getTranslator()
     {
         if (! $this->isTranslatorEnabled()) {
-            return null;
+            return;
         }
-        
+
         return $this->translator;
     }
 
@@ -76,7 +75,7 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
      *
      * @return bool
      */
-    public function hasTranslator ()
+    public function hasTranslator()
     {
         return (bool) $this->getTranslator();
     }
@@ -84,10 +83,10 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
     /**
      * Sets whether translator is enabled and should be used
      *
-     * @param bool $enabled            
+     * @param  bool $enabled
      * @return AbstractTranslatorHelper
      */
-    public function setTranslatorEnabled ($enabled = true)
+    public function setTranslatorEnabled($enabled = true)
     {
         $this->translatorEnabled = (bool) $enabled;
         return $this;
@@ -98,7 +97,7 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
      *
      * @return bool
      */
-    public function isTranslatorEnabled ()
+    public function isTranslatorEnabled()
     {
         return $this->translatorEnabled;
     }
@@ -106,10 +105,10 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
     /**
      * Set translation text domain
      *
-     * @param string $textDomain            
+     * @param  string $textDomain
      * @return AbstractTranslatorHelper
      */
-    public function setTranslatorTextDomain ($textDomain = 'default')
+    public function setTranslatorTextDomain($textDomain = 'default')
     {
         $this->translatorTextDomain = $textDomain;
         return $this;
@@ -120,7 +119,7 @@ abstract class AbstractTranslatorHelper extends AbstractHelper implements
      *
      * @return string
      */
-    public function getTranslatorTextDomain ()
+    public function getTranslatorTextDomain()
     {
         return $this->translatorTextDomain;
     }

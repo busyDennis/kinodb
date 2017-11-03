@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\EventManager;
 
 /**
@@ -18,25 +19,24 @@ namespace Zend\EventManager;
  */
 interface ListenerAggregateInterface
 {
-
     /**
      * Attach one or more listeners
      *
      * Implementors may add an optional $priority argument; the EventManager
      * implementation will pass this to the aggregate.
      *
-     * @param EventManagerInterface $events            
+     * @param EventManagerInterface $events
      *
      * @return void
      */
-    public function attach (EventManagerInterface $events);
+    public function attach(EventManagerInterface $events);
 
     /**
      * Detach all previously attached listeners
      *
-     * @param EventManagerInterface $events            
+     * @param EventManagerInterface $events
      *
      * @return void
      */
-    public function detach (EventManagerInterface $events);
+    public function detach(EventManagerInterface $events);
 }

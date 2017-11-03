@@ -3,16 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Authentication\Storage;
+
 use Zend\Session\Container as SessionContainer;
 use Zend\Session\ManagerInterface as SessionManager;
 
 class Session implements StorageInterface
 {
-
     /**
      * Default session namespace
      */
@@ -47,12 +48,11 @@ class Session implements StorageInterface
     /**
      * Sets session storage options and initializes session namespace object
      *
-     * @param mixed $namespace            
-     * @param mixed $member            
-     * @param SessionManager $manager            
+     * @param  mixed $namespace
+     * @param  mixed $member
+     * @param  SessionManager $manager
      */
-    public function __construct ($namespace = null, $member = null, 
-            SessionManager $manager = null)
+    public function __construct($namespace = null, $member = null, SessionManager $manager = null)
     {
         if ($namespace !== null) {
             $this->namespace = $namespace;
@@ -60,7 +60,7 @@ class Session implements StorageInterface
         if ($member !== null) {
             $this->member = $member;
         }
-        $this->session = new SessionContainer($this->namespace, $manager);
+        $this->session   = new SessionContainer($this->namespace, $manager);
     }
 
     /**
@@ -68,7 +68,7 @@ class Session implements StorageInterface
      *
      * @return string
      */
-    public function getNamespace ()
+    public function getNamespace()
     {
         return $this->namespace;
     }
@@ -78,7 +78,7 @@ class Session implements StorageInterface
      *
      * @return string
      */
-    public function getMember ()
+    public function getMember()
     {
         return $this->member;
     }
@@ -88,9 +88,9 @@ class Session implements StorageInterface
      *
      * @return bool
      */
-    public function isEmpty ()
+    public function isEmpty()
     {
-        return ! isset($this->session->{$this->member});
+        return !isset($this->session->{$this->member});
     }
 
     /**
@@ -98,7 +98,7 @@ class Session implements StorageInterface
      *
      * @return mixed
      */
-    public function read ()
+    public function read()
     {
         return $this->session->{$this->member};
     }
@@ -106,10 +106,10 @@ class Session implements StorageInterface
     /**
      * Defined by Zend\Authentication\Storage\StorageInterface
      *
-     * @param mixed $contents            
+     * @param  mixed $contents
      * @return void
      */
-    public function write ($contents)
+    public function write($contents)
     {
         $this->session->{$this->member} = $contents;
     }
@@ -119,7 +119,7 @@ class Session implements StorageInterface
      *
      * @return void
      */
-    public function clear ()
+    public function clear()
     {
         unset($this->session->{$this->member});
     }

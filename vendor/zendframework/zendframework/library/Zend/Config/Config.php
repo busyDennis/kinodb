@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Config;
+
 use ArrayAccess;
 use Countable;
 use Iterator;
@@ -21,7 +23,6 @@ use Iterator;
  */
 class Config implements Countable, Iterator, ArrayAccess
 {
-
     /**
      * Whether modifications to configuration data are allowed.
      *
@@ -30,14 +31,7 @@ class Config implements Countable, Iterator, ArrayAccess
     protected $allowModifications;
 
     /**
-     * Number of elements in configuration data.
-     *
-     * @var int
-     */
-    protected $count;
-
-    /**
-     * Data withing the configuration.
+     * Data within the configuration.
      *
      * @var array
      */
@@ -57,47 +51,45 @@ class Config implements Countable, Iterator, ArrayAccess
      * Data is read-only unless $allowModifications is set to true
      * on construction.
      *
-     * @param array $array            
-     * @param bool $allowModifications            
+     * @param  array   $array
+     * @param  bool $allowModifications
      */
-    public function __construct (array $array, $allowModifications = false)
+    public function __construct(array $array, $allowModifications = false)
     {
         $this->allowModifications = (bool) $allowModifications;
-        
+
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $this->data[$key] = new static($value, $this->allowModifications);
             } else {
                 $this->data[$key] = $value;
             }
-            
-            $this->count ++;
         }
     }
 
     /**
      * Retrieve a value and return $default if there is no element set.
      *
-     * @param string $name            
-     * @param mixed $default            
+     * @param  string $name
+     * @param  mixed  $default
      * @return mixed
      */
-    public function get ($name, $default = null)
+    public function get($name, $default = null)
     {
         if (array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
-        
+
         return $default;
     }
 
     /**
      * Magic function so that $obj->value will work.
      *
-     * @param string $name            
+     * @param  string $name
      * @return mixed
      */
-    public function __get ($name)
+    public function __get($name)
     {
         return $this->get($name);
     }
@@ -105,29 +97,26 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * Set a value in the config.
      *
-     * Only allow setting of a property if $allowModifications was set to true
+     * Only allow setting of a property if $allowModifications  was set to true
      * on construction. Otherwise, throw an exception.
      *
-     * @param string $name            
-     * @param mixed $value            
+     * @param  string $name
+     * @param  mixed  $value
      * @return void
      * @throws Exception\RuntimeException
      */
-    public function __set ($name, $value)
+    public function __set($name, $value)
     {
         if ($this->allowModifications) {
-            
             if (is_array($value)) {
                 $value = new static($value, true);
             }
-            
+
             if (null === $name) {
                 $this->data[] = $value;
             } else {
                 $this->data[$name] = $value;
             }
-            
-            $this->count ++;
         } else {
             throw new Exception\RuntimeException('Config is read only');
         }
@@ -139,10 +128,10 @@ class Config implements Countable, Iterator, ArrayAccess
      *
      * @return void
      */
-    public function __clone ()
+    public function __clone()
     {
         $array = array();
-        
+
         foreach ($this->data as $key => $value) {
             if ($value instanceof self) {
                 $array[$key] = clone $value;
@@ -150,7 +139,7 @@ class Config implements Countable, Iterator, ArrayAccess
                 $array[$key] = $value;
             }
         }
-        
+
         $this->data = $array;
     }
 
@@ -159,15 +148,12 @@ class Config implements Countable, Iterator, ArrayAccess
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         $array = array();
-        $data = $this->data;
-        
-        /**
-         *
-         * @var self $value
-         */
+        $data  = $this->data;
+
+        /** @var self $value */
         foreach ($data as $key => $value) {
             if ($value instanceof self) {
                 $array[$key] = $value->toArray();
@@ -175,17 +161,17 @@ class Config implements Countable, Iterator, ArrayAccess
                 $array[$key] = $value;
             }
         }
-        
+
         return $array;
     }
 
     /**
      * isset() overloading
      *
-     * @param string $name            
+     * @param  string $name
      * @return bool
      */
-    public function __isset ($name)
+    public function __isset($name)
     {
         return isset($this->data[$name]);
     }
@@ -193,17 +179,16 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * unset() overloading
      *
-     * @param string $name            
+     * @param  string $name
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function __unset ($name)
+    public function __unset($name)
     {
-        if (! $this->allowModifications) {
+        if (!$this->allowModifications) {
             throw new Exception\InvalidArgumentException('Config is read only');
         } elseif (isset($this->data[$name])) {
             unset($this->data[$name]);
-            $this->count --;
             $this->skipNextIteration = true;
         }
     }
@@ -211,21 +196,21 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * count(): defined by Countable interface.
      *
-     * @see Countable::count()
+     * @see    Countable::count()
      * @return int
      */
-    public function count ()
+    public function count()
     {
-        return $this->count;
+        return count($this->data);
     }
 
     /**
      * current(): defined by Iterator interface.
      *
-     * @see Iterator::current()
+     * @see    Iterator::current()
      * @return mixed
      */
-    public function current ()
+    public function current()
     {
         $this->skipNextIteration = false;
         return current($this->data);
@@ -234,10 +219,10 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * key(): defined by Iterator interface.
      *
-     * @see Iterator::key()
+     * @see    Iterator::key()
      * @return mixed
      */
-    public function key ()
+    public function key()
     {
         return key($this->data);
     }
@@ -245,26 +230,26 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * next(): defined by Iterator interface.
      *
-     * @see Iterator::next()
+     * @see    Iterator::next()
      * @return void
      */
-    public function next ()
+    public function next()
     {
         if ($this->skipNextIteration) {
             $this->skipNextIteration = false;
             return;
         }
-        
+
         next($this->data);
     }
 
     /**
      * rewind(): defined by Iterator interface.
      *
-     * @see Iterator::rewind()
+     * @see    Iterator::rewind()
      * @return void
      */
-    public function rewind ()
+    public function rewind()
     {
         $this->skipNextIteration = false;
         reset($this->data);
@@ -273,10 +258,10 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * valid(): defined by Iterator interface.
      *
-     * @see Iterator::valid()
+     * @see    Iterator::valid()
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return ($this->key() !== null);
     }
@@ -284,11 +269,11 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * offsetExists(): defined by ArrayAccess interface.
      *
-     * @see ArrayAccess::offsetExists()
-     * @param mixed $offset            
+     * @see    ArrayAccess::offsetExists()
+     * @param  mixed $offset
      * @return bool
      */
-    public function offsetExists ($offset)
+    public function offsetExists($offset)
     {
         return $this->__isset($offset);
     }
@@ -296,11 +281,11 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * offsetGet(): defined by ArrayAccess interface.
      *
-     * @see ArrayAccess::offsetGet()
-     * @param mixed $offset            
+     * @see    ArrayAccess::offsetGet()
+     * @param  mixed $offset
      * @return mixed
      */
-    public function offsetGet ($offset)
+    public function offsetGet($offset)
     {
         return $this->__get($offset);
     }
@@ -308,12 +293,12 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * offsetSet(): defined by ArrayAccess interface.
      *
-     * @see ArrayAccess::offsetSet()
-     * @param mixed $offset            
-     * @param mixed $value            
+     * @see    ArrayAccess::offsetSet()
+     * @param  mixed $offset
+     * @param  mixed $value
      * @return void
      */
-    public function offsetSet ($offset, $value)
+    public function offsetSet($offset, $value)
     {
         $this->__set($offset, $value);
     }
@@ -321,11 +306,11 @@ class Config implements Countable, Iterator, ArrayAccess
     /**
      * offsetUnset(): defined by ArrayAccess interface.
      *
-     * @see ArrayAccess::offsetUnset()
-     * @param mixed $offset            
+     * @see    ArrayAccess::offsetUnset()
+     * @param  mixed $offset
      * @return void
      */
-    public function offsetUnset ($offset)
+    public function offsetUnset($offset)
     {
         $this->__unset($offset);
     }
@@ -338,42 +323,34 @@ class Config implements Countable, Iterator, ArrayAccess
      * - Items in $merge with INTEGER keys will be appended.
      * - Items in $merge with STRING keys will overwrite current values.
      *
-     * @param Config $merge            
+     * @param  Config $merge
      * @return Config
      */
-    public function merge (Config $merge)
+    public function merge(Config $merge)
     {
-        /**
-         *
-         * @var Config $value
-         */
+        /** @var Config $value */
         foreach ($merge as $key => $value) {
             if (array_key_exists($key, $this->data)) {
                 if (is_int($key)) {
                     $this->data[] = $value;
-                } elseif ($value instanceof self &&
-                         $this->data[$key] instanceof self) {
+                } elseif ($value instanceof self && $this->data[$key] instanceof self) {
                     $this->data[$key]->merge($value);
                 } else {
                     if ($value instanceof self) {
-                        $this->data[$key] = new static($value->toArray(), 
-                                $this->allowModifications);
+                        $this->data[$key] = new static($value->toArray(), $this->allowModifications);
                     } else {
                         $this->data[$key] = $value;
                     }
                 }
             } else {
                 if ($value instanceof self) {
-                    $this->data[$key] = new static($value->toArray(), 
-                            $this->allowModifications);
+                    $this->data[$key] = new static($value->toArray(), $this->allowModifications);
                 } else {
                     $this->data[$key] = $value;
                 }
-                
-                $this->count ++;
             }
         }
-        
+
         return $this;
     }
 
@@ -385,14 +362,11 @@ class Config implements Countable, Iterator, ArrayAccess
      *
      * @return void
      */
-    public function setReadOnly ()
+    public function setReadOnly()
     {
         $this->allowModifications = false;
-        
-        /**
-         *
-         * @var Config $value
-         */
+
+        /** @var Config $value */
         foreach ($this->data as $value) {
             if ($value instanceof self) {
                 $value->setReadOnly();
@@ -405,8 +379,8 @@ class Config implements Countable, Iterator, ArrayAccess
      *
      * @return bool
      */
-    public function isReadOnly ()
+    public function isReadOnly()
     {
-        return ! $this->allowModifications;
+        return !$this->allowModifications;
     }
 }

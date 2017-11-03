@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Reflection;
 
 /**
@@ -13,17 +14,14 @@ namespace Zend\Server\Reflection;
  */
 class ReflectionMethod extends AbstractFunction
 {
-
     /**
      * Parent class name
-     *
      * @var string
      */
     protected $class;
 
     /**
      * Parent class reflection
-     *
      * @var ReflectionClass
      */
     protected $classReflection;
@@ -31,34 +29,33 @@ class ReflectionMethod extends AbstractFunction
     /**
      * Constructor
      *
-     * @param ReflectionClass $class            
-     * @param \ReflectionMethod $r            
-     * @param string $namespace            
-     * @param array $argv            
+     * @param ReflectionClass $class
+     * @param \ReflectionMethod $r
+     * @param string $namespace
+     * @param array $argv
      */
-    public function __construct (ReflectionClass $class, \ReflectionMethod $r, 
-            $namespace = null, $argv = array())
+    public function __construct(ReflectionClass $class, \ReflectionMethod $r, $namespace = null, $argv = array())
     {
         $this->classReflection = $class;
-        $this->reflection = $r;
-        
+        $this->reflection      = $r;
+
         $classNamespace = $class->getNamespace();
-        
+
         // Determine namespace
-        if (! empty($namespace)) {
+        if (!empty($namespace)) {
             $this->setNamespace($namespace);
-        } elseif (! empty($classNamespace)) {
+        } elseif (!empty($classNamespace)) {
             $this->setNamespace($classNamespace);
         }
-        
+
         // Determine arguments
         if (is_array($argv)) {
             $this->argv = $argv;
         }
-        
+
         // If method call, need to store some info on the class
         $this->class = $class->getName();
-        
+
         // Perform some introspection
         $this->reflect();
     }
@@ -68,7 +65,7 @@ class ReflectionMethod extends AbstractFunction
      *
      * @return \Zend\Server\Reflection\ReflectionClass
      */
-    public function getDeclaringClass ()
+    public function getDeclaringClass()
     {
         return $this->classReflection;
     }
@@ -81,12 +78,9 @@ class ReflectionMethod extends AbstractFunction
      *
      * @return void
      */
-    public function __wakeup ()
+    public function __wakeup()
     {
-        $this->classReflection = new ReflectionClass(
-                new \ReflectionClass($this->class), $this->getNamespace(), 
-                $this->getInvokeArguments());
-        $this->reflection = new \ReflectionMethod(
-                $this->classReflection->getName(), $this->getName());
+        $this->classReflection = new ReflectionClass(new \ReflectionClass($this->class), $this->getNamespace(), $this->getInvokeArguments());
+        $this->reflection = new \ReflectionMethod($this->classReflection->getName(), $this->getName());
     }
 }

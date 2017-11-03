@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Method;
 
 /**
@@ -13,7 +14,6 @@ namespace Zend\Server\Method;
  */
 class Parameter
 {
-
     /**
      * Default parameter value
      *
@@ -52,9 +52,9 @@ class Parameter
     /**
      * Constructor
      *
-     * @param null|array $options            
+     * @param  null|array $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if (is_array($options)) {
             $this->setOptions($options);
@@ -64,10 +64,10 @@ class Parameter
     /**
      * Set object state from array of options
      *
-     * @param array $options            
+     * @param  array $options
      * @return \Zend\Server\Method\Parameter
      */
-    public function setOptions (array $options)
+    public function setOptions(array $options)
     {
         foreach ($options as $key => $value) {
             $method = 'set' . ucfirst($key);
@@ -81,10 +81,10 @@ class Parameter
     /**
      * Set default value
      *
-     * @param mixed $defaultValue            
+     * @param  mixed $defaultValue
      * @return \Zend\Server\Method\Parameter
      */
-    public function setDefaultValue ($defaultValue)
+    public function setDefaultValue($defaultValue)
     {
         $this->defaultValue = $defaultValue;
         return $this;
@@ -95,7 +95,7 @@ class Parameter
      *
      * @return mixed
      */
-    public function getDefaultValue ()
+    public function getDefaultValue()
     {
         return $this->defaultValue;
     }
@@ -103,10 +103,10 @@ class Parameter
     /**
      * Set description
      *
-     * @param string $description            
+     * @param  string $description
      * @return \Zend\Server\Method\Parameter
      */
-    public function setDescription ($description)
+    public function setDescription($description)
     {
         $this->description = (string) $description;
         return $this;
@@ -117,7 +117,7 @@ class Parameter
      *
      * @return string
      */
-    public function getDescription ()
+    public function getDescription()
     {
         return $this->description;
     }
@@ -125,10 +125,10 @@ class Parameter
     /**
      * Set name
      *
-     * @param string $name            
+     * @param  string $name
      * @return \Zend\Server\Method\Parameter
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = (string) $name;
         return $this;
@@ -139,7 +139,7 @@ class Parameter
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -147,10 +147,10 @@ class Parameter
     /**
      * Set optional flag
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return \Zend\Server\Method\Parameter
      */
-    public function setOptional ($flag)
+    public function setOptional($flag)
     {
         $this->optional = (bool) $flag;
         return $this;
@@ -161,7 +161,7 @@ class Parameter
      *
      * @return bool
      */
-    public function isOptional ()
+    public function isOptional()
     {
         return $this->optional;
     }
@@ -169,10 +169,10 @@ class Parameter
     /**
      * Set parameter type
      *
-     * @param string $type            
+     * @param  string $type
      * @return \Zend\Server\Method\Parameter
      */
-    public function setType ($type)
+    public function setType($type)
     {
         $this->type = (string) $type;
         return $this;
@@ -183,7 +183,7 @@ class Parameter
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         return $this->type;
     }
@@ -193,14 +193,14 @@ class Parameter
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         return array(
-                'type' => $this->getType(),
-                'name' => $this->getName(),
-                'optional' => $this->isOptional(),
-                'defaultValue' => $this->getDefaultValue(),
-                'description' => $this->getDescription()
+            'type'         => $this->getType(),
+            'name'         => $this->getName(),
+            'optional'     => $this->isOptional(),
+            'defaultValue' => $this->getDefaultValue(),
+            'description'  => $this->getDescription(),
         );
     }
 }

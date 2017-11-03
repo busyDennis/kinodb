@@ -3,17 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\Reader\Extension;
+
 use DOMDocument;
 use DOMXPath;
 use Zend\Feed\Reader;
 
 abstract class AbstractFeed
 {
-
     /**
      * Parsed feed data
      *
@@ -45,10 +46,10 @@ abstract class AbstractFeed
     /**
      * Set the DOM document
      *
-     * @param DOMDocument $dom            
+     * @param  DOMDocument $dom
      * @return AbstractFeed
      */
-    public function setDomDocument (DOMDocument $dom)
+    public function setDomDocument(DOMDocument $dom)
     {
         $this->domDocument = $dom;
         return $this;
@@ -59,7 +60,7 @@ abstract class AbstractFeed
      *
      * @return DOMDocument
      */
-    public function getDomDocument ()
+    public function getDomDocument()
     {
         return $this->domDocument;
     }
@@ -69,7 +70,7 @@ abstract class AbstractFeed
      *
      * @return string
      */
-    public function getEncoding ()
+    public function getEncoding()
     {
         $assumed = $this->getDomDocument()->encoding;
         return $assumed;
@@ -78,10 +79,10 @@ abstract class AbstractFeed
     /**
      * Set the feed type
      *
-     * @param string $type            
+     * @param  string $type
      * @return AbstractFeed
      */
-    public function setType ($type)
+    public function setType($type)
     {
         $this->data['type'] = $type;
         return $this;
@@ -94,7 +95,7 @@ abstract class AbstractFeed
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         $type = $this->data['type'];
         if (null === $type) {
@@ -109,7 +110,7 @@ abstract class AbstractFeed
      *
      * @return array
      */
-    public function toArray () // untested
+    public function toArray() // untested
     {
         return $this->data;
     }
@@ -117,16 +118,16 @@ abstract class AbstractFeed
     /**
      * Set the XPath query
      *
-     * @param DOMXPath $xpath            
+     * @param  DOMXPath $xpath
      * @return AbstractEntry
      */
-    public function setXpath (DOMXPath $xpath = null)
+    public function setXpath(DOMXPath $xpath = null)
     {
         if (null === $xpath) {
             $this->xpath = null;
             return $this;
         }
-        
+
         $this->xpath = $xpath;
         $this->registerNamespaces();
         return $this;
@@ -137,12 +138,12 @@ abstract class AbstractFeed
      *
      * @return string
      */
-    public function getXpath ()
+    public function getXpath()
     {
         if (null === $this->xpath) {
             $this->setXpath(new DOMXPath($this->getDomDocument()));
         }
-        
+
         return $this->xpath;
     }
 
@@ -151,7 +152,7 @@ abstract class AbstractFeed
      *
      * @return string
      */
-    public function getXpathPrefix ()
+    public function getXpathPrefix()
     {
         return $this->xpathPrefix;
     }
@@ -159,10 +160,10 @@ abstract class AbstractFeed
     /**
      * Set the XPath prefix
      *
-     * @param string $prefix            
+     * @param string $prefix
      * @return void
      */
-    public function setXpathPrefix ($prefix)
+    public function setXpathPrefix($prefix)
     {
         $this->xpathPrefix = $prefix;
     }
@@ -170,5 +171,5 @@ abstract class AbstractFeed
     /**
      * Register the default namespaces for the current feed format
      */
-    abstract protected function registerNamespaces ();
+    abstract protected function registerNamespaces();
 }

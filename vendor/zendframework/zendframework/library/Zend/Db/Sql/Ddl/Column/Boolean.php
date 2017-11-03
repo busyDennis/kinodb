@@ -3,49 +3,29 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Sql\Ddl\Column;
 
 class Boolean extends Column
 {
+    /**
+     * @var string
+     */
+    protected $type = 'BOOLEAN';
 
     /**
-     *
-     * @var string specification
+     * {@inheritDoc}
      */
-    protected $specification = '%s TINYINT NOT NULL';
+    protected $isNullable = false;
 
     /**
-     *
-     * @param string $name            
+     * {@inheritDoc}
      */
-    public function __construct ($name)
+    public function setNullable($nullable)
     {
-        $this->name = $name;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getExpressionData ()
-    {
-        $spec = $this->specification;
-        $params = array(
-                $this->name
-        );
-        $types = array(
-                self::TYPE_IDENTIFIER
-        );
-        
-        return array(
-                array(
-                        $spec,
-                        $params,
-                        $types
-                )
-        );
+        return parent::setNullable(false);
     }
 }

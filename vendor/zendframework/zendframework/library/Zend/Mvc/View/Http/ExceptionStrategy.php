@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\View\Http;
+
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Http\Response as HttpResponse;
@@ -17,17 +19,14 @@ use Zend\View\Model\ViewModel;
 
 class ExceptionStrategy extends AbstractListenerAggregate
 {
-
     /**
      * Display exceptions?
-     *
      * @var bool
      */
     protected $displayExceptions = false;
 
     /**
      * Name of exception template
-     *
      * @var string
      */
     protected $exceptionTemplate = 'error';
@@ -35,27 +34,19 @@ class ExceptionStrategy extends AbstractListenerAggregate
     /**
      * {@inheritDoc}
      */
-    public function attach (EventManagerInterface $events)
+    public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, 
-                array(
-                        $this,
-                        'prepareExceptionViewModel'
-                ));
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_RENDER_ERROR, 
-                array(
-                        $this,
-                        'prepareExceptionViewModel'
-                ));
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'prepareExceptionViewModel'));
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_RENDER_ERROR, array($this, 'prepareExceptionViewModel'));
     }
 
     /**
      * Flag: display exceptions in error pages?
      *
-     * @param bool $displayExceptions            
+     * @param  bool $displayExceptions
      * @return ExceptionStrategy
      */
-    public function setDisplayExceptions ($displayExceptions)
+    public function setDisplayExceptions($displayExceptions)
     {
         $this->displayExceptions = (bool) $displayExceptions;
         return $this;
@@ -66,7 +57,7 @@ class ExceptionStrategy extends AbstractListenerAggregate
      *
      * @return bool
      */
-    public function displayExceptions ()
+    public function displayExceptions()
     {
         return $this->displayExceptions;
     }
@@ -74,10 +65,10 @@ class ExceptionStrategy extends AbstractListenerAggregate
     /**
      * Set the exception template
      *
-     * @param string $exceptionTemplate            
+     * @param  string $exceptionTemplate
      * @return ExceptionStrategy
      */
-    public function setExceptionTemplate ($exceptionTemplate)
+    public function setExceptionTemplate($exceptionTemplate)
     {
         $this->exceptionTemplate = (string) $exceptionTemplate;
         return $this;
@@ -88,7 +79,7 @@ class ExceptionStrategy extends AbstractListenerAggregate
      *
      * @return string
      */
-    public function getExceptionTemplate ()
+    public function getExceptionTemplate()
     {
         return $this->exceptionTemplate;
     }
@@ -96,48 +87,47 @@ class ExceptionStrategy extends AbstractListenerAggregate
     /**
      * Create an exception view model, and set the HTTP status code
      *
-     * @todo dispatch.error does not halt dispatch unless a response is
-     *       returned. As such, we likely need to trigger rendering as a low
-     *       priority dispatch.error event (or goto a render event) to ensure
-     *       rendering occurs, and that munging of view models occurs when
-     *       expected.
-     * @param MvcEvent $e            
+     * @todo   dispatch.error does not halt dispatch unless a response is
+     *         returned. As such, we likely need to trigger rendering as a low
+     *         priority dispatch.error event (or goto a render event) to ensure
+     *         rendering occurs, and that munging of view models occurs when
+     *         expected.
+     * @param  MvcEvent $e
      * @return void
      */
-    public function prepareExceptionViewModel (MvcEvent $e)
+    public function prepareExceptionViewModel(MvcEvent $e)
     {
         // Do nothing if no error in the event
         $error = $e->getError();
         if (empty($error)) {
             return;
         }
-        
+
         // Do nothing if the result is a response object
         $result = $e->getResult();
         if ($result instanceof Response) {
             return;
         }
-        
+
         switch ($error) {
             case Application::ERROR_CONTROLLER_NOT_FOUND:
             case Application::ERROR_CONTROLLER_INVALID:
             case Application::ERROR_ROUTER_NO_MATCH:
                 // Specifically not handling these
                 return;
-            
+
             case Application::ERROR_EXCEPTION:
             default:
-                $model = new ViewModel(
-                        array(
-                                'message' => 'An error occurred during execution; please try again later.',
-                                'exception' => $e->getParam('exception'),
-                                'display_exceptions' => $this->displayExceptions()
-                        ));
+                $model = new ViewModel(array(
+                    'message'            => 'An error occurred during execution; please try again later.',
+                    'exception'          => $e->getParam('exception'),
+                    'display_exceptions' => $this->displayExceptions(),
+                ));
                 $model->setTemplate($this->getExceptionTemplate());
                 $e->setResult($model);
-                
+
                 $response = $e->getResponse();
-                if (! $response) {
+                if (!$response) {
                     $response = new HttpResponse();
                     $response->setStatusCode(500);
                     $e->setResponse($response);
@@ -147,7 +137,7 @@ class ExceptionStrategy extends AbstractListenerAggregate
                         $response->setStatusCode(500);
                     }
                 }
-                
+
                 break;
         }
     }

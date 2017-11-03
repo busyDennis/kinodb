@@ -3,31 +3,29 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Config\Processor;
+
 use Zend\Config\Config;
 use Zend\Config\Exception;
 use Zend\I18n\Translator\Translator as ZendTranslator;
 
 class Translator implements ProcessorInterface
 {
-
     /**
-     *
      * @var ZendTranslator
      */
     protected $translator;
 
     /**
-     *
      * @var string|null
      */
     protected $locale = null;
 
     /**
-     *
      * @var string
      */
     protected $textDomain = 'default';
@@ -36,12 +34,11 @@ class Translator implements ProcessorInterface
      * Translator uses the supplied Zend\I18n\Translator\Translator to find
      * and translate language strings in config.
      *
-     * @param ZendTranslator $translator            
-     * @param string $textDomain            
-     * @param string|null $locale            
+     * @param  ZendTranslator $translator
+     * @param  string $textDomain
+     * @param  string|null $locale
      */
-    public function __construct (ZendTranslator $translator, 
-            $textDomain = 'default', $locale = null)
+    public function __construct(ZendTranslator $translator, $textDomain = 'default', $locale = null)
     {
         $this->setTranslator($translator);
         $this->setTextDomain($textDomain);
@@ -49,61 +46,55 @@ class Translator implements ProcessorInterface
     }
 
     /**
-     *
-     * @param ZendTranslator $translator            
+     * @param  ZendTranslator $translator
      * @return Translator
      */
-    public function setTranslator (ZendTranslator $translator)
+    public function setTranslator(ZendTranslator $translator)
     {
         $this->translator = $translator;
         return $this;
     }
 
     /**
-     *
      * @return ZendTranslator
      */
-    public function getTranslator ()
+    public function getTranslator()
     {
         return $this->translator;
     }
 
     /**
-     *
-     * @param string|null $locale            
+     * @param  string|null $locale
      * @return Translator
      */
-    public function setLocale ($locale)
+    public function setLocale($locale)
     {
         $this->locale = $locale;
         return $this;
     }
 
     /**
-     *
      * @return string|null
      */
-    public function getLocale ()
+    public function getLocale()
     {
         return $this->locale;
     }
 
     /**
-     *
-     * @param string $textDomain            
+     * @param  string $textDomain
      * @return Translator
      */
-    public function setTextDomain ($textDomain)
+    public function setTextDomain($textDomain)
     {
         $this->textDomain = $textDomain;
         return $this;
     }
 
     /**
-     *
      * @return string
      */
-    public function getTextDomain ()
+    public function getTextDomain()
     {
         return $this->textDomain;
     }
@@ -111,17 +102,16 @@ class Translator implements ProcessorInterface
     /**
      * Process
      *
-     * @param Config $config            
+     * @param  Config $config
      * @return Config
      * @throws Exception\InvalidArgumentException
      */
-    public function process (Config $config)
+    public function process(Config $config)
     {
         if ($config->isReadOnly()) {
-            throw new Exception\InvalidArgumentException(
-                    'Cannot process config because it is read-only');
+            throw new Exception\InvalidArgumentException('Cannot process config because it is read-only');
         }
-        
+
         /**
          * Walk through config and replace values
          */
@@ -129,24 +119,21 @@ class Translator implements ProcessorInterface
             if ($val instanceof Config) {
                 $this->process($val);
             } else {
-                $config->{$key} = $this->translator->translate($val, 
-                        $this->textDomain, $this->locale);
+                $config->{$key} = $this->translator->translate($val, $this->textDomain, $this->locale);
             }
         }
-        
+
         return $config;
     }
 
     /**
      * Process a single value
      *
-     * @param
-     *            $value
-     * @return mixed
+     * @param $value
+     * @return string
      */
-    public function processValue ($value)
+    public function processValue($value)
     {
-        return $this->translator->translate($value, $this->textDomain, 
-                $this->locale);
+        return $this->translator->translate($value, $this->textDomain, $this->locale);
     }
 }

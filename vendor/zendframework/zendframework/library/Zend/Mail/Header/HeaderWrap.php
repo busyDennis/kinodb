@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mail\Header;
+
 use Zend\Mail\Headers;
 use Zend\Mime\Mime;
 
@@ -16,15 +18,14 @@ use Zend\Mime\Mime;
  */
 abstract class HeaderWrap
 {
-
     /**
      * Wrap a long header line
      *
-     * @param string $value            
-     * @param HeaderInterface $header            
+     * @param  string          $value
+     * @param  HeaderInterface $header
      * @return string
      */
-    public static function wrap ($value, HeaderInterface $header)
+    public static function wrap($value, HeaderInterface $header)
     {
         if ($header instanceof UnstructuredInterface) {
             return static::wrapUnstructuredHeader($value, $header);
@@ -39,12 +40,11 @@ abstract class HeaderWrap
      *
      * Wrap at 78 characters or before, based on whitespace.
      *
-     * @param string $value            
-     * @param HeaderInterface $header            
+     * @param string          $value
+     * @param HeaderInterface $header
      * @return string
      */
-    protected static function wrapUnstructuredHeader ($value, 
-            HeaderInterface $header)
+    protected static function wrapUnstructuredHeader($value, HeaderInterface $header)
     {
         $encoding = $header->getEncoding();
         if ($encoding == 'ASCII') {
@@ -56,23 +56,22 @@ abstract class HeaderWrap
     /**
      * Wrap a structured header line
      *
-     * @param string $value            
-     * @param StructuredInterface $header            
+     * @param  string              $value
+     * @param  StructuredInterface $header
      * @return string
      */
-    protected static function wrapStructuredHeader ($value, 
-            StructuredInterface $header)
+    protected static function wrapStructuredHeader($value, StructuredInterface $header)
     {
         $delimiter = $header->getDelimiter();
-        
+
         $length = strlen($value);
-        $lines = array();
-        $temp = '';
-        for ($i = 0; $i < $length; $i ++) {
+        $lines  = array();
+        $temp   = '';
+        for ($i = 0; $i < $length; $i++) {
             $temp .= $value[$i];
             if ($value[$i] == $delimiter) {
                 $lines[] = $temp;
-                $temp = '';
+                $temp    = '';
             }
         }
         return implode(Headers::FOLDING, $lines);
@@ -84,15 +83,41 @@ abstract class HeaderWrap
      * Performs quoted-printable encoding on a value, setting maximum
      * line-length to 998.
      *
-     * @param string $value            
-     * @param string $encoding            
-     * @param int $lineLength
-     *            maximum line-length, by default 998
+     * @param  string $value
+     * @param  string $encoding
+     * @param  int    $lineLength maximum line-length, by default 998
      * @return string Returns the mime encode value without the last line ending
      */
-    public static function mimeEncodeValue ($value, $encoding, $lineLength = 998)
+    public static function mimeEncodeValue($value, $encoding, $lineLength = 998)
     {
-        return Mime::encodeQuotedPrintableHeader($value, $encoding, $lineLength, 
-                Headers::EOL);
+        return Mime::encodeQuotedPrintableHeader($value, $encoding, $lineLength, Headers::EOL);
+    }
+
+    /**
+     * MIME-decode a value
+     *
+     * Performs quoted-printable decoding on a value.
+     *
+     * @param  string $value
+     * @return string Returns the mime encode value without the last line ending
+     */
+    public static function mimeDecodeValue($value)
+    {
+        $decodedValue = iconv_mime_decode($value, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
+
+        return $decodedValue;
+    }
+
+    /**
+     * Test if is possible apply MIME-encoding
+     *
+     * @param string $value
+     * @return bool
+     */
+    public static function canBeEncoded($value)
+    {
+        $encoded = iconv_mime_encode('x-test', $value, array('scheme' => 'Q'));
+
+        return (false !== $encoded);
     }
 }

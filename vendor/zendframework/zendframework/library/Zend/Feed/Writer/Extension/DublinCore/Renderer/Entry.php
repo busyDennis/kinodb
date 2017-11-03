@@ -3,22 +3,22 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\Writer\Extension\DublinCore\Renderer;
+
 use DOMDocument;
 use DOMElement;
 use Zend\Feed\Writer\Extension;
 
 /**
- */
+*/
 class Entry extends Extension\AbstractRenderer
 {
-
     /**
-     * Set to TRUE if a rendering method actually renders something.
-     * This
+     * Set to TRUE if a rendering method actually renders something. This
      * is used to prevent premature appending of a XML namespace declaration
      * until an element which requires it is actually appended.
      *
@@ -31,7 +31,7 @@ class Entry extends Extension\AbstractRenderer
      *
      * @return void
      */
-    public function render ()
+    public function render()
     {
         if (strtolower($this->getType()) == 'atom') {
             return;
@@ -47,23 +47,23 @@ class Entry extends Extension\AbstractRenderer
      *
      * @return void
      */
-    protected function _appendNamespaces ()
+    protected function _appendNamespaces()
     {
-        $this->getRootElement()->setAttribute('xmlns:dc', 
-                'http://purl.org/dc/elements/1.1/');
+        $this->getRootElement()->setAttribute('xmlns:dc',
+            'http://purl.org/dc/elements/1.1/');
     }
 
     /**
      * Set entry author elements
      *
-     * @param DOMDocument $dom            
-     * @param DOMElement $root            
+     * @param  DOMDocument $dom
+     * @param  DOMElement $root
      * @return void
      */
-    protected function _setAuthors (DOMDocument $dom, DOMElement $root)
+    protected function _setAuthors(DOMDocument $dom, DOMElement $root)
     {
         $authors = $this->getDataContainer()->getAuthors();
-        if (! $authors || empty($authors)) {
+        if (!$authors || empty($authors)) {
             return;
         }
         foreach ($authors as $data) {

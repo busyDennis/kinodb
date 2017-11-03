@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
+
 use Traversable;
 use Zend\Cache\Exception;
 
@@ -15,12 +17,11 @@ use Zend\Cache\Exception;
  */
 class FilesystemOptions extends AdapterOptions
 {
-
     /**
      * Directory to store cache files
      *
      * @var null|string The cache directory
-     *      or NULL for the systems temporary directory
+     *                  or NULL for the systems temporary directory
      */
     protected $cacheDir = null;
 
@@ -99,47 +100,50 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Constructor
      *
-     * @param array|Traversable|null $options            
+     * @param  array|Traversable|null $options
      * @return FilesystemOptions
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         // disable file/directory permissions by default on windows systems
         if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
             $this->filePermission = false;
             $this->dirPermission = false;
         }
-        
+
         parent::__construct($options);
     }
 
     /**
      * Set cache dir
      *
-     * @param string $cacheDir            
+     * @param  string $cacheDir
      * @return FilesystemOptions
      * @throws Exception\InvalidArgumentException
      */
-    public function setCacheDir ($cacheDir)
+    public function setCacheDir($cacheDir)
     {
         if ($cacheDir !== null) {
-            if (! is_dir($cacheDir)) {
+            if (!is_dir($cacheDir)) {
                 throw new Exception\InvalidArgumentException(
-                        "Cache directory '{$cacheDir}' not found or not a directory");
-            } elseif (! is_writable($cacheDir)) {
+                    "Cache directory '{$cacheDir}' not found or not a directory"
+                );
+            } elseif (!is_writable($cacheDir)) {
                 throw new Exception\InvalidArgumentException(
-                        "Cache directory '{$cacheDir}' not writable");
-            } elseif (! is_readable($cacheDir)) {
+                    "Cache directory '{$cacheDir}' not writable"
+                );
+            } elseif (!is_readable($cacheDir)) {
                 throw new Exception\InvalidArgumentException(
-                        "Cache directory '{$cacheDir}' not readable");
+                    "Cache directory '{$cacheDir}' not readable"
+                );
             }
-            
+
             $cacheDir = rtrim(realpath($cacheDir), DIRECTORY_SEPARATOR);
         } else {
             $cacheDir = sys_get_temp_dir();
         }
-        
+
         $this->triggerOptionEvent('cache_dir', $cacheDir);
         $this->cacheDir = $cacheDir;
         return $this;
@@ -150,22 +154,22 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return null|string
      */
-    public function getCacheDir ()
+    public function getCacheDir()
     {
         if ($this->cacheDir === null) {
             $this->setCacheDir(null);
         }
-        
+
         return $this->cacheDir;
     }
 
     /**
      * Set clear stat cache
      *
-     * @param bool $clearStatCache            
+     * @param  bool $clearStatCache
      * @return FilesystemOptions
      */
-    public function setClearStatCache ($clearStatCache)
+    public function setClearStatCache($clearStatCache)
     {
         $clearStatCache = (bool) $clearStatCache;
         $this->triggerOptionEvent('clear_stat_cache', $clearStatCache);
@@ -178,7 +182,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return bool
      */
-    public function getClearStatCache ()
+    public function getClearStatCache()
     {
         return $this->clearStatCache;
     }
@@ -186,16 +190,17 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set dir level
      *
-     * @param int $dirLevel            
+     * @param  int $dirLevel
      * @return FilesystemOptions
      * @throws Exception\InvalidArgumentException
      */
-    public function setDirLevel ($dirLevel)
+    public function setDirLevel($dirLevel)
     {
         $dirLevel = (int) $dirLevel;
         if ($dirLevel < 0 || $dirLevel > 16) {
             throw new Exception\InvalidArgumentException(
-                    "Directory level '{$dirLevel}' must be between 0 and 16");
+                "Directory level '{$dirLevel}' must be between 0 and 16"
+            );
         }
         $this->triggerOptionEvent('dir_level', $dirLevel);
         $this->dirLevel = $dirLevel;
@@ -207,7 +212,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return int
      */
-    public function getDirLevel ()
+    public function getDirLevel()
     {
         return $this->dirLevel;
     }
@@ -215,14 +220,13 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set permission to create directories on unix systems
      *
-     * @param false|string|int $dirPermission
-     *            FALSE to disable explicit permission or an octal number
+     * @param false|string|int $dirPermission FALSE to disable explicit permission or an octal number
      * @return FilesystemOptions
      * @see setUmask
      * @see setFilePermission
      * @link http://php.net/manual/function.chmod.php
      */
-    public function setDirPermission ($dirPermission)
+    public function setDirPermission($dirPermission)
     {
         if ($dirPermission !== false) {
             if (is_string($dirPermission)) {
@@ -230,19 +234,20 @@ class FilesystemOptions extends AdapterOptions
             } else {
                 $dirPermission = (int) $dirPermission;
             }
-            
+
             // validate
             if (($dirPermission & 0700) != 0700) {
                 throw new Exception\InvalidArgumentException(
-                        'Invalid directory permission: need permission to execute, read and write by owner');
+                    'Invalid directory permission: need permission to execute, read and write by owner'
+                );
             }
         }
-        
+
         if ($this->dirPermission !== $dirPermission) {
             $this->triggerOptionEvent('dir_permission', $dirPermission);
             $this->dirPermission = $dirPermission;
         }
-        
+
         return $this;
     }
 
@@ -251,7 +256,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return false|int
      */
-    public function getDirPermission ()
+    public function getDirPermission()
     {
         return $this->dirPermission;
     }
@@ -259,10 +264,10 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set file locking
      *
-     * @param bool $fileLocking            
+     * @param  bool $fileLocking
      * @return FilesystemOptions
      */
-    public function setFileLocking ($fileLocking)
+    public function setFileLocking($fileLocking)
     {
         $fileLocking = (bool) $fileLocking;
         $this->triggerOptionEvent('file_locking', $fileLocking);
@@ -275,7 +280,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return bool
      */
-    public function getFileLocking ()
+    public function getFileLocking()
     {
         return $this->fileLocking;
     }
@@ -283,14 +288,13 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set permission to create files on unix systems
      *
-     * @param false|string|int $filePermission
-     *            FALSE to disable explicit permission or an octal number
+     * @param false|string|int $filePermission FALSE to disable explicit permission or an octal number
      * @return FilesystemOptions
      * @see setUmask
      * @see setDirPermission
      * @link http://php.net/manual/function.chmod.php
      */
-    public function setFilePermission ($filePermission)
+    public function setFilePermission($filePermission)
     {
         if ($filePermission !== false) {
             if (is_string($filePermission)) {
@@ -298,22 +302,24 @@ class FilesystemOptions extends AdapterOptions
             } else {
                 $filePermission = (int) $filePermission;
             }
-            
+
             // validate
             if (($filePermission & 0600) != 0600) {
                 throw new Exception\InvalidArgumentException(
-                        'Invalid file permission: need permission to read and write by owner');
+                    'Invalid file permission: need permission to read and write by owner'
+                );
             } elseif ($filePermission & 0111) {
                 throw new Exception\InvalidArgumentException(
-                        "Invalid file permission: Cache files shoudn't be executable");
+                    "Invalid file permission: Cache files shoudn't be executable"
+                );
             }
         }
-        
+
         if ($this->filePermission !== $filePermission) {
             $this->triggerOptionEvent('file_permission', $filePermission);
             $this->filePermission = $filePermission;
         }
-        
+
         return $this;
     }
 
@@ -322,7 +328,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return false|int
      */
-    public function getFilePermission ()
+    public function getFilePermission()
     {
         return $this->filePermission;
     }
@@ -330,10 +336,10 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set namespace separator
      *
-     * @param string $namespaceSeparator            
+     * @param  string $namespaceSeparator
      * @return FilesystemOptions
      */
-    public function setNamespaceSeparator ($namespaceSeparator)
+    public function setNamespaceSeparator($namespaceSeparator)
     {
         $namespaceSeparator = (string) $namespaceSeparator;
         $this->triggerOptionEvent('namespace_separator', $namespaceSeparator);
@@ -346,7 +352,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getNamespaceSeparator ()
+    public function getNamespaceSeparator()
     {
         return $this->namespaceSeparator;
     }
@@ -354,10 +360,10 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set no atime
      *
-     * @param bool $noAtime            
+     * @param  bool $noAtime
      * @return FilesystemOptions
      */
-    public function setNoAtime ($noAtime)
+    public function setNoAtime($noAtime)
     {
         $noAtime = (bool) $noAtime;
         $this->triggerOptionEvent('no_atime', $noAtime);
@@ -370,7 +376,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return bool
      */
-    public function getNoAtime ()
+    public function getNoAtime()
     {
         return $this->noAtime;
     }
@@ -378,10 +384,10 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set no ctime
      *
-     * @param bool $noCtime            
+     * @param  bool $noCtime
      * @return FilesystemOptions
      */
-    public function setNoCtime ($noCtime)
+    public function setNoCtime($noCtime)
     {
         $noCtime = (bool) $noCtime;
         $this->triggerOptionEvent('no_ctime', $noCtime);
@@ -394,7 +400,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return bool
      */
-    public function getNoCtime ()
+    public function getNoCtime()
     {
         return $this->noCtime;
     }
@@ -402,18 +408,16 @@ class FilesystemOptions extends AdapterOptions
     /**
      * Set the umask to create files and directories on unix systems
      *
-     * Note: On multithreaded webservers it's better to explicit set file and
-     * dir permission.
+     * Note: On multithreaded webservers it's better to explicit set file and dir permission.
      *
-     * @param false|string|int $umask
-     *            FALSE to disable umask or an octal number
+     * @param false|string|int $umask FALSE to disable umask or an octal number
      * @return FilesystemOptions
      * @see setFilePermission
      * @see setDirPermission
      * @link http://php.net/manual/function.umask.php
      * @link http://en.wikipedia.org/wiki/Umask
      */
-    public function setUmask ($umask)
+    public function setUmask($umask)
     {
         if ($umask !== false) {
             if (is_string($umask)) {
@@ -421,22 +425,23 @@ class FilesystemOptions extends AdapterOptions
             } else {
                 $umask = (int) $umask;
             }
-            
+
             // validate
             if ($umask & 0700) {
                 throw new Exception\InvalidArgumentException(
-                        'Invalid umask: need permission to execute, read and write by owner');
+                    'Invalid umask: need permission to execute, read and write by owner'
+                );
             }
-            
+
             // normalize
-            $umask = $umask & 0777;
+            $umask = $umask & ~0002;
         }
-        
+
         if ($this->umask !== $umask) {
             $this->triggerOptionEvent('umask', $umask);
             $this->umask = $umask;
         }
-        
+
         return $this;
     }
 
@@ -445,7 +450,7 @@ class FilesystemOptions extends AdapterOptions
      *
      * @return false|int
      */
-    public function getUmask ()
+    public function getUmask()
     {
         return $this->umask;
     }

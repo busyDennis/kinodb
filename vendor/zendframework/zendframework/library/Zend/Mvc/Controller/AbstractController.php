@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\Controller;
+
 use Zend\EventManager\EventInterface as Event;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -26,116 +28,99 @@ use Zend\Stdlib\ResponseInterface as Response;
  *
  * Convenience methods for pre-built plugins (@see __call):
  *
- * @method \Zend\View\Model\ModelInterface acceptableViewModelSelector(array
- *         $matchAgainst = null, bool $returnDefault = true,
- *         \Zend\Http\Header\Accept\FieldValuePart\AbstractFieldValuePart
- *         $resultReference = null)
- * @method bool|array|\Zend\Http\Response fileprg(\Zend\Form\Form $form,
- *         $redirect = null, $redirectToUrl = false)
- * @method bool|array|\Zend\Http\Response filePostRedirectGet(\Zend\Form\Form
- *         $form, $redirect = null, $redirectToUrl = false)
+ * @method \Zend\View\Model\ModelInterface acceptableViewModelSelector(array $matchAgainst = null, bool $returnDefault = true, \Zend\Http\Header\Accept\FieldValuePart\AbstractFieldValuePart $resultReference = null)
+ * @method bool|array|\Zend\Http\Response fileprg(\Zend\Form\FormInterface $form, $redirect = null, $redirectToUrl = false)
+ * @method bool|array|\Zend\Http\Response filePostRedirectGet(\Zend\Form\FormInterface $form, $redirect = null, $redirectToUrl = false)
  * @method \Zend\Mvc\Controller\Plugin\FlashMessenger flashMessenger()
  * @method \Zend\Mvc\Controller\Plugin\Forward forward()
  * @method mixed|null identity()
- * @method \Zend\Mvc\Controller\Plugin\Layout|\Zend\View\Model\ModelInterface
- *         layout(string $template = null)
- * @method \Zend\Mvc\Controller\Plugin\Params|mixed params(string $param = null,
- *         mixed $default = null)
- * @method \Zend\Http\Response|array prg(string $redirect = null, bool
- *         $redirectToUrl = false)
- * @method \Zend\Http\Response|array postRedirectGet(string $redirect = null,
- *         bool $redirectToUrl = false)
+ * @method \Zend\Mvc\Controller\Plugin\Layout|\Zend\View\Model\ModelInterface layout(string $template = null)
+ * @method \Zend\Mvc\Controller\Plugin\Params|mixed params(string $param = null, mixed $default = null)
+ * @method \Zend\Http\Response|array prg(string $redirect = null, bool $redirectToUrl = false)
+ * @method \Zend\Http\Response|array postRedirectGet(string $redirect = null, bool $redirectToUrl = false)
  * @method \Zend\Mvc\Controller\Plugin\Redirect redirect()
  * @method \Zend\Mvc\Controller\Plugin\Url url()
+ * @method \Zend\View\Model\ConsoleModel createConsoleNotFoundModel()
+ * @method \Zend\View\Model\ViewModel createHttpNotFoundModel()
  */
-abstract class AbstractController implements Dispatchable, 
-        EventManagerAwareInterface, InjectApplicationEventInterface, 
-        ServiceLocatorAwareInterface
+abstract class AbstractController implements
+    Dispatchable,
+    EventManagerAwareInterface,
+    InjectApplicationEventInterface,
+    ServiceLocatorAwareInterface
 {
-
     /**
-     *
      * @var PluginManager
      */
     protected $plugins;
 
     /**
-     *
      * @var Request
      */
     protected $request;
 
     /**
-     *
      * @var Response
      */
     protected $response;
 
     /**
-     *
      * @var Event
      */
     protected $event;
 
     /**
-     *
      * @var EventManagerInterface
      */
     protected $events;
 
     /**
-     *
      * @var ServiceLocatorInterface
      */
     protected $serviceLocator;
 
     /**
-     *
-     * @var string
+     * @var null|string|string[]
      */
     protected $eventIdentifier;
 
     /**
      * Execute the request
      *
-     * @param MvcEvent $e            
+     * @param  MvcEvent $e
      * @return mixed
      */
-    abstract public function onDispatch (MvcEvent $e);
+    abstract public function onDispatch(MvcEvent $e);
 
     /**
      * Dispatch a request
      *
      * @events dispatch.pre, dispatch.post
-     *
-     * @param Request $request            
-     * @param null|Response $response            
+     * @param  Request $request
+     * @param  null|Response $response
      * @return Response|mixed
      */
-    public function dispatch (Request $request, Response $response = null)
+    public function dispatch(Request $request, Response $response = null)
     {
         $this->request = $request;
-        if (! $response) {
+        if (!$response) {
             $response = new HttpResponse();
         }
         $this->response = $response;
-        
+
         $e = $this->getEvent();
         $e->setRequest($request)
-            ->setResponse($response)
-            ->setTarget($this);
-        
-        $result = $this->getEventManager()->trigger(MvcEvent::EVENT_DISPATCH, 
-                $e, 
-                function  ($test)
-                {
-                    return ($test instanceof Response);
-                });
-        
+          ->setResponse($response)
+          ->setTarget($this);
+
+        $result = $this->getEventManager()->trigger(MvcEvent::EVENT_DISPATCH, $e, function ($test) {
+            return ($test instanceof Response);
+        });
+
         if ($result->stopped()) {
             return $result->last();
         }
-        
+
         return $e->getResult();
     }
 
@@ -144,12 +129,12 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return Request
      */
-    public function getRequest ()
+    public function getRequest()
     {
-        if (! $this->request) {
+        if (!$this->request) {
             $this->request = new HttpRequest();
         }
-        
+
         return $this->request;
     }
 
@@ -158,35 +143,39 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return Response
      */
-    public function getResponse ()
+    public function getResponse()
     {
-        if (! $this->response) {
+        if (!$this->response) {
             $this->response = new HttpResponse();
         }
-        
+
         return $this->response;
     }
 
     /**
      * Set the event manager instance used by this context
      *
-     * @param EventManagerInterface $events            
+     * @param  EventManagerInterface $events
      * @return AbstractController
      */
-    public function setEventManager (EventManagerInterface $events)
+    public function setEventManager(EventManagerInterface $events)
     {
-        $events->setIdentifiers(
-                array(
-                        'Zend\Stdlib\DispatchableInterface',
-                        __CLASS__,
-                        get_class($this),
-                        $this->eventIdentifier,
-                        substr(get_class($this), 0, 
-                                strpos(get_class($this), '\\'))
-                ));
+        $className = get_class($this);
+
+        $nsPos = strpos($className, '\\') ?: 0;
+        $events->setIdentifiers(array_merge(
+            array(
+                __CLASS__,
+                $className,
+                substr($className, 0, $nsPos)
+            ),
+            array_values(class_implements($className)),
+            (array) $this->eventIdentifier
+        ));
+
         $this->events = $events;
         $this->attachDefaultListeners();
-        
+
         return $this;
     }
 
@@ -197,12 +186,12 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return EventManagerInterface
      */
-    public function getEventManager ()
+    public function getEventManager()
     {
-        if (! $this->events) {
+        if (!$this->events) {
             $this->setEventManager(new EventManager());
         }
-        
+
         return $this->events;
     }
 
@@ -211,12 +200,12 @@ abstract class AbstractController implements Dispatchable,
      *
      * By default, will re-cast to MvcEvent if another event type is provided.
      *
-     * @param Event $e            
+     * @param  Event $e
      * @return void
      */
-    public function setEvent (Event $e)
+    public function setEvent(Event $e)
     {
-        if (! $e instanceof MvcEvent) {
+        if (!$e instanceof MvcEvent) {
             $eventParams = $e->getParams();
             $e = new MvcEvent();
             $e->setParams($eventParams);
@@ -232,22 +221,22 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return MvcEvent
      */
-    public function getEvent ()
+    public function getEvent()
     {
-        if (! $this->event) {
+        if (!$this->event) {
             $this->setEvent(new MvcEvent());
         }
-        
+
         return $this->event;
     }
 
     /**
      * Set serviceManager instance
      *
-     * @param ServiceLocatorInterface $serviceLocator            
+     * @param  ServiceLocatorInterface $serviceLocator
      * @return void
      */
-    public function setServiceLocator (ServiceLocatorInterface $serviceLocator)
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
     {
         $this->serviceLocator = $serviceLocator;
     }
@@ -257,7 +246,7 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return ServiceLocatorInterface
      */
-    public function getServiceLocator ()
+    public function getServiceLocator()
     {
         return $this->serviceLocator;
     }
@@ -267,12 +256,12 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return PluginManager
      */
-    public function getPluginManager ()
+    public function getPluginManager()
     {
-        if (! $this->plugins) {
+        if (!$this->plugins) {
             $this->setPluginManager(new PluginManager());
         }
-        
+
         $this->plugins->setController($this);
         return $this->plugins;
     }
@@ -280,28 +269,25 @@ abstract class AbstractController implements Dispatchable,
     /**
      * Set plugin manager
      *
-     * @param PluginManager $plugins            
+     * @param  PluginManager $plugins
      * @return AbstractController
      */
-    public function setPluginManager (PluginManager $plugins)
+    public function setPluginManager(PluginManager $plugins)
     {
         $this->plugins = $plugins;
         $this->plugins->setController($this);
-        
+
         return $this;
     }
 
     /**
      * Get plugin instance
      *
-     * @param string $name
-     *            Name of plugin to return
-     * @param null|array $options
-     *            Options to pass to plugin constructor (if not already
-     *            instantiated)
+     * @param  string     $name    Name of plugin to return
+     * @param  null|array $options Options to pass to plugin constructor (if not already instantiated)
      * @return mixed
      */
-    public function plugin ($name, array $options = null)
+    public function plugin($name, array $options = null)
     {
         return $this->getPluginManager()->get($name, $options);
     }
@@ -312,17 +298,17 @@ abstract class AbstractController implements Dispatchable,
      * If the plugin is a functor, call it, passing the parameters provided.
      * Otherwise, return the plugin instance.
      *
-     * @param string $method            
-     * @param array $params            
+     * @param  string $method
+     * @param  array  $params
      * @return mixed
      */
-    public function __call ($method, $params)
+    public function __call($method, $params)
     {
         $plugin = $this->plugin($method);
         if (is_callable($plugin)) {
             return call_user_func_array($plugin, $params);
         }
-        
+
         return $plugin;
     }
 
@@ -331,35 +317,26 @@ abstract class AbstractController implements Dispatchable,
      *
      * @return void
      */
-    protected function attachDefaultListeners ()
+    protected function attachDefaultListeners()
     {
         $events = $this->getEventManager();
-        $events->attach(MvcEvent::EVENT_DISPATCH, 
-                array(
-                        $this,
-                        'onDispatch'
-                ));
+        $events->attach(MvcEvent::EVENT_DISPATCH, array($this, 'onDispatch'));
     }
 
     /**
      * Transform an "action" token into a method name
      *
-     * @param string $action            
+     * @param  string $action
      * @return string
      */
-    public static function getMethodFromAction ($action)
+    public static function getMethodFromAction($action)
     {
-        $method = str_replace(
-                array(
-                        '.',
-                        '-',
-                        '_'
-                ), ' ', $action);
-        $method = ucwords($method);
-        $method = str_replace(' ', '', $method);
-        $method = lcfirst($method);
+        $method  = str_replace(array('.', '-', '_'), ' ', $action);
+        $method  = ucwords($method);
+        $method  = str_replace(' ', '', $method);
+        $method  = lcfirst($method);
         $method .= 'Action';
-        
+
         return $method;
     }
 }

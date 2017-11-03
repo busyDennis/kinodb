@@ -3,27 +3,25 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter;
 
-class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
+use ArrayAccess;
+use Countable;
+use Iterator;
+
+class ParameterContainer implements Iterator, ArrayAccess, Countable
 {
-
-    const TYPE_AUTO = 'auto';
-
-    const TYPE_NULL = 'null';
-
-    const TYPE_DOUBLE = 'double';
-
+    const TYPE_AUTO    = 'auto';
+    const TYPE_NULL    = 'null';
+    const TYPE_DOUBLE  = 'double';
     const TYPE_INTEGER = 'integer';
-
-    const TYPE_BINARY = 'binary';
-
-    const TYPE_STRING = 'string';
-
-    const TYPE_LOB = 'lob';
+    const TYPE_BINARY  = 'binary';
+    const TYPE_STRING  = 'string';
+    const TYPE_LOB     = 'lob';
 
     /**
      * Data
@@ -33,7 +31,6 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     protected $data = array();
 
     /**
-     *
      * @var array
      */
     protected $positions = array();
@@ -46,11 +43,18 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     protected $errata = array();
 
     /**
+     * Max length
+     *
+     * @var array
+     */
+    protected $maxLength = array();
+
+    /**
      * Constructor
      *
-     * @param array $data            
+     * @param array $data
      */
-    public function __construct (array $data = array())
+    public function __construct(array $data = array())
     {
         if ($data) {
             $this->setFromArray($data);
@@ -60,10 +64,10 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Offset exists
      *
-     * @param string $name            
+     * @param  string $name
      * @return bool
      */
-    public function offsetExists ($name)
+    public function offsetExists($name)
     {
         return (isset($this->data[$name]));
     }
@@ -71,37 +75,36 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Offset get
      *
-     * @param string $name            
+     * @param  string $name
      * @return mixed
      */
-    public function offsetGet ($name)
+    public function offsetGet($name)
     {
         return (isset($this->data[$name])) ? $this->data[$name] : null;
     }
 
     /**
-     *
-     * @param
-     *            $name
-     * @param
-     *            $from
+     * @param $name
+     * @param $from
      */
-    public function offsetSetReference ($name, $from)
+    public function offsetSetReference($name, $from)
     {
-        $this->data[$name] = & $this->data[$from];
+        $this->data[$name] =& $this->data[$from];
     }
 
     /**
      * Offset set
      *
-     * @param string|int $name            
-     * @param mixed $value            
-     * @param mixed $errata            
+     * @param string|int $name
+     * @param mixed $value
+     * @param mixed $errata
+     * @param mixed $maxLength
+     * @throws Exception\InvalidArgumentException
      */
-    public function offsetSet ($name, $value, $errata = null)
+    public function offsetSet($name, $value, $errata = null, $maxLength = null)
     {
         $position = false;
-        
+
         // if integer, get name for this position
         if (is_int($name)) {
             if (isset($this->positions[$name])) {
@@ -112,33 +115,35 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
             }
         } elseif (is_string($name)) {
             // is a string:
-            $currentNames = array_keys($this->data);
-            $position = array_search($name, $currentNames, true);
+            $position = array_key_exists($name, $this->data);
         } elseif ($name === null) {
             $name = (string) count($this->data);
         } else {
-            throw new Exception\InvalidArgumentException(
-                    'Keys must be string, integer or null');
+            throw new Exception\InvalidArgumentException('Keys must be string, integer or null');
         }
-        
+
         if ($position === false) {
             $this->positions[] = $name;
         }
-        
+
         $this->data[$name] = $value;
-        
+
         if ($errata) {
             $this->offsetSetErrata($name, $errata);
+        }
+
+        if ($maxLength) {
+            $this->offsetSetMaxLength($name, $maxLength);
         }
     }
 
     /**
      * Offset unset
      *
-     * @param string $name            
+     * @param  string $name
      * @return ParameterContainer
      */
-    public function offsetUnset ($name)
+    public function offsetUnset($name)
     {
         if (is_int($name) && isset($this->positions[$name])) {
             $name = $this->positions[$name];
@@ -150,10 +155,10 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Set from array
      *
-     * @param array $data            
+     * @param  array $data
      * @return ParameterContainer
      */
-    public function setFromArray (Array $data)
+    public function setFromArray(Array $data)
     {
         foreach ($data as $n => $v) {
             $this->offsetSet($n, $v);
@@ -162,12 +167,85 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     }
 
     /**
+     * Offset set max length
+     *
+     * @param string|int $name
+     * @param mixed $maxLength
+     */
+    public function offsetSetMaxLength($name, $maxLength)
+    {
+        if (is_int($name)) {
+            $name = $this->positions[$name];
+        }
+        $this->maxLength[$name] = $maxLength;
+    }
+
+    /**
+     * Offset get max length
+     *
+     * @param  string|int $name
+     * @throws Exception\InvalidArgumentException
+     * @return mixed
+     */
+    public function offsetGetMaxLength($name)
+    {
+        if (is_int($name)) {
+            $name = $this->positions[$name];
+        }
+        if (!array_key_exists($name, $this->data)) {
+            throw new Exception\InvalidArgumentException('Data does not exist for this name/position');
+        }
+        return $this->maxLength[$name];
+    }
+
+    /**
+     * Offset has max length
+     *
+     * @param  string|int $name
+     * @return bool
+     */
+    public function offsetHasMaxLength($name)
+    {
+        if (is_int($name)) {
+            $name = $this->positions[$name];
+        }
+        return (isset($this->maxLength[$name]));
+    }
+
+    /**
+     * Offset unset max length
+     *
+     * @param string|int $name
+     * @throws Exception\InvalidArgumentException
+     */
+    public function offsetUnsetMaxLength($name)
+    {
+        if (is_int($name)) {
+            $name = $this->positions[$name];
+        }
+        if (!array_key_exists($name, $this->maxLength)) {
+            throw new Exception\InvalidArgumentException('Data does not exist for this name/position');
+        }
+        $this->maxLength[$name] = null;
+    }
+
+    /**
+     * Get max length iterator
+     *
+     * @return \ArrayIterator
+     */
+    public function getMaxLengthIterator()
+    {
+        return new \ArrayIterator($this->maxLength);
+    }
+
+    /**
      * Offset set errata
      *
-     * @param string|int $name            
-     * @param mixed $errata            
+     * @param string|int $name
+     * @param mixed $errata
      */
-    public function offsetSetErrata ($name, $errata)
+    public function offsetSetErrata($name, $errata)
     {
         if (is_int($name)) {
             $name = $this->positions[$name];
@@ -178,18 +256,17 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Offset get errata
      *
-     * @param string|int $name            
+     * @param  string|int $name
      * @throws Exception\InvalidArgumentException
      * @return mixed
      */
-    public function offsetGetErrata ($name)
+    public function offsetGetErrata($name)
     {
         if (is_int($name)) {
             $name = $this->positions[$name];
         }
-        if (! array_key_exists($name, $this->data)) {
-            throw new Exception\InvalidArgumentException(
-                    'Data does not exist for this name/position');
+        if (!array_key_exists($name, $this->data)) {
+            throw new Exception\InvalidArgumentException('Data does not exist for this name/position');
         }
         return $this->errata[$name];
     }
@@ -197,10 +274,10 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Offset has errata
      *
-     * @param string|int $name            
+     * @param  string|int $name
      * @return bool
      */
-    public function offsetHasErrata ($name)
+    public function offsetHasErrata($name)
     {
         if (is_int($name)) {
             $name = $this->positions[$name];
@@ -211,17 +288,16 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Offset unset errata
      *
-     * @param string|int $name            
+     * @param string|int $name
      * @throws Exception\InvalidArgumentException
      */
-    public function offsetUnsetErrata ($name)
+    public function offsetUnsetErrata($name)
     {
         if (is_int($name)) {
             $name = $this->positions[$name];
         }
-        if (! array_key_exists($name, $this->errata)) {
-            throw new Exception\InvalidArgumentException(
-                    'Data does not exist for this name/position');
+        if (!array_key_exists($name, $this->errata)) {
+            throw new Exception\InvalidArgumentException('Data does not exist for this name/position');
         }
         $this->errata[$name] = null;
     }
@@ -231,7 +307,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return \ArrayIterator
      */
-    public function getErrataIterator ()
+    public function getErrataIterator()
     {
         return new \ArrayIterator($this->errata);
     }
@@ -241,7 +317,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return array
      */
-    public function getNamedArray ()
+    public function getNamedArray()
     {
         return $this->data;
     }
@@ -251,7 +327,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return array
      */
-    public function getPositionalArray ()
+    public function getPositionalArray()
     {
         return array_values($this->data);
     }
@@ -261,7 +337,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return int
      */
-    public function count ()
+    public function count()
     {
         return count($this->data);
     }
@@ -271,7 +347,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return mixed
      */
-    public function current ()
+    public function current()
     {
         return current($this->data);
     }
@@ -281,7 +357,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return mixed
      */
-    public function next ()
+    public function next()
     {
         return next($this->data);
     }
@@ -291,7 +367,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return mixed
      */
-    public function key ()
+    public function key()
     {
         return key($this->data);
     }
@@ -301,7 +377,7 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
      *
      * @return bool
      */
-    public function valid ()
+    public function valid()
     {
         return (current($this->data) !== false);
     }
@@ -309,33 +385,30 @@ class ParameterContainer implements \Iterator, \ArrayAccess, \Countable
     /**
      * Rewind
      */
-    public function rewind ()
+    public function rewind()
     {
         reset($this->data);
     }
 
     /**
-     *
-     * @param array|ParameterContainer $parameters            
+     * @param array|ParameterContainer $parameters
      * @throws Exception\InvalidArgumentException
      * @return ParameterContainer
      */
-    public function merge ($parameters)
+    public function merge($parameters)
     {
-        if (! is_array($parameters) &&
-                 ! $parameters instanceof ParameterContainer) {
-            throw new Exception\InvalidArgumentException(
-                    '$parameters must be an array or an instance of ParameterContainer');
+        if (!is_array($parameters) && !$parameters instanceof ParameterContainer) {
+            throw new Exception\InvalidArgumentException('$parameters must be an array or an instance of ParameterContainer');
         }
-        
+
         if (count($parameters) == 0) {
             return $this;
         }
-        
+
         if ($parameters instanceof ParameterContainer) {
             $parameters = $parameters->getNamedArray();
         }
-        
+
         foreach ($parameters as $key => $value) {
             if (is_int($key)) {
                 $key = null;

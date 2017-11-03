@@ -65,11 +65,9 @@ return array(
                 )
         ),
         // 'may_terminate' => true
-
         'service_manager' => array(
                 'factories' => array(
                         'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
-                        'ViewJsonRenderer' => 'Zend\Mvc\Service\ViewJsonRendererFactory',
                         'ViewJsonStrategy' => 'Zend\Mvc\Service\ViewJsonStrategyFactory'
                 )
         ),
@@ -105,7 +103,6 @@ return array(
                         __DIR__ . '/../view'
                 ),
                 'strategies' => array(
-                        'ViewJsonRenderer',
                         'ViewJsonStrategy'
                 )
         )

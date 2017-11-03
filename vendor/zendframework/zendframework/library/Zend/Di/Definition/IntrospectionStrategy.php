@@ -3,45 +3,37 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Di\Definition;
+
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser\GenericAnnotationParser;
 
 /**
- * Strategy used to discover methods to be considered as endpoints for
- * dependency injection based on implemented
+ * Strategy used to discover methods to be considered as endpoints for dependency injection based on implemented
  * interfaces, annotations and method names
  */
 class IntrospectionStrategy
 {
-
     /**
-     *
      * @var bool
      */
     protected $useAnnotations = false;
 
     /**
-     *
      * @var string[]
      */
-    protected $methodNameInclusionPatterns = array(
-            '/^set[A-Z]{1}\w*/'
-    );
+    protected $methodNameInclusionPatterns = array('/^set[A-Z]{1}\w*/');
 
     /**
-     *
      * @var string[]
      */
-    protected $interfaceInjectionInclusionPatterns = array(
-            '/\w*Aware\w*/'
-    );
+    protected $interfaceInjectionInclusionPatterns = array('/\w*Aware\w*/');
 
     /**
-     *
      * @var AnnotationManager
      */
     protected $annotationManager = null;
@@ -49,11 +41,11 @@ class IntrospectionStrategy
     /**
      * Constructor
      *
-     * @param null|AnnotationManager $annotationManager            
+     * @param null|AnnotationManager $annotationManager
      */
-    public function __construct (AnnotationManager $annotationManager = null)
+    public function __construct(AnnotationManager $annotationManager = null)
     {
-        $this->annotationManager = ($annotationManager) ?  : $this->createDefaultAnnotationManager();
+        $this->annotationManager = ($annotationManager) ?: $this->createDefaultAnnotationManager();
     }
 
     /**
@@ -61,7 +53,7 @@ class IntrospectionStrategy
      *
      * @return null|AnnotationManager
      */
-    public function getAnnotationManager ()
+    public function getAnnotationManager()
     {
         return $this->annotationManager;
     }
@@ -71,22 +63,22 @@ class IntrospectionStrategy
      *
      * @return AnnotationManager
      */
-    public function createDefaultAnnotationManager ()
+    public function createDefaultAnnotationManager()
     {
-        $annotationManager = new AnnotationManager();
-        $parser = new GenericAnnotationParser();
+        $annotationManager = new AnnotationManager;
+        $parser            = new GenericAnnotationParser();
         $parser->registerAnnotation(new Annotation\Inject());
         $annotationManager->attach($parser);
-        
+
         return $annotationManager;
     }
 
     /**
      * set use annotations
      *
-     * @param bool $useAnnotations            
+     * @param bool $useAnnotations
      */
-    public function setUseAnnotations ($useAnnotations)
+    public function setUseAnnotations($useAnnotations)
     {
         $this->useAnnotations = (bool) $useAnnotations;
     }
@@ -96,7 +88,7 @@ class IntrospectionStrategy
      *
      * @return bool
      */
-    public function getUseAnnotations ()
+    public function getUseAnnotations()
     {
         return $this->useAnnotations;
     }
@@ -104,10 +96,9 @@ class IntrospectionStrategy
     /**
      * Set method name inclusion pattern
      *
-     * @param array $methodNameInclusionPatterns            
+     * @param array $methodNameInclusionPatterns
      */
-    public function setMethodNameInclusionPatterns (
-            array $methodNameInclusionPatterns)
+    public function setMethodNameInclusionPatterns(array $methodNameInclusionPatterns)
     {
         $this->methodNameInclusionPatterns = $methodNameInclusionPatterns;
     }
@@ -117,7 +108,7 @@ class IntrospectionStrategy
      *
      * @return array
      */
-    public function getMethodNameInclusionPatterns ()
+    public function getMethodNameInclusionPatterns()
     {
         return $this->methodNameInclusionPatterns;
     }
@@ -125,10 +116,9 @@ class IntrospectionStrategy
     /**
      * Set interface injection inclusion patterns
      *
-     * @param array $interfaceInjectionInclusionPatterns            
+     * @param array $interfaceInjectionInclusionPatterns
      */
-    public function setInterfaceInjectionInclusionPatterns (
-            array $interfaceInjectionInclusionPatterns)
+    public function setInterfaceInjectionInclusionPatterns(array $interfaceInjectionInclusionPatterns)
     {
         $this->interfaceInjectionInclusionPatterns = $interfaceInjectionInclusionPatterns;
     }
@@ -138,7 +128,7 @@ class IntrospectionStrategy
      *
      * @return array
      */
-    public function getInterfaceInjectionInclusionPatterns ()
+    public function getInterfaceInjectionInclusionPatterns()
     {
         return $this->interfaceInjectionInclusionPatterns;
     }

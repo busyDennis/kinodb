@@ -39,11 +39,5 @@ if ($env == 'production') {
 return array(
     'db' => $db
 );
-// 'service_manager' => array(
-// 'factories' => array(
-// 'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
-// 'ViewJsonStrategy' => 'Zend\Mvc\Service\ViewJsonStrategyFactory',
-// ),
-// ),
 
 ?>

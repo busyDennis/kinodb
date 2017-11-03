@@ -3,30 +3,29 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Sql\Predicate;
 
-class Between implements PredicateInterface
+use Zend\Db\Sql\AbstractExpression;
+
+class Between extends AbstractExpression implements PredicateInterface
 {
-
     protected $specification = '%1$s BETWEEN %2$s AND %3$s';
-
-    protected $identifier = null;
-
-    protected $minValue = null;
-
-    protected $maxValue = null;
+    protected $identifier    = null;
+    protected $minValue      = null;
+    protected $maxValue      = null;
 
     /**
      * Constructor
      *
-     * @param string $identifier            
-     * @param int|float|string $minValue            
-     * @param int|float|string $maxValue            
+     * @param  string $identifier
+     * @param  int|float|string $minValue
+     * @param  int|float|string $maxValue
      */
-    public function __construct ($identifier = null, $minValue = null, $maxValue = null)
+    public function __construct($identifier = null, $minValue = null, $maxValue = null)
     {
         if ($identifier) {
             $this->setIdentifier($identifier);
@@ -42,10 +41,10 @@ class Between implements PredicateInterface
     /**
      * Set identifier for comparison
      *
-     * @param string $identifier            
+     * @param  string $identifier
      * @return Between
      */
-    public function setIdentifier ($identifier)
+    public function setIdentifier($identifier)
     {
         $this->identifier = $identifier;
         return $this;
@@ -56,7 +55,7 @@ class Between implements PredicateInterface
      *
      * @return null|string
      */
-    public function getIdentifier ()
+    public function getIdentifier()
     {
         return $this->identifier;
     }
@@ -64,10 +63,10 @@ class Between implements PredicateInterface
     /**
      * Set minimum boundary for comparison
      *
-     * @param int|float|string $minValue            
+     * @param  int|float|string $minValue
      * @return Between
      */
-    public function setMinValue ($minValue)
+    public function setMinValue($minValue)
     {
         $this->minValue = $minValue;
         return $this;
@@ -78,7 +77,7 @@ class Between implements PredicateInterface
      *
      * @return null|int|float|string
      */
-    public function getMinValue ()
+    public function getMinValue()
     {
         return $this->minValue;
     }
@@ -86,10 +85,10 @@ class Between implements PredicateInterface
     /**
      * Set maximum boundary for comparison
      *
-     * @param int|float|string $maxValue            
+     * @param  int|float|string $maxValue
      * @return Between
      */
-    public function setMaxValue ($maxValue)
+    public function setMaxValue($maxValue)
     {
         $this->maxValue = $maxValue;
         return $this;
@@ -100,7 +99,7 @@ class Between implements PredicateInterface
      *
      * @return null|int|float|string
      */
-    public function getMaxValue ()
+    public function getMaxValue()
     {
         return $this->maxValue;
     }
@@ -108,10 +107,10 @@ class Between implements PredicateInterface
     /**
      * Set specification string to use in forming SQL predicate
      *
-     * @param string $specification            
+     * @param  string $specification
      * @return Between
      */
-    public function setSpecification ($specification)
+    public function setSpecification($specification)
     {
         $this->specification = $specification;
         return $this;
@@ -122,7 +121,7 @@ class Between implements PredicateInterface
      *
      * @return string
      */
-    public function getSpecification ()
+    public function getSpecification()
     {
         return $this->specification;
     }
@@ -132,22 +131,17 @@ class Between implements PredicateInterface
      *
      * @return array
      */
-    public function getExpressionData ()
+    public function getExpressionData()
     {
+        list($values[], $types[]) = $this->normalizeArgument($this->identifier, self::TYPE_IDENTIFIER);
+        list($values[], $types[]) = $this->normalizeArgument($this->minValue,   self::TYPE_VALUE);
+        list($values[], $types[]) = $this->normalizeArgument($this->maxValue,   self::TYPE_VALUE);
         return array(
-                array(
-                        $this->getSpecification(),
-                        array(
-                                $this->identifier,
-                                $this->minValue,
-                                $this->maxValue
-                        ),
-                        array(
-                                self::TYPE_IDENTIFIER,
-                                self::TYPE_VALUE,
-                                self::TYPE_VALUE
-                        )
-                )
+            array(
+                $this->getSpecification(),
+                $values,
+                $types,
+            ),
         );
     }
 }

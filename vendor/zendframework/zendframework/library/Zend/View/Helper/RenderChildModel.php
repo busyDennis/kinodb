@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Helper;
+
 use Zend\View\Exception;
 use Zend\View\Model\ModelInterface as Model;
 
@@ -18,7 +20,6 @@ use Zend\View\Model\ModelInterface as Model;
  */
 class RenderChildModel extends AbstractHelper
 {
-
     /**
      * Current view model
      *
@@ -38,10 +39,10 @@ class RenderChildModel extends AbstractHelper
      *
      * Proxies to {render()}.
      *
-     * @param string $child            
+     * @param  string $child
      * @return string
      */
-    public function __invoke ($child)
+    public function __invoke($child)
     {
         return $this->render($child);
     }
@@ -52,22 +53,22 @@ class RenderChildModel extends AbstractHelper
      * If a matching child model is found, it is rendered. If not, an empty
      * string is returned.
      *
-     * @param string $child            
+     * @param  string $child
      * @return string
      */
-    public function render ($child)
+    public function render($child)
     {
         $model = $this->findChild($child);
-        if (! $model) {
+        if (!$model) {
             return '';
         }
-        
+
         $current = $this->current;
-        $view = $this->getView();
-        $return = $view->render($model);
-        $helper = $this->getViewModelHelper();
+        $view    = $this->getView();
+        $return  = $view->render($model);
+        $helper  = $this->getViewModelHelper();
         $helper->setCurrent($current);
-        
+
         return $return;
     }
 
@@ -78,10 +79,10 @@ class RenderChildModel extends AbstractHelper
      * has a captureTo value matching the requested $child. If found, that child
      * model is returned; otherwise, a boolean false is returned.
      *
-     * @param string $child            
+     * @param  string $child
      * @return false|Model
      */
-    protected function findChild ($child)
+    protected function findChild($child)
     {
         $this->current = $model = $this->getCurrent();
         foreach ($model->getChildren() as $childModel) {
@@ -89,7 +90,7 @@ class RenderChildModel extends AbstractHelper
                 return $childModel;
             }
         }
-        
+
         return false;
     }
 
@@ -99,16 +100,16 @@ class RenderChildModel extends AbstractHelper
      * @throws Exception\RuntimeException
      * @return null|Model
      */
-    protected function getCurrent ()
+    protected function getCurrent()
     {
         $helper = $this->getViewModelHelper();
-        if (! $helper->hasCurrent()) {
-            throw new Exception\RuntimeException(
-                    sprintf(
-                            '%s: no view model currently registered in renderer; cannot query for children', 
-                            __METHOD__));
+        if (!$helper->hasCurrent()) {
+            throw new Exception\RuntimeException(sprintf(
+                '%s: no view model currently registered in renderer; cannot query for children',
+                __METHOD__
+            ));
         }
-        
+
         return $helper->getCurrent();
     }
 
@@ -117,16 +118,16 @@ class RenderChildModel extends AbstractHelper
      *
      * @return ViewModel
      */
-    protected function getViewModelHelper ()
+    protected function getViewModelHelper()
     {
         if ($this->viewModelHelper) {
             return $this->viewModelHelper;
         }
-        
+
         if (method_exists($this->getView(), 'plugin')) {
             $this->viewModelHelper = $this->view->plugin('view_model');
         }
-        
+
         return $this->viewModelHelper;
     }
 }

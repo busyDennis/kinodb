@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mail\Transport;
+
 use Zend\Mail\Message;
 
 /**
@@ -16,9 +18,7 @@ use Zend\Mail\Message;
  */
 class File implements TransportInterface
 {
-
     /**
-     *
      * @var FileOptions
      */
     protected $options;
@@ -33,23 +33,30 @@ class File implements TransportInterface
     /**
      * Constructor
      *
-     * @param null|FileOptions $options
-     *            OPTIONAL (Default: null)
+     * @param  null|FileOptions $options OPTIONAL (Default: null)
      */
-    public function __construct (FileOptions $options = null)
+    public function __construct(FileOptions $options = null)
     {
-        if (! $options instanceof FileOptions) {
+        if (!$options instanceof FileOptions) {
             $options = new FileOptions();
         }
         $this->setOptions($options);
     }
 
     /**
+     * @return FileOptions
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
      * Sets options
      *
-     * @param FileOptions $options            
+     * @param  FileOptions $options
      */
-    public function setOptions (FileOptions $options)
+    public function setOptions(FileOptions $options)
     {
         $this->options = $options;
     }
@@ -57,23 +64,24 @@ class File implements TransportInterface
     /**
      * Saves e-mail message to a file
      *
-     * @param Message $message            
+     * @param Message $message
      * @throws Exception\RuntimeException on not writable target directory or
-     *         on file_put_contents() failure
+     * on file_put_contents() failure
      */
-    public function send (Message $message)
+    public function send(Message $message)
     {
-        $options = $this->options;
+        $options  = $this->options;
         $filename = call_user_func($options->getCallback(), $this);
-        $file = $options->getPath() . DIRECTORY_SEPARATOR . $filename;
-        $email = $message->toString();
-        
+        $file     = $options->getPath() . DIRECTORY_SEPARATOR . $filename;
+        $email    = $message->toString();
+
         if (false === file_put_contents($file, $email)) {
-            throw new Exception\RuntimeException(
-                    sprintf('Unable to write mail to file (directory "%s")', 
-                            $options->getPath()));
+            throw new Exception\RuntimeException(sprintf(
+                'Unable to write mail to file (directory "%s")',
+                $options->getPath()
+            ));
         }
-        
+
         $this->lastFile = $file;
     }
 
@@ -82,7 +90,7 @@ class File implements TransportInterface
      *
      * @return string
      */
-    public function getLastFile ()
+    public function getLastFile()
     {
         return $this->lastFile;
     }

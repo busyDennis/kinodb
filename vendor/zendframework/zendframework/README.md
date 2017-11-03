@@ -1,23 +1,29 @@
-### Welcome to the *Zend Framework 2.2* Release!
+![Logo](https://raw.githubusercontent.com/zendframework/zf2/234b554f2ca202095aea32e4fa557553f8849664/resources/ZendFramework-logo.png)
 
-Master: [![Build Status](https://secure.travis-ci.org/zendframework/zf2.png?branch=master)](http://travis-ci.org/zendframework/zf2)
-Develop: [![Build Status](https://secure.travis-ci.org/zendframework/zf2.png?branch=develop)](http://travis-ci.org/zendframework/zf2)
+# Welcome to the *Zend Framework 2.4* Release!
+
+Master:
+[![Build Status](https://secure.travis-ci.org/zendframework/zf2.svg?branch=master)](http://travis-ci.org/zendframework/zf2)
+[![Coverage Status](https://coveralls.io/repos/zendframework/zf2/badge.svg?branch=master)](https://coveralls.io/r/zendframework/zf2)
+Develop:
+[![Build Status](https://secure.travis-ci.org/zendframework/zf2.svg?branch=develop)](http://travis-ci.org/zendframework/zf2)
+[![Coverage Status](https://coveralls.io/repos/zendframework/zf2/badge.svg?branch=develop)](https://coveralls.io/r/zendframework/zf2)
 
 ## RELEASE INFORMATION
 
-*Zend Framework 2.2.1*
+*Zend Framework 2.4.13*
 
-This is the first maintenance release for the 2.2 series.
+This is a maintenance release in the version 2.4 series.
 
-12 Jun 2013
+13 July 2017
 
-### UPDATES IN 2.2.1
+### UPDATES IN 2.4.13
 
 Please see [CHANGELOG.md](CHANGELOG.md).
 
 ### SYSTEM REQUIREMENTS
 
-Zend Framework 2 requires PHP 5.3.3 or later; we recommend using the
+Zend Framework 2 requires PHP 5.3.23 or later; we recommend using the
 latest PHP version whenever possible.
 
 ### INSTALLATION
@@ -46,6 +52,20 @@ https://github.com/zendframework/zf2/issues
 If you would like to be notified of new releases, you can subscribe to
 the fw-announce mailing list by sending a blank message to
 <fw-announce-subscribe@lists.zend.com>.
+
+## Reporting Potential Security Issues
+
+If you have encountered a potential security vulnerability in Zend Framework, please report it to us at [zf-security@zend.com](mailto:zf-security@zend.com). We will work with you to verify the vulnerability and patch it.
+
+When reporting issues, please provide the following information:
+
+- Component(s) affected
+- A description indicating how to reproduce the issue
+- A summary of the security vulnerability and impact
+
+We request that you contact us via the email address above and give the project contributors a chance to resolve the vulnerability and issue a new release prior to any public exposure; this helps protect Zend Framework users and provides them with a chance to upgrade and/or update in order to protect their applications.
+
+For sensitive email communications, please use [our PGP key](http://framework.zend.com/zf-security-pgp-key.asc).
 
 ### LICENSE
 

@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Helper;
+
 use stdClass;
 use Zend\View;
 use Zend\View\Exception;
@@ -15,26 +17,36 @@ use Zend\View\Exception;
  * Zend_Layout_View_Helper_HeadLink
  *
  * @see http://www.w3.org/TR/xhtml1/dtds.html
+ *
+ * Creates the following virtual methods:
+ * @method HeadLink appendStylesheet($href, $media = 'screen', $conditionalStylesheet = '', $extras = array())
+ * @method HeadLink offsetSetStylesheet($index, $href, $media = 'screen', $conditionalStylesheet = '', $extras = array())
+ * @method HeadLink prependStylesheet($href, $media = 'screen', $conditionalStylesheet = '', $extras = array())
+ * @method HeadLink setStylesheet($href, $media = 'screen', $conditionalStylesheet = '', $extras = array())
+ * @method HeadLink appendAlternate($href, $type, $title, $extras = array())
+ * @method HeadLink offsetSetAlternate($index, $href, $type, $title, $extras = array())
+ * @method HeadLink prependAlternate($href, $type, $title, $extras = array())
+ * @method HeadLink setAlternate($href, $type, $title, $extras = array())
  */
 class HeadLink extends Placeholder\Container\AbstractStandalone
 {
-
     /**
      * Allowed attributes
      *
-     * @var array
+     * @var string[]
      */
     protected $itemKeys = array(
-            'charset',
-            'href',
-            'hreflang',
-            'id',
-            'media',
-            'rel',
-            'rev',
-            'type',
-            'title',
-            'extras'
+        'charset',
+        'href',
+        'hreflang',
+        'id',
+        'media',
+        'rel',
+        'rev',
+        'sizes',
+        'type',
+        'title',
+        'extras'
     );
 
     /**
@@ -49,11 +61,26 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
      *
      * Use PHP_EOL as separator
      */
-    public function __construct ()
+    public function __construct()
     {
         parent::__construct();
-        
+
         $this->setSeparator(PHP_EOL);
+    }
+
+    /**
+     * Proxy to __invoke()
+     *
+     * Allows calling $helper->headLink(), but, more importantly, chaining calls
+     * like ->appendStylesheet()->headLink().
+     *
+     * @param  array  $attributes
+     * @param  string $placement
+     * @return HeadLink
+     */
+    public function headLink(array $attributes = null, $placement = Placeholder\Container\AbstractContainer::APPEND)
+    {
+        return call_user_func_array(array($this, '__invoke'), func_get_args());
     }
 
     /**
@@ -62,12 +89,11 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
      * Returns current object instance. Optionally, allows passing array of
      * values to build link.
      *
-     * @param array $attributes            
-     * @param string $placement            
+     * @param  array  $attributes
+     * @param  string $placement
      * @return HeadLink
      */
-    public function __invoke (array $attributes = null, 
-            $placement = Placeholder\Container\AbstractContainer::APPEND)
+    public function __invoke(array $attributes = null, $placement = Placeholder\Container\AbstractContainer::APPEND)
     {
         if (null !== $attributes) {
             $item = $this->createData($attributes);
@@ -84,76 +110,64 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
                     break;
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Overload method access
      *
-     * Creates the following virtual methods:
-     * - appendStylesheet($href, $media, $conditionalStylesheet, $extras)
-     * - offsetSetStylesheet($index, $href, $media, $conditionalStylesheet,
-     * $extras)
-     * - prependStylesheet($href, $media, $conditionalStylesheet, $extras)
-     * - setStylesheet($href, $media, $conditionalStylesheet, $extras)
-     * - appendAlternate($href, $type, $title, $extras)
-     * - offsetSetAlternate($index, $href, $type, $title, $extras)
-     * - prependAlternate($href, $type, $title, $extras)
-     * - setAlternate($href, $type, $title, $extras)
-     *
      * Items that may be added in the future:
-     * - Navigation? need to find docs on this
-     * - public function appendStart()
-     * - public function appendContents()
-     * - public function appendPrev()
-     * - public function appendNext()
-     * - public function appendIndex()
-     * - public function appendEnd()
-     * - public function appendGlossary()
-     * - public function appendAppendix()
-     * - public function appendHelp()
-     * - public function appendBookmark()
+     * - Navigation?  need to find docs on this
+     *   - public function appendStart()
+     *   - public function appendContents()
+     *   - public function appendPrev()
+     *   - public function appendNext()
+     *   - public function appendIndex()
+     *   - public function appendEnd()
+     *   - public function appendGlossary()
+     *   - public function appendAppendix()
+     *   - public function appendHelp()
+     *   - public function appendBookmark()
      * - Other?
-     * - public function appendCopyright()
-     * - public function appendChapter()
-     * - public function appendSection()
-     * - public function appendSubsection()
+     *   - public function appendCopyright()
+     *   - public function appendChapter()
+     *   - public function appendSection()
+     *   - public function appendSubsection()
      *
-     * @param mixed $method            
-     * @param mixed $args            
+     * @param  mixed $method
+     * @param  mixed $args
      * @throws Exception\BadMethodCallException
      * @return void
      */
-    public function __call ($method, $args)
+    public function __call($method, $args)
     {
-        if (preg_match(
-                '/^(?P<action>set|(ap|pre)pend|offsetSet)(?P<type>Stylesheet|Alternate|Prev|Next)$/', 
-                $method, $matches)) {
-            $argc = count($args);
+        if (preg_match('/^(?P<action>set|(ap|pre)pend|offsetSet)(?P<type>Stylesheet|Alternate|Prev|Next)$/', $method, $matches)) {
+            $argc   = count($args);
             $action = $matches['action'];
-            $type = $matches['type'];
-            $index = null;
-            
+            $type   = $matches['type'];
+            $index  = null;
+
             if ('offsetSet' == $action) {
                 if (0 < $argc) {
                     $index = array_shift($args);
-                    -- $argc;
+                    --$argc;
                 }
             }
-            
+
             if (1 > $argc) {
                 throw new Exception\BadMethodCallException(
-                        sprintf('%s requires at least one argument', $method));
+                    sprintf('%s requires at least one argument', $method)
+                );
             }
-            
+
             if (is_array($args[0])) {
                 $item = $this->createData($args[0]);
             } else {
                 $dataMethod = 'createData' . $type;
-                $item = $this->$dataMethod($args);
+                $item       = $this->$dataMethod($args);
             }
-            
+
             if ($item) {
                 if ('offsetSet' == $action) {
                     $this->offsetSet($index, $item);
@@ -161,310 +175,321 @@ class HeadLink extends Placeholder\Container\AbstractStandalone
                     $this->$action($item);
                 }
             }
-            
+
             return $this;
         }
-        
+
         return parent::__call($method, $args);
     }
 
     /**
      * Check if value is valid
      *
-     * @param mixed $value            
+     * @param  mixed $value
      * @return bool
      */
-    protected function isValid ($value)
+    protected function isValid($value)
     {
-        if (! $value instanceof stdClass) {
+        if (!$value instanceof stdClass) {
             return false;
         }
-        
-        $vars = get_object_vars($value);
-        $keys = array_keys($vars);
+
+        $vars         = get_object_vars($value);
+        $keys         = array_keys($vars);
         $intersection = array_intersect($this->itemKeys, $keys);
         if (empty($intersection)) {
             return false;
         }
-        
+
         return true;
     }
 
     /**
      * append()
      *
-     * @param array $value            
+     * @param  array $value
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public function append ($value)
+    public function append($value)
     {
-        if (! $this->isValid($value)) {
+        if (!$this->isValid($value)) {
             throw new Exception\InvalidArgumentException(
-                    'append() expects a data token; please use one of the custom append*() methods');
+                'append() expects a data token; please use one of the custom append*() methods'
+            );
         }
-        
+
         return $this->getContainer()->append($value);
     }
 
     /**
      * offsetSet()
      *
-     * @param string|int $index            
-     * @param array $value            
+     * @param  string|int $index
+     * @param  array      $value
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public function offsetSet ($index, $value)
+    public function offsetSet($index, $value)
     {
-        if (! $this->isValid($value)) {
+        if (!$this->isValid($value)) {
             throw new Exception\InvalidArgumentException(
-                    'offsetSet() expects a data token; please use one of the custom offsetSet*() methods');
+                'offsetSet() expects a data token; please use one of the custom offsetSet*() methods'
+            );
         }
-        
+
         return $this->getContainer()->offsetSet($index, $value);
     }
 
     /**
      * prepend()
      *
-     * @param array $value            
+     * @param  array $value
      * @throws Exception\InvalidArgumentException
      * @return HeadLink
      */
-    public function prepend ($value)
+    public function prepend($value)
     {
-        if (! $this->isValid($value)) {
+        if (!$this->isValid($value)) {
             throw new Exception\InvalidArgumentException(
-                    'prepend() expects a data token; please use one of the custom prepend*() methods');
+                'prepend() expects a data token; please use one of the custom prepend*() methods'
+            );
         }
-        
+
         return $this->getContainer()->prepend($value);
     }
 
     /**
      * set()
      *
-     * @param array $value            
+     * @param  array $value
      * @throws Exception\InvalidArgumentException
      * @return HeadLink
      */
-    public function set ($value)
+    public function set($value)
     {
-        if (! $this->isValid($value)) {
+        if (!$this->isValid($value)) {
             throw new Exception\InvalidArgumentException(
-                    'set() expects a data token; please use one of the custom set*() methods');
+                'set() expects a data token; please use one of the custom set*() methods'
+            );
         }
-        
+
         return $this->getContainer()->set($value);
     }
 
     /**
      * Create HTML link element from data item
      *
-     * @param stdClass $item            
+     * @param  stdClass $item
      * @return string
      */
-    public function itemToString (stdClass $item)
+    public function itemToString(stdClass $item)
     {
         $attributes = (array) $item;
-        $link = '<link';
-        
+        $link       = '<link';
+
         foreach ($this->itemKeys as $itemKey) {
             if (isset($attributes[$itemKey])) {
                 if (is_array($attributes[$itemKey])) {
                     foreach ($attributes[$itemKey] as $key => $value) {
-                        $link .= sprintf(' %s="%s"', $key, 
-                                ($this->autoEscape) ? $this->escape($value) : $value);
+                        $link .= sprintf(' %s="%s"', $key, ($this->autoEscape) ? $this->escape($value) : $value);
                     }
                 } else {
-                    $link .= sprintf(' %s="%s"', $itemKey, 
-                            ($this->autoEscape) ? $this->escape(
-                                    $attributes[$itemKey]) : $attributes[$itemKey]);
+                    $link .= sprintf(
+                        ' %s="%s"',
+                        $itemKey,
+                        ($this->autoEscape) ? $this->escape($attributes[$itemKey]) : $attributes[$itemKey]
+                    );
                 }
             }
         }
-        
+
         if (method_exists($this->view, 'plugin')) {
             $link .= ($this->view->plugin('doctype')->isXhtml()) ? ' />' : '>';
         } else {
             $link .= ' />';
         }
-        
+
         if (($link == '<link />') || ($link == '<link>')) {
             return '';
         }
-        
-        if (isset($attributes['conditionalStylesheet']) &&
-                 ! empty($attributes['conditionalStylesheet']) &&
-                 is_string($attributes['conditionalStylesheet'])) {
-            $link = '<!--[if ' . $attributes['conditionalStylesheet'] . ']> ' .
-             $link . '<![endif]-->';
-}
 
-return $link;
-}
+        if (isset($attributes['conditionalStylesheet'])
+            && !empty($attributes['conditionalStylesheet'])
+            && is_string($attributes['conditionalStylesheet'])
+        ) {
+            // inner wrap with comment end and start if !IE
+            if (str_replace(' ', '', $attributes['conditionalStylesheet']) === '!IE') {
+                $link = '<!-->' . $link . '<!--';
+            }
+            $link = '<!--[if ' . $attributes['conditionalStylesheet'] . ']>' . $link . '<![endif]-->';
+        }
 
-/**
- * Render link elements as string
- *
- * @param string|int $indent            
- * @return string
- */
-public function toString ($indent = null)
-{
-$indent = (null !== $indent) ? $this->getWhitespace($indent) : $this->getIndent();
-
-$items = array();
-$this->getContainer()->ksort();
-foreach ($this as $item) {
-    $items[] = $this->itemToString($item);
-}
-
-return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
-}
-
-/**
- * Create data item for stack
- *
- * @param array $attributes            
- * @return stdClass
- */
-public function createData (array $attributes)
-{
-return (object) $attributes;
-}
-
-/**
- * Create item for stylesheet link item
- *
- * @param array $args            
- * @return stdClass|false Returns false if stylesheet is a duplicate
- */
-public function createDataStylesheet (array $args)
-{
-$rel = 'stylesheet';
-$type = 'text/css';
-$media = 'screen';
-$conditionalStylesheet = false;
-$href = array_shift($args);
-
-if ($this->isDuplicateStylesheet($href)) {
-    return false;
-}
-
-if (0 < count($args)) {
-    $media = array_shift($args);
-    if (is_array($media)) {
-        $media = implode(',', $media);
-    } else {
-        $media = (string) $media;
+        return $link;
     }
-}
-if (0 < count($args)) {
-    $conditionalStylesheet = array_shift($args);
-    if (! empty($conditionalStylesheet) && is_string($conditionalStylesheet)) {
-        $conditionalStylesheet = (string) $conditionalStylesheet;
-    } else {
-        $conditionalStylesheet = null;
+
+    /**
+     * Render link elements as string
+     *
+     * @param  string|int $indent
+     * @return string
+     */
+    public function toString($indent = null)
+    {
+        $indent = (null !== $indent)
+                ? $this->getWhitespace($indent)
+                : $this->getIndent();
+
+        $items = array();
+        $this->getContainer()->ksort();
+        foreach ($this as $item) {
+            $items[] = $this->itemToString($item);
+        }
+
+        return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
     }
-}
 
-if (0 < count($args) && is_array($args[0])) {
-    $extras = array_shift($args);
-    $extras = (array) $extras;
-}
-
-$attributes = compact('rel', 'type', 'href', 'media', 'conditionalStylesheet', 
-        'extras');
-
-return $this->createData($attributes);
-}
-
-/**
- * Is the linked stylesheet a duplicate?
- *
- * @param string $uri            
- * @return bool
- */
-protected function isDuplicateStylesheet ($uri)
-{
-foreach ($this->getContainer() as $item) {
-    if (($item->rel == 'stylesheet') && ($item->href == $uri)) {
-        return true;
+    /**
+     * Create data item for stack
+     *
+     * @param  array $attributes
+     * @return stdClass
+     */
+    public function createData(array $attributes)
+    {
+        return (object) $attributes;
     }
-}
 
-return false;
-}
+    /**
+     * Create item for stylesheet link item
+     *
+     * @param  array $args
+     * @return stdClass|false Returns false if stylesheet is a duplicate
+     */
+    public function createDataStylesheet(array $args)
+    {
+        $rel                   = 'stylesheet';
+        $type                  = 'text/css';
+        $media                 = 'screen';
+        $conditionalStylesheet = false;
+        $href                  = array_shift($args);
 
-/**
- * Create item for alternate link item
- *
- * @param array $args            
- * @throws Exception\InvalidArgumentException
- * @return stdClass
- */
-public function createDataAlternate (array $args)
-{
-if (3 > count($args)) {
-    throw new Exception\InvalidArgumentException(
-            sprintf('Alternate tags require 3 arguments; %s provided', 
-                    count($args)));
-}
+        if ($this->isDuplicateStylesheet($href)) {
+            return false;
+        }
 
-$rel = 'alternate';
-$href = array_shift($args);
-$type = array_shift($args);
-$title = array_shift($args);
+        if (0 < count($args)) {
+            $media = array_shift($args);
+            if (is_array($media)) {
+                $media = implode(',', $media);
+            } else {
+                $media = (string) $media;
+            }
+        }
+        if (0 < count($args)) {
+            $conditionalStylesheet = array_shift($args);
+            if (!empty($conditionalStylesheet) && is_string($conditionalStylesheet)) {
+                $conditionalStylesheet = (string) $conditionalStylesheet;
+            } else {
+                $conditionalStylesheet = null;
+            }
+        }
 
-if (0 < count($args) && is_array($args[0])) {
-    $extras = array_shift($args);
-    $extras = (array) $extras;
-    
-    if (isset($extras['media']) && is_array($extras['media'])) {
-        $extras['media'] = implode(',', $extras['media']);
+        if (0 < count($args) && is_array($args[0])) {
+            $extras = array_shift($args);
+            $extras = (array) $extras;
+        }
+
+        $attributes = compact('rel', 'type', 'href', 'media', 'conditionalStylesheet', 'extras');
+
+        return $this->createData($attributes);
     }
-}
 
-$href = (string) $href;
-$type = (string) $type;
-$title = (string) $title;
+    /**
+     * Is the linked stylesheet a duplicate?
+     *
+     * @param  string $uri
+     * @return bool
+     */
+    protected function isDuplicateStylesheet($uri)
+    {
+        foreach ($this->getContainer() as $item) {
+            if (($item->rel == 'stylesheet') && ($item->href == $uri)) {
+                return true;
+            }
+        }
 
-$attributes = compact('rel', 'href', 'type', 'title', 'extras');
+        return false;
+    }
 
-return $this->createData($attributes);
-}
+    /**
+     * Create item for alternate link item
+     *
+     * @param  array $args
+     * @throws Exception\InvalidArgumentException
+     * @return stdClass
+     */
+    public function createDataAlternate(array $args)
+    {
+        if (3 > count($args)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Alternate tags require 3 arguments; %s provided',
+                count($args)
+            ));
+        }
 
-/**
- * Create item for a prev relationship (mainly used for pagination)
- *
- * @param array $args            
- * @return stdClass
- */
-public function createDataPrev (array $args)
-{
-$rel = 'prev';
-$href = (string) array_shift($args);
+        $rel   = 'alternate';
+        $href  = array_shift($args);
+        $type  = array_shift($args);
+        $title = array_shift($args);
 
-$attributes = compact('rel', 'href');
+        if (0 < count($args) && is_array($args[0])) {
+            $extras = array_shift($args);
+            $extras = (array) $extras;
 
-return $this->createData($attributes);
-}
+            if (isset($extras['media']) && is_array($extras['media'])) {
+                $extras['media'] = implode(',', $extras['media']);
+            }
+        }
 
-/**
- * Create item for a prev relationship (mainly used for pagination)
- *
- * @param array $args            
- * @return stdClass
- */
-public function createDataNext (array $args)
-{
-$rel = 'next';
-$href = (string) array_shift($args);
+        $href  = (string) $href;
+        $type  = (string) $type;
+        $title = (string) $title;
 
-$attributes = compact('rel', 'href');
+        $attributes = compact('rel', 'href', 'type', 'title', 'extras');
 
-return $this->createData($attributes);
-}
+        return $this->createData($attributes);
+    }
+
+    /**
+     * Create item for a prev relationship (mainly used for pagination)
+     *
+     * @param  array $args
+     * @return stdClass
+     */
+    public function createDataPrev(array $args)
+    {
+        $rel  = 'prev';
+        $href = (string) array_shift($args);
+
+        $attributes = compact('rel', 'href');
+
+        return $this->createData($attributes);
+    }
+
+    /**
+     * Create item for a prev relationship (mainly used for pagination)
+     *
+     * @param  array $args
+     * @return stdClass
+     */
+    public function createDataNext(array $args)
+    {
+        $rel  = 'next';
+        $href = (string) array_shift($args);
+
+        $attributes = compact('rel', 'href');
+
+        return $this->createData($attributes);
+    }
 }

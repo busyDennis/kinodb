@@ -3,31 +3,29 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Console;
+
 use Zend\Stdlib\Message;
 use Zend\Stdlib\Parameters;
 use Zend\Stdlib\RequestInterface;
 
 class Request extends Message implements RequestInterface
 {
-
     /**
-     *
      * @var \Zend\Stdlib\Parameters
      */
     protected $params = null;
 
     /**
-     *
      * @var \Zend\Stdlib\Parameters
      */
     protected $envParams = null;
 
     /**
-     *
      * @var string
      */
     protected $scriptName = null;
@@ -35,40 +33,39 @@ class Request extends Message implements RequestInterface
     /**
      * Create a new CLI request
      *
-     * @param array|null $args
-     *            Console arguments. If not supplied, $_SERVER['argv'] will be
-     *            used
-     * @param array|null $env
-     *            Environment data. If not supplied, $_ENV will be used
+     * @param array|null $args Console arguments. If not supplied, $_SERVER['argv'] will be used
+     * @param array|null $env Environment data. If not supplied, $_ENV will be used
      * @throws Exception\RuntimeException
      */
-    public function __construct (array $args = null, array $env = null)
+    public function __construct(array $args = null, array $env = null)
     {
         if ($args === null) {
-            if (! isset($_SERVER['argv'])) {
-                $errorDescription = (ini_get('register_argc_argv') == false) ? "Cannot create Console\\Request because PHP ini option 'register_argc_argv' is set Off" : 'Cannot create Console\\Request because $_SERVER["argv"] is not set for unknown reason.';
+            if (!isset($_SERVER['argv'])) {
+                $errorDescription = (ini_get('register_argc_argv') == false)
+                    ? "Cannot create Console\\Request because PHP ini option 'register_argc_argv' is set Off"
+                    : 'Cannot create Console\\Request because $_SERVER["argv"] is not set for unknown reason.';
                 throw new Exception\RuntimeException($errorDescription);
             }
             $args = $_SERVER['argv'];
         }
-        
+
         if ($env === null) {
             $env = $_ENV;
         }
-        
+
         /**
          * Extract first param assuming it is the script name
          */
         if (count($args) > 0) {
             $this->setScriptName(array_shift($args));
         }
-        
+
         /**
          * Store runtime params
          */
         $this->params()->fromArray($args);
         $this->setContent($args);
-        
+
         /**
          * Store environment data
          */
@@ -78,10 +75,10 @@ class Request extends Message implements RequestInterface
     /**
      * Exchange parameters object
      *
-     * @param \Zend\Stdlib\Parameters $params            
+     * @param \Zend\Stdlib\Parameters $params
      * @return Request
      */
-    public function setParams (Parameters $params)
+    public function setParams(Parameters $params)
     {
         $this->params = $params;
         $this->setContent($params);
@@ -93,12 +90,12 @@ class Request extends Message implements RequestInterface
      *
      * @return \Zend\Stdlib\Parameters
      */
-    public function getParams ()
+    public function getParams()
     {
         if ($this->params === null) {
             $this->params = new Parameters();
         }
-        
+
         return $this->params;
     }
 
@@ -106,13 +103,11 @@ class Request extends Message implements RequestInterface
      * Return a single parameter.
      * Shortcut for $request->params()->get()
      *
-     * @param string $name
-     *            Parameter name
-     * @param string $default
-     *            (optional) default value in case the parameter does not exist
+     * @param string    $name       Parameter name
+     * @param string    $default    (optional) default value in case the parameter does not exist
      * @return mixed
      */
-    public function getParam ($name, $default = null)
+    public function getParam($name, $default = null)
     {
         return $this->params()->get($name, $default);
     }
@@ -122,20 +117,19 @@ class Request extends Message implements RequestInterface
      *
      * @return \Zend\Stdlib\Parameters
      */
-    public function params ()
+    public function params()
     {
         return $this->getParams();
     }
 
     /**
-     * Provide an alternate Parameter Container implementation for env
-     * parameters in this object, (this is NOT the
+     * Provide an alternate Parameter Container implementation for env parameters in this object, (this is NOT the
      * primary API for value setting, for that see env())
      *
-     * @param \Zend\Stdlib\Parameters $env            
+     * @param \Zend\Stdlib\Parameters $env
      * @return \Zend\Console\Request
      */
-    public function setEnv (Parameters $env)
+    public function setEnv(Parameters $env)
     {
         $this->envParams = $env;
         return $this;
@@ -144,13 +138,11 @@ class Request extends Message implements RequestInterface
     /**
      * Return a single parameter container responsible for env parameters
      *
-     * @param string $name
-     *            Parameter name
-     * @param string $default
-     *            (optional) default value in case the parameter does not exist
+     * @param string    $name       Parameter name
+     * @param string    $default    (optional) default value in case the parameter does not exist
      * @return \Zend\Stdlib\Parameters
      */
-    public function getEnv ($name, $default = null)
+    public function getEnv($name, $default = null)
     {
         return $this->env()->get($name, $default);
     }
@@ -160,20 +152,19 @@ class Request extends Message implements RequestInterface
      *
      * @return \Zend\Stdlib\Parameters
      */
-    public function env ()
+    public function env()
     {
         if ($this->envParams === null) {
             $this->envParams = new Parameters();
         }
-        
+
         return $this->envParams;
     }
 
     /**
-     *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return trim(implode(' ', $this->params()->toArray()));
     }
@@ -183,25 +174,23 @@ class Request extends Message implements RequestInterface
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return $this->toString();
     }
 
     /**
-     *
-     * @param string $scriptName            
+     * @param string $scriptName
      */
-    public function setScriptName ($scriptName)
+    public function setScriptName($scriptName)
     {
         $this->scriptName = $scriptName;
     }
 
     /**
-     *
      * @return string
      */
-    public function getScriptName ()
+    public function getScriptName()
     {
         return $this->scriptName;
     }

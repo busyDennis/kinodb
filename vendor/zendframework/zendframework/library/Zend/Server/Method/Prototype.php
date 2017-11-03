@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Server\Method;
 
 /**
@@ -13,21 +14,17 @@ namespace Zend\Server\Method;
  */
 class Prototype
 {
-
     /**
-     *
      * @var string Return type
      */
     protected $returnType = 'void';
 
     /**
-     *
      * @var array Map parameter names to parameter index
      */
     protected $parameterNameMap = array();
 
     /**
-     *
      * @var array Method parameters
      */
     protected $parameters = array();
@@ -35,9 +32,9 @@ class Prototype
     /**
      * Constructor
      *
-     * @param null|array $options            
+     * @param  null|array $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if ((null !== $options) && is_array($options)) {
             $this->setOptions($options);
@@ -47,10 +44,10 @@ class Prototype
     /**
      * Set return value
      *
-     * @param string $returnType            
+     * @param  string $returnType
      * @return \Zend\Server\Method\Prototype
      */
-    public function setReturnType ($returnType)
+    public function setReturnType($returnType)
     {
         $this->returnType = $returnType;
         return $this;
@@ -61,7 +58,7 @@ class Prototype
      *
      * @return string
      */
-    public function getReturnType ()
+    public function getReturnType()
     {
         return $this->returnType;
     }
@@ -69,10 +66,10 @@ class Prototype
     /**
      * Add a parameter
      *
-     * @param string $parameter            
+     * @param  string $parameter
      * @return \Zend\Server\Method\Prototype
      */
-    public function addParameter ($parameter)
+    public function addParameter($parameter)
     {
         if ($parameter instanceof Parameter) {
             $this->parameters[] = $parameter;
@@ -80,10 +77,9 @@ class Prototype
                 $this->parameterNameMap[$name] = count($this->parameters) - 1;
             }
         } else {
-            $parameter = new Parameter(
-                    array(
-                            'type' => (string) $parameter
-                    ));
+            $parameter = new Parameter(array(
+                'type' => (string) $parameter,
+            ));
             $this->parameters[] = $parameter;
         }
         return $this;
@@ -92,10 +88,10 @@ class Prototype
     /**
      * Add parameters
      *
-     * @param array $parameters            
+     * @param  array $parameters
      * @return \Zend\Server\Method\Prototype
      */
-    public function addParameters (array $parameters)
+    public function addParameters(array $parameters)
     {
         foreach ($parameters as $parameter) {
             $this->addParameter($parameter);
@@ -106,12 +102,12 @@ class Prototype
     /**
      * Set parameters
      *
-     * @param array $parameters            
+     * @param  array $parameters
      * @return \Zend\Server\Method\Prototype
      */
-    public function setParameters (array $parameters)
+    public function setParameters(array $parameters)
     {
-        $this->parameters = array();
+        $this->parameters       = array();
         $this->parameterNameMap = array();
         $this->addParameters($parameters);
         return $this;
@@ -122,7 +118,7 @@ class Prototype
      *
      * @return array
      */
-    public function getParameters ()
+    public function getParameters()
     {
         $types = array();
         foreach ($this->parameters as $parameter) {
@@ -136,7 +132,7 @@ class Prototype
      *
      * @return array
      */
-    public function getParameterObjects ()
+    public function getParameterObjects()
     {
         return $this->parameters;
     }
@@ -144,13 +140,13 @@ class Prototype
     /**
      * Retrieve a single parameter by name or index
      *
-     * @param string|int $index            
+     * @param  string|int $index
      * @return null|\Zend\Server\Method\Parameter
      */
-    public function getParameter ($index)
+    public function getParameter($index)
     {
-        if (! is_string($index) && ! is_numeric($index)) {
-            return null;
+        if (!is_string($index) && !is_numeric($index)) {
+            return;
         }
         if (array_key_exists($index, $this->parameterNameMap)) {
             $index = $this->parameterNameMap[$index];
@@ -158,16 +154,16 @@ class Prototype
         if (array_key_exists($index, $this->parameters)) {
             return $this->parameters[$index];
         }
-        return null;
+        return;
     }
 
     /**
      * Set object state from array
      *
-     * @param array $options            
+     * @param  array $options
      * @return \Zend\Server\Method\Prototype
      */
-    public function setOptions (array $options)
+    public function setOptions(array $options)
     {
         foreach ($options as $key => $value) {
             $method = 'set' . ucfirst($key);
@@ -183,11 +179,11 @@ class Prototype
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         return array(
-                'returnType' => $this->getReturnType(),
-                'parameters' => $this->getParameters()
+            'returnType' => $this->getReturnType(),
+            'parameters' => $this->getParameters(),
         );
     }
 }

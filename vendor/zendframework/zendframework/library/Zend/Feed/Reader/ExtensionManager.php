@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\Reader;
 
 /**
@@ -15,7 +16,6 @@ namespace Zend\Feed\Reader;
  */
 class ExtensionManager implements ExtensionManagerInterface
 {
-
     protected $pluginManager;
 
     /**
@@ -24,9 +24,9 @@ class ExtensionManager implements ExtensionManagerInterface
      * Seeds the extension manager with a plugin manager; if none provided,
      * creates an instance.
      *
-     * @param null|ExtensionPluginManager $pluginManager            
+     * @param  null|ExtensionPluginManager $pluginManager
      */
-    public function __construct (ExtensionPluginManager $pluginManager = null)
+    public function __construct(ExtensionPluginManager $pluginManager = null)
     {
         if (null === $pluginManager) {
             $pluginManager = new ExtensionPluginManager();
@@ -39,32 +39,30 @@ class ExtensionManager implements ExtensionManagerInterface
      *
      * Proxy to composed ExtensionPluginManager instance.
      *
-     * @param string $method            
-     * @param array $args            
+     * @param  string $method
+     * @param  array $args
      * @return mixed
      * @throws Exception\BadMethodCallException
      */
-    public function __call ($method, $args)
+    public function __call($method, $args)
     {
-        if (! method_exists($this->pluginManager, $method)) {
-            throw new Exception\BadMethodCallException(
-                    sprintf('Method by name of %s does not exist in %s', 
-                            $method, __CLASS__));
+        if (!method_exists($this->pluginManager, $method)) {
+            throw new Exception\BadMethodCallException(sprintf(
+                'Method by name of %s does not exist in %s',
+                $method,
+                __CLASS__
+            ));
         }
-        return call_user_func_array(
-                array(
-                        $this->pluginManager,
-                        $method
-                ), $args);
+        return call_user_func_array(array($this->pluginManager, $method), $args);
     }
 
     /**
      * Get the named extension
      *
-     * @param string $name            
+     * @param  string $name
      * @return Extension\AbstractEntry|Extension\AbstractFeed
      */
-    public function get ($name)
+    public function get($name)
     {
         return $this->pluginManager->get($name);
     }
@@ -72,10 +70,10 @@ class ExtensionManager implements ExtensionManagerInterface
     /**
      * Do we have the named extension?
      *
-     * @param string $name            
+     * @param  string $name
      * @return bool
      */
-    public function has ($name)
+    public function has($name)
     {
         return $this->pluginManager->has($name);
     }

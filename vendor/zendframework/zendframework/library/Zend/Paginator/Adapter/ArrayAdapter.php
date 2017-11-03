@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Paginator\Adapter;
 
 class ArrayAdapter implements AdapterInterface
 {
-
     /**
      * ArrayAdapter
      *
@@ -28,10 +28,9 @@ class ArrayAdapter implements AdapterInterface
     /**
      * Constructor.
      *
-     * @param array $array
-     *            ArrayAdapter to paginate
+     * @param array $array ArrayAdapter to paginate
      */
-    public function __construct (array $array = array())
+    public function __construct(array $array = array())
     {
         $this->array = $array;
         $this->count = count($array);
@@ -40,13 +39,11 @@ class ArrayAdapter implements AdapterInterface
     /**
      * Returns an array of items for a page.
      *
-     * @param int $offset
-     *            Page offset
-     * @param int $itemCountPerPage
-     *            Number of items per page
+     * @param  int $offset Page offset
+     * @param  int $itemCountPerPage Number of items per page
      * @return array
      */
-    public function getItems ($offset, $itemCountPerPage)
+    public function getItems($offset, $itemCountPerPage)
     {
         return array_slice($this->array, $offset, $itemCountPerPage);
     }
@@ -56,7 +53,7 @@ class ArrayAdapter implements AdapterInterface
      *
      * @return int
      */
-    public function count ()
+    public function count()
     {
         return $this->count;
     }

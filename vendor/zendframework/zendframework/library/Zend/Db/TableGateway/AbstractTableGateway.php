@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\TableGateway;
+
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\ResultSet\ResultSetInterface;
@@ -17,6 +19,7 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\TableIdentifier;
 use Zend\Db\Sql\Update;
 use Zend\Db\Sql\Where;
+use Zend\Db\TableGateway\Feature\EventFeature;
 
 /**
  *
@@ -26,45 +29,37 @@ use Zend\Db\Sql\Where;
  */
 abstract class AbstractTableGateway implements TableGatewayInterface
 {
-
     /**
-     *
      * @var bool
      */
     protected $isInitialized = false;
 
     /**
-     *
      * @var AdapterInterface
      */
     protected $adapter = null;
 
     /**
-     *
-     * @var string
+     * @var string|array|TableIdentifier
      */
     protected $table = null;
 
     /**
-     *
      * @var array
      */
     protected $columns = array();
 
     /**
-     *
      * @var Feature\FeatureSet
      */
     protected $featureSet = null;
 
     /**
-     *
      * @var ResultSetInterface
      */
     protected $resultSetPrototype = null;
 
     /**
-     *
      * @var Sql
      */
     protected $sql = null;
@@ -76,10 +71,9 @@ abstract class AbstractTableGateway implements TableGatewayInterface
     protected $lastInsertValue = null;
 
     /**
-     *
      * @return bool
      */
-    public function isInitialized ()
+    public function isInitialized()
     {
         return $this->isInitialized;
     }
@@ -90,40 +84,37 @@ abstract class AbstractTableGateway implements TableGatewayInterface
      * @throws Exception\RuntimeException
      * @return null
      */
-    public function initialize ()
+    public function initialize()
     {
         if ($this->isInitialized) {
             return;
         }
-        
-        if (! $this->featureSet instanceof Feature\FeatureSet) {
-            $this->featureSet = new Feature\FeatureSet();
+
+        if (!$this->featureSet instanceof Feature\FeatureSet) {
+            $this->featureSet = new Feature\FeatureSet;
         }
-        
+
         $this->featureSet->setTableGateway($this);
-        $this->featureSet->apply('preInitialize', array());
-        
-        if (! $this->adapter instanceof AdapterInterface) {
-            throw new Exception\RuntimeException(
-                    'This table does not have an Adapter setup');
+        $this->featureSet->apply(EventFeature::EVENT_PRE_INITIALIZE, array());
+
+        if (!$this->adapter instanceof AdapterInterface) {
+            throw new Exception\RuntimeException('This table does not have an Adapter setup');
         }
-        
-        if (! is_string($this->table) &&
-                 ! $this->table instanceof TableIdentifier) {
-            throw new Exception\RuntimeException(
-                    'This table object does not have a valid table set.');
+
+        if (!is_string($this->table) && !$this->table instanceof TableIdentifier && !is_array($this->table)) {
+            throw new Exception\RuntimeException('This table object does not have a valid table set.');
         }
-        
-        if (! $this->resultSetPrototype instanceof ResultSetInterface) {
-            $this->resultSetPrototype = new ResultSet();
+
+        if (!$this->resultSetPrototype instanceof ResultSetInterface) {
+            $this->resultSetPrototype = new ResultSet;
         }
-        
-        if (! $this->sql instanceof Sql) {
+
+        if (!$this->sql instanceof Sql) {
             $this->sql = new Sql($this->adapter, $this->table);
         }
-        
-        $this->featureSet->apply('postInitialize', array());
-        
+
+        $this->featureSet->apply(EventFeature::EVENT_POST_INITIALIZE, array());
+
         $this->isInitialized = true;
     }
 
@@ -132,7 +123,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
      *
      * @return string
      */
-    public function getTable ()
+    public function getTable()
     {
         return $this->table;
     }
@@ -142,25 +133,23 @@ abstract class AbstractTableGateway implements TableGatewayInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter ()
+    public function getAdapter()
     {
         return $this->adapter;
     }
 
     /**
-     *
      * @return array
      */
-    public function getColumns ()
+    public function getColumns()
     {
         return $this->columns;
     }
 
     /**
-     *
      * @return Feature\FeatureSet
      */
-    public function getFeatureSet ()
+    public function getFeatureSet()
     {
         return $this->featureSet;
     }
@@ -170,16 +159,15 @@ abstract class AbstractTableGateway implements TableGatewayInterface
      *
      * @return ResultSet
      */
-    public function getResultSetPrototype ()
+    public function getResultSetPrototype()
     {
         return $this->resultSetPrototype;
     }
 
     /**
-     *
      * @return Sql
      */
-    public function getSql ()
+    public function getSql()
     {
         return $this->sql;
     }
@@ -187,94 +175,87 @@ abstract class AbstractTableGateway implements TableGatewayInterface
     /**
      * Select
      *
-     * @param Where|\Closure|string|array $where            
+     * @param Where|\Closure|string|array $where
      * @return ResultSet
      */
-    public function select ($where = null)
+    public function select($where = null)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
-        
+
         $select = $this->sql->select();
-        
+
         if ($where instanceof \Closure) {
             $where($select);
         } elseif ($where !== null) {
             $select->where($where);
         }
-        
+
         return $this->selectWith($select);
     }
 
     /**
-     *
-     * @param Select $select            
+     * @param Select $select
      * @return null|ResultSetInterface
      * @throws \RuntimeException
      */
-    public function selectWith (Select $select)
+    public function selectWith(Select $select)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
         return $this->executeSelect($select);
     }
 
     /**
-     *
-     * @param Select $select            
+     * @param Select $select
      * @return ResultSet
-     * @throws \RuntimeException
+     * @throws Exception\RuntimeException
      */
-    protected function executeSelect (Select $select)
+    protected function executeSelect(Select $select)
     {
         $selectState = $select->getRawState();
-        if ($selectState['table'] != $this->table) {
-            throw new \RuntimeException(
-                    'The table name of the provided select object must match that of the table');
+        if ($selectState['table'] != $this->table
+            && (is_array($selectState['table'])
+                && end($selectState['table']) != $this->table)
+        ) {
+            throw new Exception\RuntimeException(
+                'The table name of the provided select object must match that of the table'
+            );
         }
-        
-        if ($selectState['columns'] == array(
-                Select::SQL_STAR
-        ) && $this->columns !== array()) {
+
+        if ($selectState['columns'] == array(Select::SQL_STAR)
+            && $this->columns !== array()) {
             $select->columns($this->columns);
         }
-        
+
         // apply preSelect features
-        $this->featureSet->apply('preSelect', 
-                array(
-                        $select
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_PRE_SELECT, array($select));
+
         // prepare and execute
         $statement = $this->sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
-        
+
         // build result set
         $resultSet = clone $this->resultSetPrototype;
         $resultSet->initialize($result);
-        
+
         // apply postSelect features
-        $this->featureSet->apply('postSelect', 
-                array(
-                        $statement,
-                        $result,
-                        $resultSet
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_POST_SELECT, array($statement, $result, $resultSet));
+
         return $resultSet;
     }
 
     /**
      * Insert
      *
-     * @param array $set            
+     * @param  array $set
      * @return int
      */
-    public function insert ($set)
+    public function insert($set)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
         $insert = $this->sql->insert();
@@ -283,66 +264,71 @@ abstract class AbstractTableGateway implements TableGatewayInterface
     }
 
     /**
-     *
-     * @param Insert $insert            
+     * @param Insert $insert
      * @return mixed
      */
-    public function insertWith (Insert $insert)
+    public function insertWith(Insert $insert)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
         return $this->executeInsert($insert);
     }
 
     /**
-     *
      * @todo add $columns support
-     *      
-     * @param Insert $insert            
+     *
+     * @param Insert $insert
      * @return mixed
      * @throws Exception\RuntimeException
      */
-    protected function executeInsert (Insert $insert)
+    protected function executeInsert(Insert $insert)
     {
         $insertState = $insert->getRawState();
         if ($insertState['table'] != $this->table) {
             throw new Exception\RuntimeException(
-                    'The table name of the provided Insert object must match that of the table');
+                'The table name of the provided Insert object must match that of the table'
+            );
         }
-        
+
         // apply preInsert features
-        $this->featureSet->apply('preInsert', 
-                array(
-                        $insert
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_PRE_INSERT, array($insert));
+
+        // Most RDBMS solutions do not allow using table aliases in INSERTs
+        // See https://github.com/zendframework/zf2/issues/7311
+        $unaliasedTable = false;
+        if (is_array($insertState['table'])) {
+            $tableData      = array_values($insertState['table']);
+            $unaliasedTable = array_shift($tableData);
+            $insert->into($unaliasedTable);
+        }
+
         $statement = $this->sql->prepareStatementForSqlObject($insert);
         $result = $statement->execute();
-        $this->lastInsertValue = $this->adapter->getDriver()
-            ->getConnection()
-            ->getLastGeneratedValue();
-        
+        $this->lastInsertValue = $this->adapter->getDriver()->getConnection()->getLastGeneratedValue();
+
         // apply postInsert features
-        $this->featureSet->apply('postInsert', 
-                array(
-                        $statement,
-                        $result
-                ));
-        
-        return $result->getAffectedRows();
+        $this->featureSet->apply(EventFeature::EVENT_POST_INSERT, array($statement, $result));
+
+        // Reset original table information in Insert instance, if necessary
+        if ($unaliasedTable) {
+            $insert->into($insertState['table']);
+        }
+
+        $return = $result->getAffectedRows();
+        return $return;
     }
 
     /**
      * Update
      *
-     * @param array $set            
-     * @param string|array|closure $where            
+     * @param  array $set
+     * @param  string|array|\Closure $where
      * @return int
      */
-    public function update ($set, $where = null)
+    public function update($set, $where = null)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
         $sql = $this->sql;
@@ -355,62 +341,54 @@ abstract class AbstractTableGateway implements TableGatewayInterface
     }
 
     /**
-     *
-     * @param \Zend\Db\Sql\Update $update            
+     * @param \Zend\Db\Sql\Update $update
      * @return mixed
      */
-    public function updateWith (Update $update)
+    public function updateWith(Update $update)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
         return $this->executeUpdate($update);
     }
 
     /**
-     *
      * @todo add $columns support
-     *      
-     * @param Update $update            
+     *
+     * @param Update $update
      * @return mixed
      * @throws Exception\RuntimeException
      */
-    protected function executeUpdate (Update $update)
+    protected function executeUpdate(Update $update)
     {
         $updateState = $update->getRawState();
         if ($updateState['table'] != $this->table) {
             throw new Exception\RuntimeException(
-                    'The table name of the provided Update object must match that of the table');
+                'The table name of the provided Update object must match that of the table'
+            );
         }
-        
+
         // apply preUpdate features
-        $this->featureSet->apply('preUpdate', 
-                array(
-                        $update
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_PRE_UPDATE, array($update));
+
         $statement = $this->sql->prepareStatementForSqlObject($update);
         $result = $statement->execute();
-        
+
         // apply postUpdate features
-        $this->featureSet->apply('postUpdate', 
-                array(
-                        $statement,
-                        $result
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_POST_UPDATE, array($statement, $result));
+
         return $result->getAffectedRows();
     }
 
     /**
      * Delete
      *
-     * @param Where|\Closure|string|array $where            
+     * @param  Where|\Closure|string|array $where
      * @return int
      */
-    public function delete ($where)
+    public function delete($where)
     {
-        if (! $this->isInitialized) {
+        if (!$this->isInitialized) {
             $this->initialize();
         }
         $delete = $this->sql->delete();
@@ -423,48 +401,40 @@ abstract class AbstractTableGateway implements TableGatewayInterface
     }
 
     /**
-     *
-     * @param Delete $delete            
+     * @param Delete $delete
      * @return mixed
      */
-    public function deleteWith (Delete $delete)
+    public function deleteWith(Delete $delete)
     {
         $this->initialize();
         return $this->executeDelete($delete);
     }
 
     /**
-     *
      * @todo add $columns support
-     *      
-     * @param Delete $delete            
+     *
+     * @param Delete $delete
      * @return mixed
      * @throws Exception\RuntimeException
      */
-    protected function executeDelete (Delete $delete)
+    protected function executeDelete(Delete $delete)
     {
         $deleteState = $delete->getRawState();
         if ($deleteState['table'] != $this->table) {
             throw new Exception\RuntimeException(
-                    'The table name of the provided Update object must match that of the table');
+                'The table name of the provided Update object must match that of the table'
+            );
         }
-        
+
         // pre delete update
-        $this->featureSet->apply('preDelete', 
-                array(
-                        $delete
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_PRE_DELETE, array($delete));
+
         $statement = $this->sql->prepareStatementForSqlObject($delete);
         $result = $statement->execute();
-        
+
         // apply postDelete features
-        $this->featureSet->apply('postDelete', 
-                array(
-                        $statement,
-                        $result
-                ));
-        
+        $this->featureSet->apply(EventFeature::EVENT_POST_DELETE, array($statement, $result));
+
         return $result->getAffectedRows();
     }
 
@@ -473,7 +443,7 @@ abstract class AbstractTableGateway implements TableGatewayInterface
      *
      * @return int
      */
-    public function getLastInsertValue ()
+    public function getLastInsertValue()
     {
         return $this->lastInsertValue;
     }
@@ -481,11 +451,11 @@ abstract class AbstractTableGateway implements TableGatewayInterface
     /**
      * __get
      *
-     * @param string $property            
+     * @param  string $property
      * @throws Exception\InvalidArgumentException
      * @return mixed
      */
-    public function __get ($property)
+    public function __get($property)
     {
         switch (strtolower($property)) {
             case 'lastinsertvalue':
@@ -498,54 +468,58 @@ abstract class AbstractTableGateway implements TableGatewayInterface
         if ($this->featureSet->canCallMagicGet($property)) {
             return $this->featureSet->callMagicGet($property);
         }
-        throw new Exception\InvalidArgumentException(
-                'Invalid magic property access in ' . __CLASS__ . '::__get()');
+        throw new Exception\InvalidArgumentException('Invalid magic property access in ' . __CLASS__ . '::__get()');
     }
 
     /**
-     *
-     * @param string $property            
-     * @param mixed $value            
+     * @param string $property
+     * @param mixed $value
      * @return mixed
      * @throws Exception\InvalidArgumentException
      */
-    public function __set ($property, $value)
+    public function __set($property, $value)
     {
         if ($this->featureSet->canCallMagicSet($property)) {
             return $this->featureSet->callMagicSet($property, $value);
         }
-        throw new Exception\InvalidArgumentException(
-                'Invalid magic property access in ' . __CLASS__ . '::__set()');
+        throw new Exception\InvalidArgumentException('Invalid magic property access in ' . __CLASS__ . '::__set()');
     }
 
     /**
-     *
-     * @param
-     *            $method
-     * @param
-     *            $arguments
+     * @param $method
+     * @param $arguments
      * @return mixed
      * @throws Exception\InvalidArgumentException
      */
-    public function __call ($method, $arguments)
+    public function __call($method, $arguments)
     {
         if ($this->featureSet->canCallMagicCall($method)) {
             return $this->featureSet->callMagicCall($method, $arguments);
         }
-        throw new Exception\InvalidArgumentException(
-                'Invalid method (' . $method . ') called, caught by ' . __CLASS__ .
-                         '::__call()');
+        throw new Exception\InvalidArgumentException(sprintf(
+            'Invalid method (%s) called, caught by %s::__call()',
+            $method,
+            __CLASS__
+        ));
     }
 
     /**
      * __clone
      */
-    public function __clone ()
+    public function __clone()
     {
         $this->resultSetPrototype = (isset($this->resultSetPrototype)) ? clone $this->resultSetPrototype : null;
         $this->sql = clone $this->sql;
         if (is_object($this->table)) {
             $this->table = clone $this->table;
+        } elseif (
+            is_array($this->table)
+            && count($this->table) == 1
+            && is_object(reset($this->table))
+        ) {
+            foreach ($this->table as $alias => &$tableObject) {
+                $tableObject = clone $tableObject;
+            }
         }
     }
 }

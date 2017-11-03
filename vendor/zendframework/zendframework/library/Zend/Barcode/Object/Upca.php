@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Barcode\Object;
 
 /**
@@ -13,13 +14,11 @@ namespace Zend\Barcode\Object;
  */
 class Upca extends Ean13
 {
-
     /**
      * Default options for Postnet barcode
-     *
      * @return void
      */
-    protected function getDefaultOptions ()
+    protected function getDefaultOptions()
     {
         $this->barcodeLength = 12;
         $this->mandatoryChecksum = true;
@@ -28,160 +27,81 @@ class Upca extends Ean13
 
     /**
      * Width of the barcode (in pixels)
-     *
      * @return int
      */
-    protected function calculateBarcodeWidth ()
+    protected function calculateBarcodeWidth()
     {
-        $quietZone = $this->getQuietZone();
-        $startCharacter = (3 * $this->barThinWidth) * $this->factor;
+        $quietZone       = $this->getQuietZone();
+        $startCharacter  = (3 * $this->barThinWidth) * $this->factor;
         $middleCharacter = (5 * $this->barThinWidth) * $this->factor;
-        $stopCharacter = (3 * $this->barThinWidth) * $this->factor;
-        $encodedData = (7 * $this->barThinWidth) * $this->factor * 12;
-        return $quietZone + $startCharacter + $middleCharacter + $encodedData +
-                 $stopCharacter + $quietZone;
+        $stopCharacter   = (3 * $this->barThinWidth) * $this->factor;
+        $encodedData     = (7 * $this->barThinWidth) * $this->factor * 12;
+        return $quietZone + $startCharacter + $middleCharacter + $encodedData + $stopCharacter + $quietZone;
     }
 
-    /**
+        /**
      * Prepare array to draw barcode
-     *
      * @return array
      */
-    protected function prepareBarcode ()
+    protected function prepareBarcode()
     {
         $barcodeTable = array();
         $height = ($this->drawText) ? 1.1 : 1;
-        
+
         // Start character (101)
-        $barcodeTable[] = array(
-                1,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                0,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                1,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        
+        $barcodeTable[] = array(1, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(0, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(1, $this->barThinWidth, 0, $height);
+
         $textTable = str_split($this->getText());
-        
+
         // First character
         $bars = str_split($this->codingMap['A'][$textTable[0]]);
         foreach ($bars as $b) {
-            $barcodeTable[] = array(
-                    $b,
-                    $this->barThinWidth,
-                    0,
-                    $height
-            );
+            $barcodeTable[] = array($b, $this->barThinWidth, 0, $height);
         }
-        
+
         // First part
-        for ($i = 1; $i < 6; $i ++) {
+        for ($i = 1; $i < 6; $i++) {
             $bars = str_split($this->codingMap['A'][$textTable[$i]]);
             foreach ($bars as $b) {
-                $barcodeTable[] = array(
-                        $b,
-                        $this->barThinWidth,
-                        0,
-                        1
-                );
+                $barcodeTable[] = array($b, $this->barThinWidth, 0, 1);
             }
         }
-        
+
         // Middle character (01010)
-        $barcodeTable[] = array(
-                0,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                1,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                0,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                1,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                0,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        
+        $barcodeTable[] = array(0, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(1, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(0, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(1, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(0, $this->barThinWidth, 0, $height);
+
         // Second part
-        for ($i = 6; $i < 11; $i ++) {
+        for ($i = 6; $i < 11; $i++) {
             $bars = str_split($this->codingMap['C'][$textTable[$i]]);
             foreach ($bars as $b) {
-                $barcodeTable[] = array(
-                        $b,
-                        $this->barThinWidth,
-                        0,
-                        1
-                );
+                $barcodeTable[] = array($b, $this->barThinWidth, 0, 1);
             }
         }
-        
+
         // Last character
         $bars = str_split($this->codingMap['C'][$textTable[11]]);
         foreach ($bars as $b) {
-            $barcodeTable[] = array(
-                    $b,
-                    $this->barThinWidth,
-                    0,
-                    $height
-            );
+            $barcodeTable[] = array($b, $this->barThinWidth, 0, $height);
         }
-        
+
         // Stop character (101)
-        $barcodeTable[] = array(
-                1,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                0,
-                $this->barThinWidth,
-                0,
-                $height
-        );
-        $barcodeTable[] = array(
-                1,
-                $this->barThinWidth,
-                0,
-                $height
-        );
+        $barcodeTable[] = array(1, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(0, $this->barThinWidth, 0, $height);
+        $barcodeTable[] = array(1, $this->barThinWidth, 0, $height);
         return $barcodeTable;
     }
 
     /**
      * Partial function to draw text
-     *
      * @return void
      */
-    protected function drawText ()
+    protected function drawText()
     {
         if ($this->drawText) {
             $text = $this->getTextToDisplay();
@@ -192,12 +112,18 @@ class Upca extends Ean13
                 if ($i == 0 || $i == 11) {
                     $fontSize *= 0.8;
                 }
-                $this->addText($text{$i}, $fontSize * $this->factor, 
-                        $this->rotate($leftPosition, 
-                                (int) $this->withBorder * 2 + $this->factor *
-                                         ($this->barHeight + $fontSize) + 1), 
-                        $this->font, $this->foreColor, 'left', 
-                        - $this->orientation);
+                $this->addText(
+                    $text{$i},
+                    $fontSize * $this->factor,
+                    $this->rotate(
+                        $leftPosition,
+                        (int) $this->withBorder * 2 + $this->factor * ($this->barHeight + $fontSize) + 1
+                    ),
+                    $this->font,
+                    $this->foreColor,
+                    'left',
+                    - $this->orientation
+                );
                 switch ($i) {
                     case 0:
                         $factor = 10;
@@ -211,8 +137,7 @@ class Upca extends Ean13
                     default:
                         $factor = 0;
                 }
-                $leftPosition = $leftPosition + $characterWidth +
-                         ($factor * $this->barThinWidth * $this->factor);
+                $leftPosition = $leftPosition + $characterWidth + ($factor * $this->barThinWidth * $this->factor);
             }
         }
     }

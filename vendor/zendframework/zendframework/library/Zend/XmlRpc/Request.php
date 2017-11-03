@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\XmlRpc;
+
 use DOMDocument;
 use SimpleXMLElement;
 use Zend\Stdlib\ErrorHandler;
@@ -24,52 +26,44 @@ use Zend\Stdlib\ErrorHandler;
  */
 class Request
 {
-
     /**
      * Request character encoding
-     *
      * @var string
      */
     protected $encoding = 'UTF-8';
 
     /**
      * Method to call
-     *
      * @var string
      */
     protected $method;
 
     /**
      * XML request
-     *
      * @var string
      */
     protected $xml;
 
     /**
      * Method parameters
-     *
      * @var array
      */
     protected $params = array();
 
     /**
      * Fault object, if any
-     *
      * @var \Zend\XmlRpc\Fault
      */
     protected $fault = null;
 
     /**
      * XML-RPC type for each param
-     *
      * @var array
      */
     protected $types = array();
 
     /**
      * XML-RPC request params
-     *
      * @var array
      */
     protected $xmlRpcParams = array();
@@ -77,17 +71,15 @@ class Request
     /**
      * Create a new XML-RPC request
      *
-     * @param string $method
-     *            (optional)
-     * @param array $params
-     *            (optional)
+     * @param string $method (optional)
+     * @param array $params  (optional)
      */
-    public function __construct ($method = null, $params = null)
+    public function __construct($method = null, $params = null)
     {
         if ($method !== null) {
             $this->setMethod($method);
         }
-        
+
         if ($params !== null) {
             $this->setParams($params);
         }
@@ -96,10 +88,10 @@ class Request
     /**
      * Set encoding to use in request
      *
-     * @param string $encoding            
+     * @param string $encoding
      * @return \Zend\XmlRpc\Request
      */
-    public function setEncoding ($encoding)
+    public function setEncoding($encoding)
     {
         $this->encoding = $encoding;
         AbstractValue::setEncoding($encoding);
@@ -111,7 +103,7 @@ class Request
      *
      * @return string
      */
-    public function getEncoding ()
+    public function getEncoding()
     {
         return $this->encoding;
     }
@@ -119,19 +111,17 @@ class Request
     /**
      * Set method to call
      *
-     * @param string $method            
+     * @param string $method
      * @return bool Returns true on success, false if method name is invalid
      */
-    public function setMethod ($method)
+    public function setMethod($method)
     {
-        if (! is_string($method) ||
-                 ! preg_match('/^[a-z0-9_.:\\\\\/]+$/i', $method)) {
-            $this->fault = new Fault(634, 
-                    'Invalid method name ("' . $method . '")');
+        if (!is_string($method) || !preg_match('/^[a-z0-9_.:\\\\\/]+$/i', $method)) {
+            $this->fault = new Fault(634, 'Invalid method name ("' . $method . '")');
             $this->fault->setEncoding($this->getEncoding());
             return false;
         }
-        
+
         $this->method = $method;
         return true;
     }
@@ -141,7 +131,7 @@ class Request
      *
      * @return string
      */
-    public function getMethod ()
+    public function getMethod()
     {
         return $this->method;
     }
@@ -152,12 +142,11 @@ class Request
      * Adds a parameter to the parameter stack, associating it with the type
      * $type if provided
      *
-     * @param mixed $value            
-     * @param string $type
-     *            Optional; type hinting
+     * @param mixed $value
+     * @param string $type Optional; type hinting
      * @return void
      */
-    public function addParam ($value, $type = null)
+    public function addParam($value, $type = null)
     {
         $this->params[] = $value;
         if (null === $type) {
@@ -166,14 +155,11 @@ class Request
                 $type = $value->getType();
             } else {
                 $xmlRpcValue = AbstractValue::getXmlRpcValue($value);
-                $type = $xmlRpcValue->getType();
+                $type        = $xmlRpcValue->getType();
             }
         }
-        $this->types[] = $type;
-        $this->xmlRpcParams[] = array(
-                'value' => $value,
-                'type' => $type
-        );
+        $this->types[]  = $type;
+        $this->xmlRpcParams[] = array('value' => $value, 'type' => $type);
     }
 
     /**
@@ -187,36 +173,36 @@ class Request
      * when creating the XMLRPC values for each parameter:
      * <code>
      * $array = array(
-     * array(
-     * 'value' => $value,
-     * 'type' => $type
-     * )[, ... ]
+     *     array(
+     *         'value' => $value,
+     *         'type'  => $type
+     *     )[, ... ]
      * );
      * </code>
      *
      * @access public
      * @return void
      */
-    public function setParams ()
+    public function setParams()
     {
         $argc = func_num_args();
         $argv = func_get_args();
         if (0 == $argc) {
             return;
         }
-        
+
         if ((1 == $argc) && is_array($argv[0])) {
-            $params = array();
-            $types = array();
+            $params     = array();
+            $types      = array();
             $wellFormed = true;
             foreach ($argv[0] as $arg) {
-                if (! is_array($arg) || ! isset($arg['value'])) {
+                if (!is_array($arg) || !isset($arg['value'])) {
                     $wellFormed = false;
                     break;
                 }
                 $params[] = $arg['value'];
-                
-                if (! isset($arg['type'])) {
+
+                if (!isset($arg['type'])) {
                     $xmlRpcValue = AbstractValue::getXmlRpcValue($arg['value']);
                     $arg['type'] = $xmlRpcValue->getType();
                 }
@@ -225,43 +211,37 @@ class Request
             if ($wellFormed) {
                 $this->xmlRpcParams = $argv[0];
                 $this->params = $params;
-                $this->types = $types;
+                $this->types  = $types;
             } else {
                 $this->params = $argv[0];
-                $this->types = array();
-                $xmlRpcParams = array();
+                $this->types  = array();
+                $xmlRpcParams  = array();
                 foreach ($argv[0] as $arg) {
                     if ($arg instanceof AbstractValue) {
                         $type = $arg->getType();
                     } else {
                         $xmlRpcValue = AbstractValue::getXmlRpcValue($arg);
-                        $type = $xmlRpcValue->getType();
+                        $type        = $xmlRpcValue->getType();
                     }
-                    $xmlRpcParams[] = array(
-                            'value' => $arg,
-                            'type' => $type
-                    );
+                    $xmlRpcParams[] = array('value' => $arg, 'type' => $type);
                     $this->types[] = $type;
                 }
                 $this->xmlRpcParams = $xmlRpcParams;
             }
             return;
         }
-        
+
         $this->params = $argv;
-        $this->types = array();
-        $xmlRpcParams = array();
+        $this->types  = array();
+        $xmlRpcParams  = array();
         foreach ($argv as $arg) {
             if ($arg instanceof AbstractValue) {
                 $type = $arg->getType();
             } else {
                 $xmlRpcValue = AbstractValue::getXmlRpcValue($arg);
-                $type = $xmlRpcValue->getType();
+                $type        = $xmlRpcValue->getType();
             }
-            $xmlRpcParams[] = array(
-                    'value' => $arg,
-                    'type' => $type
-            );
+            $xmlRpcParams[] = array('value' => $arg, 'type' => $type);
             $this->types[] = $type;
         }
         $this->xmlRpcParams = $xmlRpcParams;
@@ -272,7 +252,7 @@ class Request
      *
      * @return array
      */
-    public function getParams ()
+    public function getParams()
     {
         return $this->params;
     }
@@ -282,7 +262,7 @@ class Request
      *
      * @return array
      */
-    public function getTypes ()
+    public function getTypes()
     {
         return $this->types;
     }
@@ -290,32 +270,33 @@ class Request
     /**
      * Load XML and parse into request components
      *
-     * @param string $request            
+     * @param string $request
      * @throws Exception\ValueException if invalid XML
      * @return bool True on success, false if an error occurred.
      */
-    public function loadXml ($request)
+    public function loadXml($request)
     {
-        if (! is_string($request)) {
+        if (!is_string($request)) {
             $this->fault = new Fault(635);
             $this->fault->setEncoding($this->getEncoding());
             return false;
         }
-        
+
         // @see ZF-12293 - disable external entities for security purposes
-        $loadEntities = libxml_disable_entity_loader(true);
+        $loadEntities  = libxml_disable_entity_loader(true);
         $xmlErrorsFlag = libxml_use_internal_errors(true);
         try {
-            $dom = new DOMDocument();
+            $dom = new DOMDocument;
             $dom->loadXML($request);
             foreach ($dom->childNodes as $child) {
                 if ($child->nodeType === XML_DOCUMENT_TYPE_NODE) {
                     throw new Exception\ValueException(
-                            'Invalid XML: Detected use of illegal DOCTYPE');
+                        'Invalid XML: Detected use of illegal DOCTYPE'
+                    );
                 }
             }
             ErrorHandler::start();
-            $xml = simplexml_import_dom($dom);
+            $xml   = simplexml_import_dom($dom);
             $error = ErrorHandler::stop();
             libxml_disable_entity_loader($loadEntities);
             libxml_use_internal_errors($xmlErrorsFlag);
@@ -327,14 +308,14 @@ class Request
             libxml_use_internal_errors($xmlErrorsFlag);
             return false;
         }
-        if (! $xml instanceof SimpleXMLElement || $error) {
+        if (!$xml instanceof SimpleXMLElement || $error) {
             // Not valid XML
             $this->fault = new Fault(631);
             $this->fault->setEncoding($this->getEncoding());
             libxml_use_internal_errors($xmlErrorsFlag);
             return false;
         }
-        
+
         // Check for method name
         if (empty($xml->methodName)) {
             // Missing method name
@@ -342,38 +323,37 @@ class Request
             $this->fault->setEncoding($this->getEncoding());
             return false;
         }
-        
+
         $this->method = (string) $xml->methodName;
-        
+
         // Check for parameters
-        if (! empty($xml->params)) {
+        if (!empty($xml->params)) {
             $types = array();
-            $argv = array();
+            $argv  = array();
             foreach ($xml->params->children() as $param) {
-                if (! isset($param->value)) {
+                if (!isset($param->value)) {
                     $this->fault = new Fault(633);
                     $this->fault->setEncoding($this->getEncoding());
                     return false;
                 }
-                
+
                 try {
-                    $param = AbstractValue::getXmlRpcValue($param->value, 
-                            AbstractValue::XML_STRING);
+                    $param   = AbstractValue::getXmlRpcValue($param->value, AbstractValue::XML_STRING);
                     $types[] = $param->getType();
-                    $argv[] = $param->getValue();
+                    $argv[]  = $param->getValue();
                 } catch (\Exception $e) {
                     $this->fault = new Fault(636);
                     $this->fault->setEncoding($this->getEncoding());
                     return false;
                 }
             }
-            
-            $this->types = $types;
+
+            $this->types  = $types;
             $this->params = $argv;
         }
-        
+
         $this->xml = $request;
-        
+
         return true;
     }
 
@@ -383,7 +363,7 @@ class Request
      *
      * @return bool
      */
-    public function isFault ()
+    public function isFault()
     {
         return $this->fault instanceof Fault;
     }
@@ -393,7 +373,7 @@ class Request
      *
      * @return null|\Zend\XmlRpc\Fault
      */
-    public function getFault ()
+    public function getFault()
     {
         return $this->fault;
     }
@@ -403,21 +383,21 @@ class Request
      *
      * @return array
      */
-    protected function _getXmlRpcParams ()
+    protected function _getXmlRpcParams()
     {
         $params = array();
         if (is_array($this->xmlRpcParams)) {
             foreach ($this->xmlRpcParams as $param) {
                 $value = $param['value'];
-                $type = $param['type'] ?  : AbstractValue::AUTO_DETECT_TYPE;
-                
-                if (! $value instanceof AbstractValue) {
+                $type  = $param['type'] ?: AbstractValue::AUTO_DETECT_TYPE;
+
+                if (!$value instanceof AbstractValue) {
                     $value = AbstractValue::getXmlRpcValue($value, $type);
                 }
                 $params[] = $value;
             }
         }
-        
+
         return $params;
     }
 
@@ -426,19 +406,19 @@ class Request
      *
      * @return string
      */
-    public function saveXml ()
+    public function saveXml()
     {
-        $args = $this->_getXmlRpcParams();
+        $args   = $this->_getXmlRpcParams();
         $method = $this->getMethod();
-        
+
         $generator = AbstractValue::getGenerator();
         $generator->openElement('methodCall')
-            ->openElement('methodName', $method)
-            ->closeElement('methodName');
-        
+                  ->openElement('methodName', $method)
+                  ->closeElement('methodName');
+
         if (is_array($args) && count($args)) {
             $generator->openElement('params');
-            
+
             foreach ($args as $arg) {
                 $generator->openElement('param');
                 $arg->generateXml();
@@ -447,7 +427,7 @@ class Request
             $generator->closeElement('params');
         }
         $generator->closeElement('methodCall');
-        
+
         return $generator->flush();
     }
 
@@ -456,7 +436,7 @@ class Request
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return $this->saveXML();
     }

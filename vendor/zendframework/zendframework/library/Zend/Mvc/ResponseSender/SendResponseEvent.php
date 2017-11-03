@@ -3,56 +3,48 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\ResponseSender;
+
 use Zend\EventManager\Event;
 use Zend\Stdlib\ResponseInterface;
 
 class SendResponseEvent extends Event
 {
-
-    /**
-     * #@+
+    /**#@+
      * Send response events triggered by eventmanager
      */
     const EVENT_SEND_RESPONSE = 'sendResponse';
+    /**#@-*/
 
     /**
-     * #@-
-     */
-    
-    /**
-     *
      * @var string Event name
      */
     protected $name = 'sendResponse';
 
     /**
-     *
      * @var ResponseInterface
      */
     protected $response;
 
     /**
-     *
      * @var array
      */
     protected $headersSent = array();
 
     /**
-     *
      * @var array
      */
     protected $contentSent = array();
 
     /**
-     *
-     * @param ResponseInterface $response            
+     * @param ResponseInterface $response
      * @return SendResponseEvent
      */
-    public function setResponse (ResponseInterface $response)
+    public function setResponse(ResponseInterface $response)
     {
         $this->setParam('response', $response);
         $this->response = $response;
@@ -60,10 +52,9 @@ class SendResponseEvent extends Event
     }
 
     /**
-     *
      * @return \Zend\Stdlib\ResponseInterface
      */
-    public function getResponse ()
+    public function getResponse()
     {
         return $this->response;
     }
@@ -73,7 +64,7 @@ class SendResponseEvent extends Event
      *
      * @return SendResponseEvent
      */
-    public function setContentSent ()
+    public function setContentSent()
     {
         $response = $this->getResponse();
         $contentSent = $this->getParam('contentSent', array());
@@ -84,10 +75,9 @@ class SendResponseEvent extends Event
     }
 
     /**
-     *
      * @return bool
      */
-    public function contentSent ()
+    public function contentSent()
     {
         $response = $this->getResponse();
         if (isset($this->contentSent[spl_object_hash($response)])) {
@@ -101,7 +91,7 @@ class SendResponseEvent extends Event
      *
      * @return SendResponseEvent
      */
-    public function setHeadersSent ()
+    public function setHeadersSent()
     {
         $response = $this->getResponse();
         $headersSent = $this->getParam('headersSent', array());
@@ -112,10 +102,9 @@ class SendResponseEvent extends Event
     }
 
     /**
-     *
      * @return bool
      */
-    public function headersSent ()
+    public function headersSent()
     {
         $response = $this->getResponse();
         if (isset($this->headersSent[spl_object_hash($response)])) {

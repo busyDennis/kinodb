@@ -3,51 +3,26 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc;
+
+use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\Mvc\Application;
 
-class RouteListener implements ListenerAggregateInterface
+class RouteListener extends AbstractListenerAggregate
 {
-
-    /**
-     *
-     * @var \Zend\Stdlib\CallbackHandler[]
-     */
-    protected $listeners = array();
-
     /**
      * Attach to an event manager
      *
-     * @param EventManagerInterface $events            
+     * @param  EventManagerInterface $events
      * @return void
      */
-    public function attach (EventManagerInterface $events)
+    public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_ROUTE, 
-                array(
-                        $this,
-                        'onRoute'
-                ));
-    }
-
-    /**
-     * Detach all our listeners from the event manager
-     *
-     * @param EventManagerInterface $events            
-     * @return void
-     */
-    public function detach (EventManagerInterface $events)
-    {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_ROUTE, array($this, 'onRoute'));
     }
 
     /**
@@ -58,29 +33,27 @@ class RouteListener implements ListenerAggregateInterface
      *
      * Seeds the event with the route match on completion.
      *
-     * @param MvcEvent $e            
+     * @param  MvcEvent $e
      * @return null|Router\RouteMatch
      */
-    public function onRoute ($e)
+    public function onRoute($e)
     {
-        $target = $e->getTarget();
-        $request = $e->getRequest();
-        $router = $e->getRouter();
+        $target     = $e->getTarget();
+        $request    = $e->getRequest();
+        $router     = $e->getRouter();
         $routeMatch = $router->match($request);
-        
-        if (! $routeMatch instanceof Router\RouteMatch) {
+
+        if (!$routeMatch instanceof Router\RouteMatch) {
             $e->setError(Application::ERROR_ROUTER_NO_MATCH);
-            
-            $results = $target->getEventManager()->trigger(
-                    MvcEvent::EVENT_DISPATCH_ERROR, $e);
+
+            $results = $target->getEventManager()->trigger(MvcEvent::EVENT_DISPATCH_ERROR, $e);
             if (count($results)) {
-                $return = $results->last();
-            } else {
-                $return = $e->getParams();
+                return $results->last();
             }
-            return $return;
+
+            return $e->getParams();
         }
-        
+
         $e->setRouteMatch($routeMatch);
         return $routeMatch;
     }

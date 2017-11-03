@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter\Driver\Oci8;
+
 use Zend\Db\Adapter\Driver\StatementInterface;
 use Zend\Db\Adapter\Exception;
 use Zend\Db\Adapter\ParameterContainer;
@@ -14,27 +16,22 @@ use Zend\Db\Adapter\Profiler;
 
 class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
 {
-
     /**
-     *
      * @var resource
      */
     protected $oci8 = null;
 
     /**
-     *
      * @var Oci8
      */
     protected $driver = null;
 
     /**
-     *
      * @var Profiler\ProfilerInterface
      */
     protected $profiler = null;
 
     /**
-     *
      * @var string
      */
     protected $sql = '';
@@ -47,7 +44,6 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     protected $parameterContainer = null;
 
     /**
-     *
      * @var resource
      */
     protected $resource = null;
@@ -60,7 +56,6 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     protected $isPrepared = false;
 
     /**
-     *
      * @var bool
      */
     protected $bufferResults = false;
@@ -68,31 +63,29 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set driver
      *
-     * @param Oci8 $driver            
+     * @param  Oci8 $driver
      * @return Statement
      */
-    public function setDriver ($driver)
+    public function setDriver($driver)
     {
         $this->driver = $driver;
         return $this;
     }
 
     /**
-     *
-     * @param Profiler\ProfilerInterface $profiler            
+     * @param Profiler\ProfilerInterface $profiler
      * @return Statement
      */
-    public function setProfiler (Profiler\ProfilerInterface $profiler)
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
     {
         $this->profiler = $profiler;
         return $this;
     }
 
     /**
-     *
      * @return null|Profiler\ProfilerInterface
      */
-    public function getProfiler ()
+    public function getProfiler()
     {
         return $this->profiler;
     }
@@ -100,10 +93,10 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Initialize
      *
-     * @param resource $oci8            
+     * @param  resource $oci8
      * @return Statement
      */
-    public function initialize ($oci8)
+    public function initialize($oci8)
     {
         $this->oci8 = $oci8;
         return $this;
@@ -112,10 +105,10 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set sql
      *
-     * @param string $sql            
+     * @param  string $sql
      * @return Statement
      */
-    public function setSql ($sql)
+    public function setSql($sql)
     {
         $this->sql = $sql;
         return $this;
@@ -124,11 +117,10 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set Parameter container
      *
-     * @param ParameterContainer $parameterContainer            
+     * @param ParameterContainer $parameterContainer
      * @return Statement
      */
-    public function setParameterContainer (
-            ParameterContainer $parameterContainer)
+    public function setParameterContainer(ParameterContainer $parameterContainer)
     {
         $this->parameterContainer = $parameterContainer;
         return $this;
@@ -139,7 +131,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
      *
      * @return mixed
      */
-    public function getResource ()
+    public function getResource()
     {
         return $this->resource;
     }
@@ -147,15 +139,17 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Set resource
      *
-     * @param resource $oci8Statement            
+     * @param  resource $oci8Statement
      * @return Statement
      */
-    public function setResource ($oci8Statement)
+    public function setResource($oci8Statement)
     {
         $type = oci_statement_type($oci8Statement);
         if (false === $type || 'UNKNOWN' == $type) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf('Invalid statement provided to %s', __METHOD__));
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Invalid statement provided to %s',
+                __METHOD__
+            ));
         }
         $this->resource = $oci8Statement;
         $this->isPrepared = true;
@@ -167,53 +161,51 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
      *
      * @return string
      */
-    public function getSql ()
+    public function getSql()
     {
         return $this->sql;
     }
 
     /**
-     *
      * @return ParameterContainer
      */
-    public function getParameterContainer ()
+    public function getParameterContainer()
     {
         return $this->parameterContainer;
     }
 
     /**
-     *
      * @return bool
      */
-    public function isPrepared ()
+    public function isPrepared()
     {
         return $this->isPrepared;
     }
 
     /**
-     *
-     * @param string $sql            
+     * @param string $sql
      * @return Statement
      */
-    public function prepare ($sql = null)
+    public function prepare($sql = null)
     {
         if ($this->isPrepared) {
-            throw new Exception\RuntimeException(
-                    'This statement has already been prepared');
+            throw new Exception\RuntimeException('This statement has already been prepared');
         }
-        
-        $sql = ($sql) ?  : $this->sql;
-        
+
+        $sql = ($sql) ?: $this->sql;
+
         // get oci8 statement resource
         $this->resource = oci_parse($this->oci8, $sql);
-        
-        if (! $this->resource) {
+
+        if (!$this->resource) {
             $e = oci_error($this->oci8);
             throw new Exception\InvalidQueryException(
-                    'Statement couldn\'t be produced with sql: ' . $sql, null, 
-                    new Exception\ErrorException($e['message'], $e['code']));
+                'Statement couldn\'t be produced with sql: ' . $sql,
+                null,
+                new Exception\ErrorException($e['message'], $e['code'])
+            );
         }
-        
+
         $this->isPrepared = true;
         return $this;
     }
@@ -221,19 +213,17 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Execute
      *
-     * @param ParameterContainer $parameters            
+     * @param null|array|ParameterContainer $parameters
      * @return mixed
      */
-    public function execute ($parameters = null)
+    public function execute($parameters = null)
     {
-        if (! $this->isPrepared) {
+        if (!$this->isPrepared) {
             $this->prepare();
         }
-        
-        /**
-         * START Standard ParameterContainer Merging Block
-         */
-        if (! $this->parameterContainer instanceof ParameterContainer) {
+
+        /** START Standard ParameterContainer Merging Block */
+        if (!$this->parameterContainer instanceof ParameterContainer) {
             if ($parameters instanceof ParameterContainer) {
                 $this->parameterContainer = $parameters;
                 $parameters = null;
@@ -241,37 +231,35 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
                 $this->parameterContainer = new ParameterContainer();
             }
         }
-        
+
         if (is_array($parameters)) {
             $this->parameterContainer->setFromArray($parameters);
         }
-        
+
         if ($this->parameterContainer->count() > 0) {
             $this->bindParametersFromContainer();
         }
-        /**
-         * END Standard ParameterContainer Merging Block
-         */
-        
+        /** END Standard ParameterContainer Merging Block */
+
         if ($this->profiler) {
             $this->profiler->profilerStart($this);
         }
-        
+
         if ($this->driver->getConnection()->inTransaction()) {
             $ret = @oci_execute($this->resource, OCI_NO_AUTO_COMMIT);
         } else {
             $ret = @oci_execute($this->resource, OCI_COMMIT_ON_SUCCESS);
         }
-        
+
         if ($this->profiler) {
             $this->profiler->profilerFinish();
         }
-        
+
         if ($ret === false) {
             $e = oci_error($this->resource);
             throw new Exception\RuntimeException($e['message'], $e['code']);
         }
-        
+
         $result = $this->driver->createResult($this->resource);
         return $result;
     }
@@ -279,12 +267,12 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * Bind parameters from container
      *
-     * @param ParameterContainer $pContainer            
+     * @param ParameterContainer $pContainer
      */
-    protected function bindParametersFromContainer ()
+    protected function bindParametersFromContainer()
     {
         $parameters = $this->parameterContainer->getNamedArray();
-        
+
         foreach ($parameters as $name => &$value) {
             if ($this->parameterContainer->offsetHasErrata($name)) {
                 switch ($this->parameterContainer->offsetGetErrata($name)) {
@@ -302,6 +290,12 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
                     case ParameterContainer::TYPE_BINARY:
                         $type = SQLT_BIN;
                         break;
+                    case ParameterContainer::TYPE_LOB:
+                        $type = OCI_B_CLOB;
+                        $clob = oci_new_descriptor($this->driver->getConnection()->getResource(), OCI_DTYPE_LOB);
+                        $clob->writetemporary($value, OCI_TEMP_CLOB);
+                        $value = $clob;
+                        break;
                     case ParameterContainer::TYPE_STRING:
                     default:
                         $type = SQLT_CHR;
@@ -310,8 +304,13 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
             } else {
                 $type = SQLT_CHR;
             }
-            
-            oci_bind_by_name($this->resource, $name, $value, - 1, $type);
+
+            $maxLength = -1;
+            if ($this->parameterContainer->offsetHasMaxLength($name)) {
+                $maxLength = $this->parameterContainer->offsetGetMaxLength($name);
+            }
+
+            oci_bind_by_name($this->resource, $name, $value, $maxLength, $type);
         }
     }
 }

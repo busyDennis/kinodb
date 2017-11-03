@@ -3,16 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Renderer;
+
 use Zend\Filter\FilterChain;
 use Zend\View\Model\ModelInterface;
 use Zend\View\Resolver\ResolverInterface;
 
 /**
- * Abstract class for Zend_View to help enforce private constructs.
+ * Class for Zend\View\Model\ConsoleModel to help enforce private constructs.
  *
  * Note: all private variables in this class are prefixed with "__". This is to
  * mark them as part of the internal implementation, and thus prevent conflict
@@ -20,9 +22,7 @@ use Zend\View\Resolver\ResolverInterface;
  */
 class ConsoleRenderer implements RendererInterface, TreeRendererInterface
 {
-
     /**
-     *
      * @var FilterChain
      */
     protected $__filterChain;
@@ -35,15 +35,14 @@ class ConsoleRenderer implements RendererInterface, TreeRendererInterface
      * @todo handle passing filter chain, options
      * @todo handle passing variables object, options
      * @todo handle passing resolver object, options
-     * @param array $config
-     *            Configuration key-value pairs.
+     * @param array $config Configuration key-value pairs.
      */
-    public function __construct ($config = array())
+    public function __construct($config = array())
     {
         $this->init();
     }
 
-    public function setResolver (ResolverInterface $resolver)
+    public function setResolver(ResolverInterface $resolver)
     {
         return $this;
     }
@@ -53,31 +52,31 @@ class ConsoleRenderer implements RendererInterface, TreeRendererInterface
      *
      * Returns the object instance, as it is its own template engine
      *
-     * @return PhpRenderer
+     * @return ConsoleRenderer
      */
-    public function getEngine ()
+    public function getEngine()
     {
         return $this;
     }
 
     /**
-     * Allow custom object initialization when extending Zend_View_Abstract or
-     * Zend_View
+     * Allow custom object initialization when extending ConsoleRenderer
      *
      * Triggered by {@link __construct() the constructor} as its final action.
      *
      * @return void
      */
-    public function init ()
-    {}
+    public function init()
+    {
+    }
 
     /**
      * Set filter chain
      *
-     * @param FilterChain $filters            
+     * @param  FilterChain $filters
      * @return ConsoleRenderer
      */
-    public function setFilterChain (FilterChain $filters)
+    public function setFilterChain(FilterChain $filters)
     {
         $this->__filterChain = $filters;
         return $this;
@@ -88,7 +87,7 @@ class ConsoleRenderer implements RendererInterface, TreeRendererInterface
      *
      * @return FilterChain
      */
-    public function getFilterChain ()
+    public function getFilterChain()
     {
         if (null === $this->__filterChain) {
             $this->setFilterChain(new FilterChain());
@@ -99,20 +98,18 @@ class ConsoleRenderer implements RendererInterface, TreeRendererInterface
     /**
      * Recursively processes all ViewModels and returns output.
      *
-     * @param string|ModelInterface $model
-     *            A ViewModel instance.
-     * @param null|array|\Traversable $values
-     *            Values to use when rendering. If none
-     *            provided, uses those in the composed
-     *            variables container.
+     * @param  string|ModelInterface   $model        A ViewModel instance.
+     * @param  null|array|\Traversable $values       Values to use when rendering. If none
+     *                                               provided, uses those in the composed
+     *                                               variables container.
      * @return string Console output.
      */
-    public function render ($model, $values = null)
+    public function render($model, $values = null)
     {
-        if (! $model instanceof ModelInterface) {
+        if (!$model instanceof ModelInterface) {
             return '';
         }
-        
+
         $result = '';
         $options = $model->getOptions();
         foreach ($options as $setting => $value) {
@@ -123,30 +120,29 @@ class ConsoleRenderer implements RendererInterface, TreeRendererInterface
             unset($method, $setting, $value);
         }
         unset($options);
-        
+
         $values = $model->getVariables();
-        
+
         if (isset($values['result'])) {
             // filter and append the result
             $result .= $this->getFilterChain()->filter($values['result']);
         }
-        
+
         if ($model->hasChildren()) {
             // recursively render all children
             foreach ($model->getChildren() as $child) {
                 $result .= $this->render($child, $values);
             }
         }
-        
+
         return $result;
     }
 
     /**
-     *
      * @see Zend\View\Renderer\TreeRendererInterface
      * @return bool
      */
-    public function canRenderTrees ()
+    public function canRenderTrees()
     {
         return true;
     }

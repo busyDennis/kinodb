@@ -3,52 +3,47 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Json\Server;
+
 use Zend\Json\Json;
 
 class Response
 {
-
     /**
      * Response error
-     *
      * @var null|Error
      */
     protected $error;
 
     /**
      * Request ID
-     *
      * @var mixed
      */
     protected $id;
 
     /**
      * Result
-     *
      * @var mixed
      */
     protected $result;
 
     /**
      * Service map
-     *
      * @var Smd
      */
     protected $serviceMap;
 
     /**
      * JSON-RPC version
-     *
      * @var string
      */
     protected $version;
 
     /**
-     *
      * @var $args
      */
     protected $args;
@@ -56,18 +51,17 @@ class Response
     /**
      * Set response state
      *
-     * @param array $options            
+     * @param  array $options
      * @return Response
      */
-    public function setOptions (array $options)
+    public function setOptions(array $options)
     {
         // re-produce error state
         if (isset($options['error']) && is_array($options['error'])) {
             $error = $options['error'];
-            $options['error'] = new Error($error['message'], $error['code'], 
-                    $error['data']);
+            $options['error'] = new Error($error['message'], $error['code'], $error['data']);
         }
-        
+
         $methods = get_class_methods($this);
         foreach ($options as $key => $value) {
             $method = 'set' . ucfirst($key);
@@ -83,22 +77,28 @@ class Response
     /**
      * Set response state based on JSON
      *
-     * @param string $json            
+     * @param  string $json
      * @return void
+     * @throws Exception\RuntimeException
      */
-    public function loadJson ($json)
+    public function loadJson($json)
     {
         $options = Json::decode($json, Json::TYPE_ARRAY);
+
+        if (!is_array($options)) {
+            throw new Exception\RuntimeException('json is not a valid response; array expected');
+        }
+
         $this->setOptions($options);
     }
 
     /**
      * Set result
      *
-     * @param mixed $value            
+     * @param  mixed $value
      * @return Response
      */
-    public function setResult ($value)
+    public function setResult($value)
     {
         $this->result = $value;
         return $this;
@@ -109,19 +109,19 @@ class Response
      *
      * @return mixed
      */
-    public function getResult ()
+    public function getResult()
     {
         return $this->result;
     }
-    
+
     // RPC error, if response results in fault
     /**
      * Set result error
      *
-     * @param mixed $error            
+     * @param  mixed $error
      * @return Response
      */
-    public function setError (Error $error = null)
+    public function setError(Error $error = null)
     {
         $this->error = $error;
         return $this;
@@ -132,7 +132,7 @@ class Response
      *
      * @return null|Error
      */
-    public function getError ()
+    public function getError()
     {
         return $this->error;
     }
@@ -142,7 +142,7 @@ class Response
      *
      * @return bool
      */
-    public function isError ()
+    public function isError()
     {
         return $this->getError() instanceof Error;
     }
@@ -150,10 +150,10 @@ class Response
     /**
      * Set request ID
      *
-     * @param mixed $name            
+     * @param  mixed $name
      * @return Response
      */
-    public function setId ($name)
+    public function setId($name)
     {
         $this->id = $name;
         return $this;
@@ -164,7 +164,7 @@ class Response
      *
      * @return mixed
      */
-    public function getId ()
+    public function getId()
     {
         return $this->id;
     }
@@ -172,10 +172,10 @@ class Response
     /**
      * Set JSON-RPC version
      *
-     * @param string $version            
+     * @param  string $version
      * @return Response
      */
-    public function setVersion ($version)
+    public function setVersion($version)
     {
         $version = (string) $version;
         if ('2.0' == $version) {
@@ -183,7 +183,7 @@ class Response
         } else {
             $this->version = null;
         }
-        
+
         return $this;
     }
 
@@ -192,7 +192,7 @@ class Response
      *
      * @return string
      */
-    public function getVersion ()
+    public function getVersion()
     {
         return $this->version;
     }
@@ -202,24 +202,24 @@ class Response
      *
      * @return string
      */
-    public function toJson ()
+    public function toJson()
     {
         if ($this->isError()) {
             $response = array(
-                    'error' => $this->getError()->toArray(),
-                    'id' => $this->getId()
+                'error'  => $this->getError()->toArray(),
+                'id'     => $this->getId(),
             );
         } else {
             $response = array(
-                    'result' => $this->getResult(),
-                    'id' => $this->getId()
+                'result' => $this->getResult(),
+                'id'     => $this->getId(),
             );
         }
-        
+
         if (null !== ($version = $this->getVersion())) {
             $response['jsonrpc'] = $version;
         }
-        
+
         return \Zend\Json\Json::encode($response);
     }
 
@@ -228,7 +228,7 @@ class Response
      *
      * @return mixed
      */
-    public function getArgs ()
+    public function getArgs()
     {
         return $this->args;
     }
@@ -236,10 +236,10 @@ class Response
     /**
      * Set args
      *
-     * @param mixed $args            
+     * @param mixed $args
      * @return self
      */
-    public function setArgs ($args)
+    public function setArgs($args)
     {
         $this->args = $args;
         return $this;
@@ -248,10 +248,10 @@ class Response
     /**
      * Set service map object
      *
-     * @param Smd $serviceMap            
+     * @param  Smd $serviceMap
      * @return Response
      */
-    public function setServiceMap ($serviceMap)
+    public function setServiceMap($serviceMap)
     {
         $this->serviceMap = $serviceMap;
         return $this;
@@ -262,7 +262,7 @@ class Response
      *
      * @return Smd|null
      */
-    public function getServiceMap ()
+    public function getServiceMap()
     {
         return $this->serviceMap;
     }
@@ -272,7 +272,7 @@ class Response
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return $this->toJson();
     }

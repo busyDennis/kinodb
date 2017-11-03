@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
+
 use ArrayObject;
 use Zend\Cache\Exception;
 use Zend\Cache\Storage\Event;
@@ -20,11 +22,10 @@ use Zend\Stdlib\ErrorHandler;
  */
 class AdapterOptions extends AbstractOptions
 {
-
     /**
      * The adapter using these options
      *
-     * @var null|Filesystem
+     * @var null|StorageInterface
      */
     protected $adapter;
 
@@ -66,10 +67,10 @@ class AdapterOptions extends AbstractOptions
     /**
      * Adapter using this instance
      *
-     * @param StorageInterface|null $adapter            
+     * @param  StorageInterface|null $adapter
      * @return AdapterOptions
      */
-    public function setAdapter (StorageInterface $adapter = null)
+    public function setAdapter(StorageInterface $adapter = null)
     {
         $this->adapter = $adapter;
         return $this;
@@ -78,11 +79,11 @@ class AdapterOptions extends AbstractOptions
     /**
      * Set key pattern
      *
-     * @param null|string $keyPattern            
+     * @param  null|string $keyPattern
      * @throws Exception\InvalidArgumentException
      * @return AdapterOptions
      */
-    public function setKeyPattern ($keyPattern)
+    public function setKeyPattern($keyPattern)
     {
         $keyPattern = (string) $keyPattern;
         if ($this->keyPattern !== $keyPattern) {
@@ -92,17 +93,18 @@ class AdapterOptions extends AbstractOptions
                 $result = preg_match($keyPattern, '');
                 $error = ErrorHandler::stop();
                 if ($result === false) {
-                    throw new Exception\InvalidArgumentException(
-                            sprintf('Invalid pattern "%s"%s', $keyPattern, 
-                                    ($error ? ': ' . $error->getMessage() : '')), 
-                            0, $error);
+                    throw new Exception\InvalidArgumentException(sprintf(
+                        'Invalid pattern "%s"%s',
+                        $keyPattern,
+                        ($error ? ': ' . $error->getMessage() : '')
+                    ), 0, $error);
                 }
             }
-            
+
             $this->triggerOptionEvent('key_pattern', $keyPattern);
             $this->keyPattern = $keyPattern;
         }
-        
+
         return $this;
     }
 
@@ -111,7 +113,7 @@ class AdapterOptions extends AbstractOptions
      *
      * @return string
      */
-    public function getKeyPattern ()
+    public function getKeyPattern()
     {
         return $this->keyPattern;
     }
@@ -119,17 +121,17 @@ class AdapterOptions extends AbstractOptions
     /**
      * Set namespace.
      *
-     * @param string $namespace            
+     * @param  string $namespace
      * @return AdapterOptions
      */
-    public function setNamespace ($namespace)
+    public function setNamespace($namespace)
     {
         $namespace = (string) $namespace;
         if ($this->namespace !== $namespace) {
             $this->triggerOptionEvent('namespace', $namespace);
             $this->namespace = $namespace;
         }
-        
+
         return $this;
     }
 
@@ -138,7 +140,7 @@ class AdapterOptions extends AbstractOptions
      *
      * @return string
      */
-    public function getNamespace ()
+    public function getNamespace()
     {
         return $this->namespace;
     }
@@ -146,10 +148,10 @@ class AdapterOptions extends AbstractOptions
     /**
      * Enable/Disable reading data from cache.
      *
-     * @param bool $readable            
+     * @param  bool $readable
      * @return AbstractAdapter
      */
-    public function setReadable ($readable)
+    public function setReadable($readable)
     {
         $readable = (bool) $readable;
         if ($this->readable !== $readable) {
@@ -164,7 +166,7 @@ class AdapterOptions extends AbstractOptions
      *
      * @return bool
      */
-    public function getReadable ()
+    public function getReadable()
     {
         return $this->readable;
     }
@@ -172,10 +174,10 @@ class AdapterOptions extends AbstractOptions
     /**
      * Set time to live.
      *
-     * @param int|float $ttl            
+     * @param  int|float $ttl
      * @return AdapterOptions
      */
-    public function setTtl ($ttl)
+    public function setTtl($ttl)
     {
         $this->normalizeTtl($ttl);
         if ($this->ttl !== $ttl) {
@@ -190,7 +192,7 @@ class AdapterOptions extends AbstractOptions
      *
      * @return float
      */
-    public function getTtl ()
+    public function getTtl()
     {
         return $this->ttl;
     }
@@ -198,10 +200,10 @@ class AdapterOptions extends AbstractOptions
     /**
      * Enable/Disable writing data to cache.
      *
-     * @param bool $writable            
+     * @param  bool $writable
      * @return AdapterOptions
      */
-    public function setWritable ($writable)
+    public function setWritable($writable)
     {
         $writable = (bool) $writable;
         if ($this->writable !== $writable) {
@@ -216,7 +218,7 @@ class AdapterOptions extends AbstractOptions
      *
      * @return bool
      */
-    public function getWritable ()
+    public function getWritable()
     {
         return $this->writable;
     }
@@ -225,18 +227,14 @@ class AdapterOptions extends AbstractOptions
      * Triggers an option event if this options instance has a connection to
      * an adapter implements EventsCapableInterface.
      *
-     * @param string $optionName            
-     * @param mixed $optionValue            
+     * @param string $optionName
+     * @param mixed  $optionValue
      * @return void
      */
-    protected function triggerOptionEvent ($optionName, $optionValue)
+    protected function triggerOptionEvent($optionName, $optionValue)
     {
         if ($this->adapter instanceof EventsCapableInterface) {
-            $event = new Event('option', $this->adapter, 
-                    new ArrayObject(
-                            array(
-                                    $optionName => $optionValue
-                            )));
+            $event = new Event('option', $this->adapter, new ArrayObject(array($optionName => $optionValue)));
             $this->adapter->getEventManager()->trigger($event);
         }
     }
@@ -244,21 +242,21 @@ class AdapterOptions extends AbstractOptions
     /**
      * Validates and normalize a TTL.
      *
-     * @param int|float $ttl            
+     * @param  int|float $ttl
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    protected function normalizeTtl (&$ttl)
+    protected function normalizeTtl(&$ttl)
     {
-        if (! is_int($ttl)) {
+        if (!is_int($ttl)) {
             $ttl = (float) $ttl;
-            
+
             // convert to int if possible
             if ($ttl === (float) (int) $ttl) {
                 $ttl = (int) $ttl;
             }
         }
-        
+
         if ($ttl < 0) {
             throw new Exception\InvalidArgumentException("TTL can't be negative");
         }

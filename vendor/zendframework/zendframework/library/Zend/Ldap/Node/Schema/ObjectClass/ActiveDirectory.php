@@ -3,27 +3,26 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Ldap\Node\Schema\ObjectClass;
+
 use Zend\Ldap\Node\Schema;
 
 /**
- * Zend\Ldap\Node\Schema\ObjectClass\ActiveDirectory provides access to the
- * objectClass
+ * Zend\Ldap\Node\Schema\ObjectClass\ActiveDirectory provides access to the objectClass
  * schema information on an Active Directory server.
  */
-class ActiveDirectory extends Schema\AbstractItem implements 
-        ObjectClassInterface
+class ActiveDirectory extends Schema\AbstractItem implements ObjectClassInterface
 {
-
     /**
      * Gets the objectClass name
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->ldapdisplayname[0];
     }
@@ -33,40 +32,45 @@ class ActiveDirectory extends Schema\AbstractItem implements
      *
      * @return string
      */
-    public function getOid ()
-    {}
+    public function getOid()
+    {
+    }
 
     /**
      * Gets the attributes that this objectClass must contain
      *
      * @return array
      */
-    public function getMustContain ()
-    {}
+    public function getMustContain()
+    {
+    }
 
     /**
      * Gets the attributes that this objectClass may contain
      *
      * @return array
      */
-    public function getMayContain ()
-    {}
+    public function getMayContain()
+    {
+    }
 
     /**
      * Gets the objectClass description
      *
      * @return string
      */
-    public function getDescription ()
-    {}
+    public function getDescription()
+    {
+    }
 
     /**
      * Gets the objectClass type
      *
      * @return int
      */
-    public function getType ()
-    {}
+    public function getType()
+    {
+    }
 
     /**
      * Returns the parent objectClasses of this class.
@@ -74,6 +78,7 @@ class ActiveDirectory extends Schema\AbstractItem implements
      *
      * @return array
      */
-    public function getParentClasses ()
-    {}
+    public function getParentClasses()
+    {
+    }
 }

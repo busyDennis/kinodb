@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Loader;
+
 use Traversable;
 
 // Grab SplAutoloader interface
@@ -19,17 +21,14 @@ require_once __DIR__ . '/SplAutoloader.php';
  */
 class ClassMapAutoloader implements SplAutoloader
 {
-
     /**
      * Registry of map files that have already been loaded
-     *
      * @var array
      */
     protected $mapsLoaded = array();
 
     /**
      * Class name/filename map
-     *
      * @var array
      */
     protected $map = array();
@@ -39,9 +38,9 @@ class ClassMapAutoloader implements SplAutoloader
      *
      * Create a new instance, and optionally configure the autoloader.
      *
-     * @param null|array|Traversable $options            
+     * @param  null|array|Traversable $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if (null !== $options) {
             $this->setOptions($options);
@@ -53,10 +52,10 @@ class ClassMapAutoloader implements SplAutoloader
      *
      * Proxies to {@link registerAutoloadMaps()}.
      *
-     * @param array|Traversable $options            
+     * @param  array|Traversable $options
      * @return ClassMapAutoloader
      */
-    public function setOptions ($options)
+    public function setOptions($options)
     {
         $this->registerAutoloadMaps($options);
         return $this;
@@ -71,11 +70,11 @@ class ClassMapAutoloader implements SplAutoloader
      * An autoload map should be an associative array containing
      * classname/file pairs.
      *
-     * @param string|array $map            
+     * @param  string|array $map
      * @throws Exception\InvalidArgumentException
      * @return ClassMapAutoloader
      */
-    public function registerAutoloadMap ($map)
+    public function registerAutoloadMap($map)
     {
         if (is_string($map)) {
             $location = $map;
@@ -83,38 +82,36 @@ class ClassMapAutoloader implements SplAutoloader
                 return $this;
             }
         }
-        
-        if (! is_array($map)) {
+
+        if (!is_array($map)) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Map file provided does not return a map. Map file: "%s"', 
-                            (isset($location) && is_string($location) ? $location : 'unexpected type: ' .
-                                     gettype($map))));
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Map file provided does not return a map. Map file: "%s"',
+                (isset($location) && is_string($location) ? $location : 'unexpected type: ' . gettype($map))
+            ));
         }
-        
-        $this->map = array_merge($this->map, $map);
-        
+
+        $this->map = $map + $this->map;
+
         if (isset($location)) {
             $this->mapsLoaded[] = $location;
         }
-        
+
         return $this;
     }
 
     /**
      * Register many autoload maps at once
      *
-     * @param array $locations            
+     * @param  array $locations
      * @throws Exception\InvalidArgumentException
      * @return ClassMapAutoloader
      */
-    public function registerAutoloadMaps ($locations)
+    public function registerAutoloadMaps($locations)
     {
-        if (! is_array($locations) && ! ($locations instanceof Traversable)) {
+        if (!is_array($locations) && !($locations instanceof Traversable)) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
-            throw new Exception\InvalidArgumentException(
-                    'Map list must be an array or implement Traversable');
+            throw new Exception\InvalidArgumentException('Map list must be an array or implement Traversable');
         }
         foreach ($locations as $location) {
             $this->registerAutoloadMap($location);
@@ -127,7 +124,7 @@ class ClassMapAutoloader implements SplAutoloader
      *
      * @return array
      */
-    public function getAutoloadMap ()
+    public function getAutoloadMap()
     {
         return $this->map;
     }
@@ -135,14 +132,14 @@ class ClassMapAutoloader implements SplAutoloader
     /**
      * {@inheritDoc}
      */
-    public function autoload ($class)
+    public function autoload($class)
     {
         if (isset($this->map[$class])) {
             require_once $this->map[$class];
-            
+
             return $class;
         }
-        
+
         return false;
     }
 
@@ -151,13 +148,9 @@ class ClassMapAutoloader implements SplAutoloader
      *
      * @return void
      */
-    public function register ()
+    public function register()
     {
-        spl_autoload_register(
-                array(
-                        $this,
-                        'autoload'
-                ), true, true);
+        spl_autoload_register(array($this, 'autoload'), true, true);
     }
 
     /**
@@ -167,31 +160,31 @@ class ClassMapAutoloader implements SplAutoloader
      * otherwise, returns whatever was returned by calling include() on the
      * location.
      *
-     * @param string $location            
+     * @param  string $location
      * @return ClassMapAutoloader|mixed
      * @throws Exception\InvalidArgumentException for nonexistent locations
      */
-    protected function loadMapFromFile ($location)
+    protected function loadMapFromFile($location)
     {
-        if (! file_exists($location)) {
+        if (!file_exists($location)) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
-            throw new Exception\InvalidArgumentException(
-                    sprintf('Map file provided does not exist. Map file: "%s"', 
-                            (is_string($location) ? $location : 'unexpected type: ' .
-                                     gettype($location))));
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Map file provided does not exist. Map file: "%s"',
+                (is_string($location) ? $location : 'unexpected type: ' . gettype($location))
+            ));
         }
-        
-        if (! $path = static::realPharPath($location)) {
+
+        if (!$path = static::realPharPath($location)) {
             $path = realpath($location);
         }
-        
+
         if (in_array($path, $this->mapsLoaded)) {
             // Already loaded this map
             return $this;
         }
-        
+
         $map = include $path;
-        
+
         return $map;
     }
 
@@ -199,38 +192,29 @@ class ClassMapAutoloader implements SplAutoloader
      * Resolve the real_path() to a file within a phar.
      *
      * @see https://bugs.php.net/bug.php?id=52769
-     * @param string $path            
+     * @param  string $path
      * @return string
      */
-    public static function realPharPath ($path)
+    public static function realPharPath($path)
     {
-        if (strpos($path, 'phar:///') !== 0) {
+        if (!preg_match('|^phar:(/{2,3})|', $path, $match)) {
             return;
         }
-        
-        $parts = explode('/', 
-                str_replace(
-                        array(
-                                '/',
-                                '\\'
-                        ), '/', substr($path, 8)));
-        $parts = array_values(
-                array_filter($parts, 
-                        function  ($p)
-                        {
-                            return ($p !== '' && $p !== '.');
-                        }));
-        
-        array_walk($parts, 
-                function  ($value, $key) use( &$parts)
-                {
-                    if ($value === '..') {
-                        unset($parts[$key], $parts[$key - 1]);
-                        $parts = array_values($parts);
-                    }
-                });
-        
-        if (file_exists($realPath = 'phar:///' . implode('/', $parts))) {
+
+        $prefixLength  = 5 + strlen($match[1]);
+        $parts = explode('/', str_replace(array('/', '\\'), '/', substr($path, $prefixLength)));
+        $parts = array_values(array_filter($parts, function ($p) {
+            return ($p !== '' && $p !== '.');
+        }));
+
+        array_walk($parts, function ($value, $key) use (&$parts) {
+            if ($value === '..') {
+                unset($parts[$key], $parts[$key-1]);
+                $parts = array_values($parts);
+            }
+        });
+
+        if (file_exists($realPath = str_pad('phar:', $prefixLength, '/') . implode('/', $parts))) {
             return $realPath;
         }
     }

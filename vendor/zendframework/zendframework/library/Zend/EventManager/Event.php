@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\EventManager;
+
 use ArrayAccess;
 
 /**
@@ -17,27 +19,22 @@ use ArrayAccess;
  */
 class Event implements EventInterface
 {
-
     /**
-     *
      * @var string Event name
      */
     protected $name;
 
     /**
-     *
      * @var string|object The event target
      */
     protected $target;
 
     /**
-     *
      * @var array|ArrayAccess|object The event parameters
      */
     protected $params = array();
 
     /**
-     *
      * @var bool Whether or not to stop propagation
      */
     protected $stopPropagation = false;
@@ -47,21 +44,20 @@ class Event implements EventInterface
      *
      * Accept a target and its parameters.
      *
-     * @param string $name
-     *            Event name
-     * @param string|object $target            
-     * @param array|ArrayAccess $params            
+     * @param  string $name Event name
+     * @param  string|object $target
+     * @param  array|ArrayAccess $params
      */
-    public function __construct ($name = null, $target = null, $params = null)
+    public function __construct($name = null, $target = null, $params = null)
     {
         if (null !== $name) {
             $this->setName($name);
         }
-        
+
         if (null !== $target) {
             $this->setTarget($target);
         }
-        
+
         if (null !== $params) {
             $this->setParams($params);
         }
@@ -72,7 +68,7 @@ class Event implements EventInterface
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return $this->name;
     }
@@ -84,7 +80,7 @@ class Event implements EventInterface
      *
      * @return string|object
      */
-    public function getTarget ()
+    public function getTarget()
     {
         return $this->target;
     }
@@ -94,19 +90,18 @@ class Event implements EventInterface
      *
      * Overwrites parameters
      *
-     * @param array|ArrayAccess|object $params            
+     * @param  array|ArrayAccess|object $params
      * @return Event
      * @throws Exception\InvalidArgumentException
      */
-    public function setParams ($params)
+    public function setParams($params)
     {
-        if (! is_array($params) && ! is_object($params)) {
+        if (!is_array($params) && !is_object($params)) {
             throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Event parameters must be an array or object; received "%s"', 
-                            gettype($params)));
+                sprintf('Event parameters must be an array or object; received "%s"', gettype($params))
+            );
         }
-        
+
         $this->params = $params;
         return $this;
     }
@@ -116,7 +111,7 @@ class Event implements EventInterface
      *
      * @return array|object|ArrayAccess
      */
-    public function getParams ()
+    public function getParams()
     {
         return $this->params;
     }
@@ -126,23 +121,23 @@ class Event implements EventInterface
      *
      * If the parameter does not exist, the $default value will be returned.
      *
-     * @param string|int $name            
-     * @param mixed $default            
+     * @param  string|int $name
+     * @param  mixed $default
      * @return mixed
      */
-    public function getParam ($name, $default = null)
+    public function getParam($name, $default = null)
     {
         // Check in params that are arrays or implement array access
         if (is_array($this->params) || $this->params instanceof ArrayAccess) {
-            if (! isset($this->params[$name])) {
+            if (!isset($this->params[$name])) {
                 return $default;
             }
-            
+
             return $this->params[$name];
         }
-        
+
         // Check in normal objects
-        if (! isset($this->params->{$name})) {
+        if (!isset($this->params->{$name})) {
             return $default;
         }
         return $this->params->{$name};
@@ -151,10 +146,10 @@ class Event implements EventInterface
     /**
      * Set the event name
      *
-     * @param string $name            
+     * @param  string $name
      * @return Event
      */
-    public function setName ($name)
+    public function setName($name)
     {
         $this->name = (string) $name;
         return $this;
@@ -163,10 +158,10 @@ class Event implements EventInterface
     /**
      * Set the event target/context
      *
-     * @param null|string|object $target            
+     * @param  null|string|object $target
      * @return Event
      */
-    public function setTarget ($target)
+    public function setTarget($target)
     {
         $this->target = $target;
         return $this;
@@ -175,11 +170,11 @@ class Event implements EventInterface
     /**
      * Set an individual parameter to a value
      *
-     * @param string|int $name            
-     * @param mixed $value            
+     * @param  string|int $name
+     * @param  mixed $value
      * @return Event
      */
-    public function setParam ($name, $value)
+    public function setParam($name, $value)
     {
         if (is_array($this->params) || $this->params instanceof ArrayAccess) {
             // Arrays or objects implementing array access
@@ -194,10 +189,10 @@ class Event implements EventInterface
     /**
      * Stop further event propagation
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return void
      */
-    public function stopPropagation ($flag = true)
+    public function stopPropagation($flag = true)
     {
         $this->stopPropagation = (bool) $flag;
     }
@@ -207,7 +202,7 @@ class Event implements EventInterface
      *
      * @return bool
      */
-    public function propagationIsStopped ()
+    public function propagationIsStopped()
     {
         return $this->stopPropagation;
     }

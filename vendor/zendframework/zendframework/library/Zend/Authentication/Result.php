@@ -3,43 +3,43 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Authentication;
 
 class Result
 {
-
     /**
      * General Failure
      */
-    const FAILURE = 0;
+    const FAILURE                        =  0;
 
     /**
      * Failure due to identity not being found.
      */
-    const FAILURE_IDENTITY_NOT_FOUND = - 1;
+    const FAILURE_IDENTITY_NOT_FOUND     = -1;
 
     /**
      * Failure due to identity being ambiguous.
      */
-    const FAILURE_IDENTITY_AMBIGUOUS = - 2;
+    const FAILURE_IDENTITY_AMBIGUOUS     = -2;
 
     /**
      * Failure due to invalid credential being supplied.
      */
-    const FAILURE_CREDENTIAL_INVALID = - 3;
+    const FAILURE_CREDENTIAL_INVALID     = -3;
 
     /**
      * Failure due to uncategorized reasons.
      */
-    const FAILURE_UNCATEGORIZED = - 4;
+    const FAILURE_UNCATEGORIZED          = -4;
 
     /**
      * Authentication success.
      */
-    const SUCCESS = 1;
+    const SUCCESS                        =  1;
 
     /**
      * Authentication result code
@@ -56,8 +56,7 @@ class Result
     protected $identity;
 
     /**
-     * An array of string reasons why the authentication attempt was
-     * unsuccessful
+     * An array of string reasons why the authentication attempt was unsuccessful
      *
      * If authentication was successful, this should be an empty array.
      *
@@ -68,13 +67,13 @@ class Result
     /**
      * Sets the result code, identity, and failure messages
      *
-     * @param int $code            
-     * @param mixed $identity            
-     * @param array $messages            
+     * @param  int     $code
+     * @param  mixed   $identity
+     * @param  array   $messages
      */
-    public function __construct ($code, $identity, array $messages = array())
+    public function __construct($code, $identity, array $messages = array())
     {
-        $this->code = (int) $code;
+        $this->code     = (int) $code;
         $this->identity = $identity;
         $this->messages = $messages;
     }
@@ -84,9 +83,9 @@ class Result
      *
      * @return bool
      */
-    public function isValid ()
+    public function isValid()
     {
-        return ($this->code > 0) ? true : false;
+        return ($this->code > 0);
     }
 
     /**
@@ -94,7 +93,7 @@ class Result
      *
      * @return int
      */
-    public function getCode ()
+    public function getCode()
     {
         return $this->code;
     }
@@ -104,20 +103,19 @@ class Result
      *
      * @return mixed
      */
-    public function getIdentity ()
+    public function getIdentity()
     {
         return $this->identity;
     }
 
     /**
-     * Returns an array of string reasons why the authentication attempt was
-     * unsuccessful
+     * Returns an array of string reasons why the authentication attempt was unsuccessful
      *
      * If authentication was successful, this method returns an empty array.
      *
      * @return array
      */
-    public function getMessages ()
+    public function getMessages()
     {
         return $this->messages;
     }

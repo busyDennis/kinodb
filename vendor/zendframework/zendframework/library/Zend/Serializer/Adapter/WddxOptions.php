@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Serializer\Adapter;
 
 class WddxOptions extends AdapterOptions
 {
-
     /**
      * Wddx packet header comment
      *
@@ -21,10 +21,10 @@ class WddxOptions extends AdapterOptions
     /**
      * Set WDDX header comment
      *
-     * @param string $comment            
+     * @param  string $comment
      * @return WddxOptions
      */
-    public function setComment ($comment)
+    public function setComment($comment)
     {
         $this->comment = (string) $comment;
         return $this;
@@ -35,7 +35,7 @@ class WddxOptions extends AdapterOptions
      *
      * @return string
      */
-    public function getComment ()
+    public function getComment()
     {
         return $this->comment;
     }

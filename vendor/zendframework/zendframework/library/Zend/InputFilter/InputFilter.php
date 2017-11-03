@@ -3,17 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\InputFilter;
+
 use Traversable;
 
 class InputFilter extends BaseInputFilter
 {
-
     /**
-     *
      * @var Factory
      */
     protected $factory;
@@ -21,10 +21,10 @@ class InputFilter extends BaseInputFilter
     /**
      * Set factory to use when adding inputs and filters by spec
      *
-     * @param Factory $factory            
+     * @param  Factory $factory
      * @return InputFilter
      */
-    public function setFactory (Factory $factory)
+    public function setFactory(Factory $factory)
     {
         $this->factory = $factory;
         return $this;
@@ -37,7 +37,7 @@ class InputFilter extends BaseInputFilter
      *
      * @return Factory
      */
-    public function getFactory ()
+    public function getFactory()
     {
         if (null === $this->factory) {
             $this->setFactory(new Factory());
@@ -48,14 +48,15 @@ class InputFilter extends BaseInputFilter
     /**
      * Add an input to the input filter
      *
-     * @param array|Traversable|InputInterface|InputFilterInterface $input            
-     * @param null|string $name            
+     * @param  array|Traversable|InputInterface|InputFilterInterface $input
+     * @param  null|string $name
      * @return InputFilter
      */
-    public function add ($input, $name = null)
+    public function add($input, $name = null)
     {
-        if (is_array($input) || ($input instanceof Traversable &&
-                 ! $input instanceof InputFilterInterface)) {
+        if (is_array($input)
+            || ($input instanceof Traversable && !$input instanceof InputFilterInterface)
+        ) {
             $factory = $this->getFactory();
             $input = $factory->createInput($input);
         }

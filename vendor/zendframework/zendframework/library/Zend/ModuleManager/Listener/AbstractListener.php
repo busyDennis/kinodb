@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\ModuleManager\Listener;
 
 /**
@@ -13,9 +14,7 @@ namespace Zend\ModuleManager\Listener;
  */
 abstract class AbstractListener
 {
-
     /**
-     *
      * @var ListenerOptions
      */
     protected $options;
@@ -23,12 +22,12 @@ abstract class AbstractListener
     /**
      * __construct
      *
-     * @param ListenerOptions $options            
+     * @param  ListenerOptions $options
      */
-    public function __construct (ListenerOptions $options = null)
+    public function __construct(ListenerOptions $options = null)
     {
         if (null === $options) {
-            $this->setOptions(new ListenerOptions());
+            $this->setOptions(new ListenerOptions);
         } else {
             $this->setOptions($options);
         }
@@ -39,7 +38,7 @@ abstract class AbstractListener
      *
      * @return ListenerOptions
      */
-    public function getOptions ()
+    public function getOptions()
     {
         return $this->options;
     }
@@ -47,11 +46,10 @@ abstract class AbstractListener
     /**
      * Set options.
      *
-     * @param ListenerOptions $options
-     *            the value to be set
+     * @param ListenerOptions $options the value to be set
      * @return AbstractListener
      */
-    public function setOptions (ListenerOptions $options)
+    public function setOptions(ListenerOptions $options)
     {
         $this->options = $options;
         return $this;
@@ -60,11 +58,11 @@ abstract class AbstractListener
     /**
      * Write a simple array of scalars to a file
      *
-     * @param string $filePath            
-     * @param array $array            
+     * @param  string $filePath
+     * @param  array $array
      * @return AbstractListener
      */
-    protected function writeArrayToFile ($filePath, $array)
+    protected function writeArrayToFile($filePath, $array)
     {
         $content = "<?php\nreturn " . var_export($array, 1) . ';';
         file_put_contents($filePath, $content);

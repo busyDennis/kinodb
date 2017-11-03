@@ -3,25 +3,24 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http\Header;
 
 /**
  * Content-Location Header
- */
+ *
+  */
 class GenericHeader implements HeaderInterface
 {
-
     /**
-     *
      * @var string
      */
     protected $fieldName = null;
 
     /**
-     *
      * @var string
      */
     protected $fieldValue = null;
@@ -30,29 +29,51 @@ class GenericHeader implements HeaderInterface
      * Factory to generate a header object from a string
      *
      * @static
-     *
-     * @param string $headerLine            
+     * @param string $headerLine
      * @return GenericHeader
      */
-    public static function fromString ($headerLine)
+    public static function fromString($headerLine)
     {
-        list ($fieldName, $fieldValue) = explode(': ', $headerLine, 2);
+        list($fieldName, $fieldValue) = GenericHeader::splitHeaderLine($headerLine);
         $header = new static($fieldName, $fieldValue);
         return $header;
     }
 
     /**
+     * Splits the header line in `name` and `value` parts.
+     *
+     * @param string $headerLine
+     * @return string[] `name` in the first index and `value` in the second.
+     * @throws Exception\InvalidArgumentException If header does not match with the format ``name:value``
+     */
+    public static function splitHeaderLine($headerLine)
+    {
+        $parts = explode(':', $headerLine, 2);
+        if (count($parts) !== 2) {
+            throw new Exception\InvalidArgumentException('Header must match with the format "name:value"');
+        }
+
+        if (! HeaderValue::isValid($parts[1])) {
+            throw new Exception\InvalidArgumentException('Invalid header value detected');
+        }
+
+        $parts[1] = ltrim($parts[1]);
+
+        return $parts;
+    }
+
+    /**
      * Constructor
      *
-     * @param null|string $fieldName            
-     * @param null|string $fieldValue            
+     * @param null|string $fieldName
+     * @param null|string $fieldValue
      */
-    public function __construct ($fieldName = null, $fieldValue = null)
+    public function __construct($fieldName = null, $fieldValue = null)
     {
         if ($fieldName) {
             $this->setFieldName($fieldName);
         }
-        
+
         if ($fieldValue !== null) {
             $this->setFieldValue($fieldValue);
         }
@@ -61,32 +82,31 @@ class GenericHeader implements HeaderInterface
     /**
      * Set header field name
      *
-     * @param string $fieldName            
+     * @param  string $fieldName
      * @return GenericHeader
-     * @throws Exception\InvalidArgumentException(
+     * @throws Exception\InvalidArgumentException If the name does not match with RFC 2616 format.
      */
-    public function setFieldName ($fieldName)
+    public function setFieldName($fieldName)
     {
-        if (! is_string($fieldName) || empty($fieldName)) {
-            throw new Exception\InvalidArgumentException(
-                    'Header name must be a string');
+        if (!is_string($fieldName) || empty($fieldName)) {
+            throw new Exception\InvalidArgumentException('Header name must be a string');
         }
-        
-        // Pre-filter to normalize valid characters, change underscore to dash
-        $fieldName = str_replace(' ', '-', 
-                ucwords(
-                        str_replace(
-                                array(
-                                        '_',
-                                        '-'
-                                ), ' ', $fieldName)));
-        
-        // Validate what we have
-        if (! preg_match('/^[a-z][a-z0-9-]*$/i', $fieldName)) {
+
+        /*
+         * Following RFC 7230 section 3.2
+         *
+         * header-field = field-name ":" [ field-value ]
+         * field-name   = token
+         * token        = 1*tchar
+         * tchar        = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." /
+         *                "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
+         */
+        if (!preg_match('/^[!#$%&\'*+\-\.\^_`|~0-9a-zA-Z]+$/', $fieldName)) {
             throw new Exception\InvalidArgumentException(
-                    'Header name must start with a letter, and consist of only letters, numbers, and dashes');
+                'Header name must be a valid RFC 7230 (section 3.2) field-name.'
+            );
         }
-        
+
         $this->fieldName = $fieldName;
         return $this;
     }
@@ -96,7 +116,7 @@ class GenericHeader implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldName ()
+    public function getFieldName()
     {
         return $this->fieldName;
     }
@@ -104,17 +124,18 @@ class GenericHeader implements HeaderInterface
     /**
      * Set header field value
      *
-     * @param string $fieldValue            
+     * @param  string $fieldValue
      * @return GenericHeader
      */
-    public function setFieldValue ($fieldValue)
+    public function setFieldValue($fieldValue)
     {
         $fieldValue = (string) $fieldValue;
-        
+        HeaderValue::assertValid($fieldValue);
+
         if (preg_match('/^\s+$/', $fieldValue)) {
             $fieldValue = '';
         }
-        
+
         $this->fieldValue = $fieldValue;
         return $this;
     }
@@ -124,7 +145,7 @@ class GenericHeader implements HeaderInterface
      *
      * @return string
      */
-    public function getFieldValue ()
+    public function getFieldValue()
     {
         return $this->fieldValue;
     }
@@ -136,7 +157,7 @@ class GenericHeader implements HeaderInterface
      *
      * @return string
      */
-    public function toString ()
+    public function toString()
     {
         return $this->getFieldName() . ': ' . $this->getFieldValue();
     }

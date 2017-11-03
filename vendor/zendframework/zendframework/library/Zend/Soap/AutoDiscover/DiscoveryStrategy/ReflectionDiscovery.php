@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Soap\AutoDiscover\DiscoveryStrategy;
+
 use Zend\Server\Reflection\AbstractFunction;
 use Zend\Server\Reflection\Prototype;
 use Zend\Server\Reflection\ReflectionParameter;
@@ -17,14 +19,13 @@ use Zend\Server\Reflection\ReflectionParameter;
  */
 class ReflectionDiscovery implements DiscoveryStrategyInterface
 {
-
     /**
      * Returns description from phpdoc block
      *
-     * @param AbstractFunction $function            
+     * @param  AbstractFunction $function
      * @return string
      */
-    public function getFunctionDocumentation (AbstractFunction $function)
+    public function getFunctionDocumentation(AbstractFunction $function)
     {
         return $function->getDescription();
     }
@@ -32,10 +33,10 @@ class ReflectionDiscovery implements DiscoveryStrategyInterface
     /**
      * Return parameter type
      *
-     * @param ReflectionParameter $param            
+     * @param  ReflectionParameter $param
      * @return string
      */
-    public function getFunctionParameterType (ReflectionParameter $param)
+    public function getFunctionParameterType(ReflectionParameter $param)
     {
         return $param->getType();
     }
@@ -43,12 +44,11 @@ class ReflectionDiscovery implements DiscoveryStrategyInterface
     /**
      * Return function return type
      *
-     * @param AbstractFunction $function            
-     * @param Prototype $prototype            
+     * @param  AbstractFunction $function
+     * @param  Prototype        $prototype
      * @return string
      */
-    public function getFunctionReturnType (AbstractFunction $function, 
-            Prototype $prototype)
+    public function getFunctionReturnType(AbstractFunction $function, Prototype $prototype)
     {
         return $prototype->getReturnType();
     }
@@ -56,12 +56,11 @@ class ReflectionDiscovery implements DiscoveryStrategyInterface
     /**
      * Return true if function is one way (return nothing)
      *
-     * @param AbstractFunction $function            
-     * @param Prototype $prototype            
+     * @param  AbstractFunction $function
+     * @param  Prototype        $prototype
      * @return bool
      */
-    public function isFunctionOneWay (AbstractFunction $function, 
-            Prototype $prototype)
+    public function isFunctionOneWay(AbstractFunction $function, Prototype $prototype)
     {
         return $prototype->getReturnType() == 'void';
     }

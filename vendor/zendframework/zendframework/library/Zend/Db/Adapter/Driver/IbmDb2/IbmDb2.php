@@ -3,66 +3,55 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Db\Adapter\Driver\IbmDb2;
+
 use Zend\Db\Adapter\Driver\DriverInterface;
 use Zend\Db\Adapter\Exception;
 use Zend\Db\Adapter\Profiler;
 
 class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
 {
-
     /**
-     *
      * @var Connection
      */
     protected $connection;
 
-    /**
-     *
-     * @var Statement
-     */
+    /** @var Statement */
     protected $statementPrototype;
 
-    /**
-     *
-     * @var Result
-     */
+    /** @var Result */
     protected $resultPrototype;
 
     /**
-     *
      * @var Profiler\ProfilerInterface
      */
     protected $profiler;
 
     /**
-     *
-     * @param array|Connection|resource $connection            
-     * @param null|Statement $statementPrototype            
-     * @param null|Result $resultPrototype            
+     * @param array|Connection|resource $connection
+     * @param null|Statement            $statementPrototype
+     * @param null|Result               $resultPrototype
      */
-    public function __construct ($connection, 
-            Statement $statementPrototype = null, Result $resultPrototype = null)
+    public function __construct($connection, Statement $statementPrototype = null, Result $resultPrototype = null)
     {
-        if (! $connection instanceof Connection) {
+        if (!$connection instanceof Connection) {
             $connection = new Connection($connection);
         }
-        
+
         $this->registerConnection($connection);
-        $this->registerStatementPrototype(
-                ($statementPrototype) ?  : new Statement());
-        $this->registerResultPrototype(($resultPrototype) ?  : new Result());
+        $this->registerStatementPrototype(($statementPrototype) ?: new Statement());
+        $this->registerResultPrototype(($resultPrototype) ?: new Result());
     }
 
     /**
-     *
-     * @param Profiler\ProfilerInterface $profiler            
+     * @param Profiler\ProfilerInterface $profiler
      * @return IbmDb2
      */
-    public function setProfiler (Profiler\ProfilerInterface $profiler)
+    public function setProfiler(Profiler\ProfilerInterface $profiler)
     {
         $this->profiler = $profiler;
         if ($this->connection instanceof Profiler\ProfilerAwareInterface) {
@@ -75,20 +64,18 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     }
 
     /**
-     *
      * @return null|Profiler\ProfilerInterface
      */
-    public function getProfiler ()
+    public function getProfiler()
     {
         return $this->profiler;
     }
 
     /**
-     *
-     * @param Connection $connection            
+     * @param  Connection $connection
      * @return IbmDb2
      */
-    public function registerConnection (Connection $connection)
+    public function registerConnection(Connection $connection)
     {
         $this->connection = $connection;
         $this->connection->setDriver($this);
@@ -96,11 +83,10 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     }
 
     /**
-     *
-     * @param Statement $statementPrototype            
+     * @param  Statement $statementPrototype
      * @return IbmDb2
      */
-    public function registerStatementPrototype (Statement $statementPrototype)
+    public function registerStatementPrototype(Statement $statementPrototype)
     {
         $this->statementPrototype = $statementPrototype;
         $this->statementPrototype->setDriver($this);
@@ -108,11 +94,10 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     }
 
     /**
-     *
-     * @param Result $resultPrototype            
+     * @param  Result $resultPrototype
      * @return IbmDb2
      */
-    public function registerResultPrototype (Result $resultPrototype)
+    public function registerResultPrototype(Result $resultPrototype)
     {
         $this->resultPrototype = $resultPrototype;
         return $this;
@@ -121,11 +106,10 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     /**
      * Get database platform name
      *
-     * @param string $nameFormat            
+     * @param string $nameFormat
      * @return string
      */
-    public function getDatabasePlatformName (
-            $nameFormat = self::NAME_FORMAT_CAMELCASE)
+    public function getDatabasePlatformName($nameFormat = self::NAME_FORMAT_CAMELCASE)
     {
         if ($nameFormat == self::NAME_FORMAT_CAMELCASE) {
             return 'IbmDb2';
@@ -139,11 +123,10 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
      *
      * @return bool
      */
-    public function checkEnvironment ()
+    public function checkEnvironment()
     {
-        if (! extension_loaded('ibm_db2')) {
-            throw new Exception\RuntimeException(
-                    'The ibm_db2 extension is required by this driver.');
+        if (!extension_loaded('ibm_db2')) {
+            throw new Exception\RuntimeException('The ibm_db2 extension is required by this driver.');
         }
     }
 
@@ -152,7 +135,7 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
      *
      * @return Connection
      */
-    public function getConnection ()
+    public function getConnection()
     {
         return $this->connection;
     }
@@ -160,24 +143,23 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     /**
      * Create statement
      *
-     * @param string|resource $sqlOrResource            
+     * @param string|resource $sqlOrResource
      * @return Statement
      */
-    public function createStatement ($sqlOrResource = null)
+    public function createStatement($sqlOrResource = null)
     {
         $statement = clone $this->statementPrototype;
-        if (is_resource($sqlOrResource) &&
-                 get_resource_type($sqlOrResource) == 'DB2 Statement') {
+        if (is_resource($sqlOrResource) && get_resource_type($sqlOrResource) == 'DB2 Statement') {
             $statement->setResource($sqlOrResource);
         } else {
             if (is_string($sqlOrResource)) {
                 $statement->setSql($sqlOrResource);
             } elseif ($sqlOrResource !== null) {
                 throw new Exception\InvalidArgumentException(
-                        __FUNCTION__ .
-                                 ' only accepts an SQL string or a ibm_db2 resource');
+                    __FUNCTION__ . ' only accepts an SQL string or an ibm_db2 resource'
+                );
             }
-            if (! $this->connection->isConnected()) {
+            if (!$this->connection->isConnected()) {
                 $this->connection->connect();
             }
             $statement->initialize($this->connection->getResource());
@@ -188,14 +170,13 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     /**
      * Create result
      *
-     * @param resource $resource            
+     * @param resource $resource
      * @return Result
      */
-    public function createResult ($resource)
+    public function createResult($resource)
     {
         $result = clone $this->resultPrototype;
-        $result->initialize($resource, 
-                $this->connection->getLastGeneratedValue());
+        $result->initialize($resource, $this->connection->getLastGeneratedValue());
         return $result;
     }
 
@@ -204,7 +185,7 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
      *
      * @return array
      */
-    public function getPrepareType ()
+    public function getPrepareType()
     {
         return self::PARAMETERIZATION_POSITIONAL;
     }
@@ -212,11 +193,11 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
     /**
      * Format parameter name
      *
-     * @param string $name            
-     * @param mixed $type            
+     * @param string $name
+     * @param mixed  $type
      * @return string
      */
-    public function formatParameterName ($name, $type = null)
+    public function formatParameterName($name, $type = null)
     {
         return '?';
     }
@@ -226,7 +207,7 @@ class IbmDb2 implements DriverInterface, Profiler\ProfilerAwareInterface
      *
      * @return mixed
      */
-    public function getLastGeneratedValue ()
+    public function getLastGeneratedValue()
     {
         return $this->connection->getLastGeneratedValue();
     }

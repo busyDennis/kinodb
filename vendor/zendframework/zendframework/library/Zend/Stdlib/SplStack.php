@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Stdlib;
+
 use Serializable;
 
 /**
@@ -14,13 +16,12 @@ use Serializable;
  */
 class SplStack extends \SplStack implements Serializable
 {
-
     /**
      * Serialize to an array representing the stack
      *
      * @return array
      */
-    public function toArray ()
+    public function toArray()
     {
         $array = array();
         foreach ($this as $item) {
@@ -34,7 +35,7 @@ class SplStack extends \SplStack implements Serializable
      *
      * @return string
      */
-    public function serialize ()
+    public function serialize()
     {
         return serialize($this->toArray());
     }
@@ -42,10 +43,10 @@ class SplStack extends \SplStack implements Serializable
     /**
      * Unserialize
      *
-     * @param string $data            
+     * @param  string $data
      * @return void
      */
-    public function unserialize ($data)
+    public function unserialize($data)
     {
         foreach (unserialize($data) as $item) {
             $this->unshift($item);

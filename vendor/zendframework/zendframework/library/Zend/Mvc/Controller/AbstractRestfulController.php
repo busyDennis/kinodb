@@ -3,10 +3,11 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 namespace Zend\Mvc\Controller;
+
 use Zend\Http\Request as HttpRequest;
 use Zend\Json\Json;
 use Zend\Mvc\Exception;
@@ -19,24 +20,21 @@ use Zend\Stdlib\ResponseInterface as Response;
  */
 abstract class AbstractRestfulController extends AbstractController
 {
-
     const CONTENT_TYPE_JSON = 'json';
 
     /**
-     *
-     * @var string
+     * {@inheritDoc}
      */
     protected $eventIdentifier = __CLASS__;
 
     /**
-     *
      * @var array
      */
     protected $contentTypes = array(
-            self::CONTENT_TYPE_JSON => array(
-                    'application/hal+json',
-                    'application/json'
-            )
+        self::CONTENT_TYPE_JSON => array(
+            'application/hal+json',
+            'application/json'
+        )
     );
 
     /**
@@ -47,7 +45,6 @@ abstract class AbstractRestfulController extends AbstractController
     protected $identifierName = 'id';
 
     /**
-     *
      * @var int From Zend\Json\Json
      */
     protected $jsonDecodeType = Json::TYPE_ARRAY;
@@ -62,10 +59,10 @@ abstract class AbstractRestfulController extends AbstractController
     /**
      * Set the route match/query parameter name containing the identifier
      *
-     * @param string $name            
+     * @param  string $name
      * @return self
      */
-    public function setIdentifierName ($name)
+    public function setIdentifierName($name)
     {
         $this->identifierName = (string) $name;
         return $this;
@@ -76,7 +73,7 @@ abstract class AbstractRestfulController extends AbstractController
      *
      * @return string
      */
-    public function getIdentifierName ()
+    public function getIdentifierName()
     {
         return $this->identifierName;
     }
@@ -84,18 +81,32 @@ abstract class AbstractRestfulController extends AbstractController
     /**
      * Create a new resource
      *
-     * @param mixed $data            
+     * @param  mixed $data
      * @return mixed
      */
-    abstract public function create ($data);
+    public function create($data)
+    {
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
+    }
 
     /**
      * Delete an existing resource
      *
-     * @param mixed $id            
+     * @param  mixed $id
      * @return mixed
      */
-    abstract public function delete ($id);
+    public function delete($id)
+    {
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
+    }
 
     /**
      * Delete the entire resource collection
@@ -104,28 +115,44 @@ abstract class AbstractRestfulController extends AbstractController
      * (introduced in 2.1.0); instead, raises an exception if not implemented.
      *
      * @return mixed
-     * @throws Exception\RuntimeException
      */
-    public function deleteList ()
+    public function deleteList($data)
     {
-        throw new Exception\RuntimeException(
-                sprintf('%s is unimplemented', __METHOD__));
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
     }
 
     /**
      * Return single resource
      *
-     * @param mixed $id            
+     * @param  mixed $id
      * @return mixed
      */
-    abstract public function get ($id);
+    public function get($id)
+    {
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
+    }
 
     /**
      * Return list of resources
      *
      * @return mixed
      */
-    abstract public function getList ();
+    public function getList()
+    {
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
+    }
 
     /**
      * Retrieve HEAD metadata for the resource
@@ -133,14 +160,16 @@ abstract class AbstractRestfulController extends AbstractController
      * Not marked as abstract, as that would introduce a BC break
      * (introduced in 2.1.0); instead, raises an exception if not implemented.
      *
-     * @param null|mixed $id            
+     * @param  null|mixed $id
      * @return mixed
-     * @throws Exception\RuntimeException
      */
-    public function head ($id = null)
+    public function head($id = null)
     {
-        throw new Exception\RuntimeException(
-                sprintf('%s is unimplemented', __METHOD__));
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
     }
 
     /**
@@ -153,12 +182,14 @@ abstract class AbstractRestfulController extends AbstractController
      * (introduced in 2.1.0); instead, raises an exception if not implemented.
      *
      * @return mixed
-     * @throws Exception\RuntimeException
      */
-    public function options ()
+    public function options()
     {
-        throw new Exception\RuntimeException(
-                sprintf('%s is unimplemented', __METHOD__));
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
     }
 
     /**
@@ -167,16 +198,17 @@ abstract class AbstractRestfulController extends AbstractController
      * Not marked as abstract, as that would introduce a BC break
      * (introduced in 2.1.0); instead, raises an exception if not implemented.
      *
-     * @param
-     *            $id
-     * @param
-     *            $data
-     * @throws Exception\RuntimeException
+     * @param  $id
+     * @param  $data
+     * @return array
      */
-    public function patch ($id, $data)
+    public function patch($id, $data)
     {
-        throw new Exception\RuntimeException(
-                sprintf('%s is unimplemented', __METHOD__));
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
     }
 
     /**
@@ -185,106 +217,113 @@ abstract class AbstractRestfulController extends AbstractController
      * Not marked as abstract, as that would introduce a BC break
      * (introduced in 2.1.0); instead, raises an exception if not implemented.
      *
-     * @param mixed $data            
+     * @param  mixed $data
      * @return mixed
-     * @throws Exception\RuntimeException
      */
-    public function replaceList ($data)
+    public function replaceList($data)
     {
-        throw new Exception\RuntimeException(
-                sprintf('%s is unimplemented', __METHOD__));
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
     }
 
     /**
-     * Modify a resource collection withou completely replacing it
+     * Modify a resource collection without completely replacing it
      *
      * Not marked as abstract, as that would introduce a BC break
      * (introduced in 2.2.0); instead, raises an exception if not implemented.
      *
-     * @param mixed $data            
+     * @param  mixed $data
      * @return mixed
-     * @throws Exception\RuntimeException
      */
-    public function patchList ($data)
+    public function patchList($data)
     {
-        throw new Exception\RuntimeException(
-                sprintf('%s is unimplemented', __METHOD__));
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
     }
 
     /**
      * Update an existing resource
      *
-     * @param mixed $id            
-     * @param mixed $data            
+     * @param  mixed $id
+     * @param  mixed $data
      * @return mixed
      */
-    abstract public function update ($id, $data);
+    public function update($id, $data)
+    {
+        $this->response->setStatusCode(405);
+
+        return array(
+            'content' => 'Method Not Allowed'
+        );
+    }
 
     /**
      * Basic functionality for when a page is not available
      *
      * @return array
      */
-    public function notFoundAction ()
+    public function notFoundAction()
     {
         $this->response->setStatusCode(404);
-        
+
         return array(
-                'content' => 'Page not found'
+            'content' => 'Page not found'
         );
     }
 
     /**
      * Dispatch a request
      *
-     * If the route match includes an "action" key, then this acts basically
-     * like
+     * If the route match includes an "action" key, then this acts basically like
      * a standard action controller. Otherwise, it introspects the HTTP method
      * to determine how to handle the request, and which method to delegate to.
      *
      * @events dispatch.pre, dispatch.post
-     *
-     * @param Request $request            
-     * @param null|Response $response            
+     * @param  Request $request
+     * @param  null|Response $response
      * @return mixed|Response
      * @throws Exception\InvalidArgumentException
      */
-    public function dispatch (Request $request, Response $response = null)
+    public function dispatch(Request $request, Response $response = null)
     {
         if (! $request instanceof HttpRequest) {
             throw new Exception\InvalidArgumentException(
                     'Expected an HTTP request');
         }
-        
+
         return parent::dispatch($request, $response);
     }
 
     /**
      * Handle the request
      *
-     * @todo try-catch in "patch" for patchList should be removed in the future
-     * @param MvcEvent $e            
+     * @todo   try-catch in "patch" for patchList should be removed in the future
+     * @param  MvcEvent $e
      * @return mixed
-     * @throws Exception\DomainException if no route matches in event or invalid
-     *         HTTP method
+     * @throws Exception\DomainException if no route matches in event or invalid HTTP method
      */
-    public function onDispatch (MvcEvent $e)
+    public function onDispatch(MvcEvent $e)
     {
         $routeMatch = $e->getRouteMatch();
         if (! $routeMatch) {
             /**
-             *
              * @todo Determine requirements for when route match is missing.
              *       Potentially allow pulling directly from request metadata?
              */
             throw new Exception\DomainException(
                     'Missing route matches; unsure how to retrieve action');
         }
-        
+
         $request = $e->getRequest();
-        
+
         // Was an "action" requested?
-        $action = $routeMatch->getParam('action', false);
+        $action  = $routeMatch->getParam('action', false);
         if ($action) {
             // Handle arbitrary methods, ending in Action
             $method = static::getMethodFromAction($action);
@@ -295,7 +334,7 @@ abstract class AbstractRestfulController extends AbstractController
             $e->setResult($return);
             return $return;
         }
-        
+
         // RESTful methods
         $method = strtolower($request->getMethod());
         switch ($method) {
@@ -308,14 +347,16 @@ abstract class AbstractRestfulController extends AbstractController
             // DELETE
             case 'delete':
                 $id = $this->getIdentifier($routeMatch, $request);
+                $data = $this->processBodyContent($request);
+
                 if ($id !== false) {
                     $action = 'delete';
                     $return = $this->delete($id);
                     break;
                 }
-                
+
                 $action = 'deleteList';
-                $return = $this->deleteList();
+                $return = $this->deleteList($data);
                 break;
             // GET
             case 'get':
@@ -335,8 +376,8 @@ abstract class AbstractRestfulController extends AbstractController
                     $id = null;
                 }
                 $action = 'head';
-                $this->head($id);
-                $response = $e->getResponse();
+                $headResult = $this->head($id);
+                $response = ($headResult instanceof Response) ? clone $headResult : $e->getResponse();
                 $response->setContent('');
                 $return = $response;
                 break;
@@ -350,13 +391,13 @@ abstract class AbstractRestfulController extends AbstractController
             case 'patch':
                 $id = $this->getIdentifier($routeMatch, $request);
                 $data = $this->processBodyContent($request);
-                
+
                 if ($id !== false) {
                     $action = 'patch';
                     $return = $this->patch($id, $data);
                     break;
                 }
-                
+
                 // TODO: This try-catch should be removed in the future, but it
                 // will create a BC break for pre-2.2.0 apps that expect a 405
                 // instead of going to patchList
@@ -376,15 +417,15 @@ abstract class AbstractRestfulController extends AbstractController
                 break;
             // PUT
             case 'put':
-                $id = $this->getIdentifier($routeMatch, $request);
+                $id   = $this->getIdentifier($routeMatch, $request);
                 $data = $this->processBodyContent($request);
-                
+
                 if ($id !== false) {
                     $action = 'update';
                     $return = $this->update($id, $data);
                     break;
                 }
-                
+
                 $action = 'replaceList';
                 $return = $this->replaceList($data);
                 break;
@@ -394,7 +435,7 @@ abstract class AbstractRestfulController extends AbstractController
                 $response->setStatusCode(405);
                 return $response;
         }
-        
+
         $routeMatch->setParam('action', $action);
         $e->setResult($return);
         return $return;
@@ -403,38 +444,35 @@ abstract class AbstractRestfulController extends AbstractController
     /**
      * Process post data and call create
      *
-     * @param Request $request            
+     * @param Request $request
      * @return mixed
      */
-    public function processPostData (Request $request)
+    public function processPostData(Request $request)
     {
         if ($this->requestHasContentType($request, self::CONTENT_TYPE_JSON)) {
             $data = Json::decode($request->getContent(), $this->jsonDecodeType);
         } else {
             $data = $request->getPost()->toArray();
         }
-        
+
         return $this->create($data);
     }
 
     /**
      * Check if request has certain content type
      *
-     * @param Request $request            
-     * @param string|null $contentType            
+     * @param  Request $request
+     * @param  string|null $contentType
      * @return bool
      */
-    public function requestHasContentType (Request $request, $contentType = '')
+    public function requestHasContentType(Request $request, $contentType = '')
     {
-        /**
-         *
-         * @var $headerContentType \Zend\Http\Header\ContentType
-         */
+        /** @var $headerContentType \Zend\Http\Header\ContentType */
         $headerContentType = $request->getHeaders()->get('content-type');
-        if (! $headerContentType) {
+        if (!$headerContentType) {
             return false;
         }
-        
+
         $requestedContentType = $headerContentType->getFieldValue();
         if (strstr($requestedContentType, ';')) {
             $headerData = explode(';', $requestedContentType);
@@ -448,7 +486,7 @@ abstract class AbstractRestfulController extends AbstractController
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -471,23 +509,20 @@ abstract class AbstractRestfulController extends AbstractController
      * $this->getIdentifier($routeMatch, $request)",
      * passing the appropriate objects.
      *
-     * To retrive the body content data, use "$data =
-     * $this->processBodyContent($request)";
-     * that method will return a string, array, or, in the case of JSON, an
-     * object.
+     * To retrieve the body content data, use "$data = $this->processBodyContent($request)";
+     * that method will return a string, array, or, in the case of JSON, an object.
      *
-     * @param string $method            
-     * @param Callable $handler            
+     * @param  string $method
+     * @param  Callable $handler
      * @return AbstractRestfulController
      */
-    public function addHttpMethodHandler ($method, /* Callable */ $handler)
+    public function addHttpMethodHandler($method, /* Callable */ $handler)
     {
-        if (! is_callable($handler)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Invalid HTTP method handler: must be a callable; received "%s"', 
-                            (is_object($handler) ? get_class($handler) : gettype(
-                                    $handler))));
+        if (!is_callable($handler)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Invalid HTTP method handler: must be a callable; received "%s"',
+                (is_object($handler) ? get_class($handler) : gettype($handler))
+            ));
         }
         $method = strtolower($method);
         $this->customHttpMethodsMap[$method] = $handler;
@@ -500,23 +535,23 @@ abstract class AbstractRestfulController extends AbstractController
      * Attempts to see if an identifier was passed in either the URI or the
      * query string, returning it if found. Otherwise, returns a boolean false.
      *
-     * @param \Zend\Mvc\Router\RouteMatch $routeMatch            
-     * @param Request $request            
+     * @param  \Zend\Mvc\Router\RouteMatch $routeMatch
+     * @param  Request $request
      * @return false|mixed
      */
-    protected function getIdentifier ($routeMatch, $request)
+    protected function getIdentifier($routeMatch, $request)
     {
         $identifier = $this->getIdentifierName();
         $id = $routeMatch->getParam($identifier, false);
         if ($id !== false) {
             return $id;
         }
-        
+
         $id = $request->getQuery()->get($identifier, false);
         if ($id !== false) {
             return $id;
         }
-        
+
         return false;
     }
 
@@ -529,27 +564,28 @@ abstract class AbstractRestfulController extends AbstractController
      * of "0", the method assumes that we have non-urlencoded content and
      * returns the raw content; otherwise, the array created is returned.
      *
-     * @param mixed $request            
+     * @param  mixed $request
      * @return object|string|array
      */
-    protected function processBodyContent ($request)
+    protected function processBodyContent($request)
     {
         $content = $request->getContent();
-        
+
         // JSON content? decode and return it.
         if ($this->requestHasContentType($request, self::CONTENT_TYPE_JSON)) {
             return Json::decode($content, $this->jsonDecodeType);
         }
-        
+
         parse_str($content, $parsedParams);
-        
+
         // If parse_str fails to decode, or we have a single element with key
         // 0, return the raw content.
-        if (! is_array($parsedParams) ||
-                 (1 == count($parsedParams) && isset($parsedParams[0]))) {
+        if (!is_array($parsedParams)
+            || (1 == count($parsedParams) && isset($parsedParams[0]))
+        ) {
             return $content;
         }
-        
+
         return $parsedParams;
     }
 }

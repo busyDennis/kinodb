@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Mvc\View\Http;
+
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Http\Response as HttpResponse;
@@ -17,7 +19,6 @@ use Zend\View\Model\ViewModel;
 
 class RouteNotFoundStrategy extends AbstractListenerAggregate
 {
-
     /**
      * Whether or not to display exceptions related to the 404 condition
      *
@@ -49,33 +50,20 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
     /**
      * {@inheritDoc}
      */
-    public function attach (EventManagerInterface $events)
+    public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH, 
-                array(
-                        $this,
-                        'prepareNotFoundViewModel'
-                ), - 90);
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, 
-                array(
-                        $this,
-                        'detectNotFoundError'
-                ));
-        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, 
-                array(
-                        $this,
-                        'prepareNotFoundViewModel'
-                ));
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH, array($this, 'prepareNotFoundViewModel'), -90);
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'detectNotFoundError'));
+        $this->listeners[] = $events->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'prepareNotFoundViewModel'));
     }
 
     /**
-     * Set value indicating whether or not to display exceptions related to a
-     * not-found condition
+     * Set value indicating whether or not to display exceptions related to a not-found condition
      *
-     * @param bool $displayExceptions            
+     * @param  bool $displayExceptions
      * @return RouteNotFoundStrategy
      */
-    public function setDisplayExceptions ($displayExceptions)
+    public function setDisplayExceptions($displayExceptions)
     {
         $this->displayExceptions = (bool) $displayExceptions;
         return $this;
@@ -86,19 +74,18 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      *
      * @return bool
      */
-    public function displayExceptions ()
+    public function displayExceptions()
     {
         return $this->displayExceptions;
     }
 
     /**
-     * Set value indicating whether or not to display the reason for a not-found
-     * condition
+     * Set value indicating whether or not to display the reason for a not-found condition
      *
-     * @param bool $displayNotFoundReason            
+     * @param  bool $displayNotFoundReason
      * @return RouteNotFoundStrategy
      */
-    public function setDisplayNotFoundReason ($displayNotFoundReason)
+    public function setDisplayNotFoundReason($displayNotFoundReason)
     {
         $this->displayNotFoundReason = (bool) $displayNotFoundReason;
         return $this;
@@ -109,7 +96,7 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      *
      * @return bool
      */
-    public function displayNotFoundReason ()
+    public function displayNotFoundReason()
     {
         return $this->displayNotFoundReason;
     }
@@ -117,10 +104,10 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
     /**
      * Get template for not found conditions
      *
-     * @param string $notFoundTemplate            
+     * @param  string $notFoundTemplate
      * @return RouteNotFoundStrategy
      */
-    public function setNotFoundTemplate ($notFoundTemplate)
+    public function setNotFoundTemplate($notFoundTemplate)
     {
         $this->notFoundTemplate = (string) $notFoundTemplate;
         return $this;
@@ -131,7 +118,7 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      *
      * @return string
      */
-    public function getNotFoundTemplate ()
+    public function getNotFoundTemplate()
     {
         return $this->notFoundTemplate;
     }
@@ -142,23 +129,23 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      * If a "controller not found" or "invalid controller" error type is
      * encountered, sets the response status code to 404.
      *
-     * @param MvcEvent $e            
+     * @param  MvcEvent $e
      * @return void
      */
-    public function detectNotFoundError (MvcEvent $e)
+    public function detectNotFoundError(MvcEvent $e)
     {
         $error = $e->getError();
         if (empty($error)) {
             return;
         }
-        
+
         switch ($error) {
             case Application::ERROR_CONTROLLER_NOT_FOUND:
             case Application::ERROR_CONTROLLER_INVALID:
             case Application::ERROR_ROUTER_NO_MATCH:
                 $this->reason = $error;
                 $response = $e->getResponse();
-                if (! $response) {
+                if (!$response) {
                     $response = new HttpResponse();
                     $e->setResponse($response);
                 }
@@ -172,24 +159,24 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
     /**
      * Create and return a 404 view model
      *
-     * @param MvcEvent $e            
+     * @param  MvcEvent $e
      * @return void
      */
-    public function prepareNotFoundViewModel (MvcEvent $e)
+    public function prepareNotFoundViewModel(MvcEvent $e)
     {
         $vars = $e->getResult();
         if ($vars instanceof Response) {
             // Already have a response as the result
             return;
         }
-        
+
         $response = $e->getResponse();
         if ($response->getStatusCode() != 404) {
             // Only handle 404 responses
             return;
         }
-        
-        if (! $vars instanceof ViewModel) {
+
+        if (!$vars instanceof ViewModel) {
             $model = new ViewModel();
             if (is_string($vars)) {
                 $model->setVariable('message', $vars);
@@ -202,19 +189,18 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
                 $model->setVariable('message', 'Page not found.');
             }
         }
-        
+
         $model->setTemplate($this->getNotFoundTemplate());
-        
+
         // If displaying reasons, inject the reason
         $this->injectNotFoundReason($model);
-        
+
         // If displaying exceptions, inject
         $this->injectException($model, $e);
-        
-        // Inject controller if we're displaying either the reason or the
-        // exception
+
+        // Inject controller if we're displaying either the reason or the exception
         $this->injectController($model, $e);
-        
+
         $e->setResult($model);
     }
 
@@ -225,25 +211,24 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      * and, if so, injects it into the model. If not, it injects
      * Application::ERROR_CONTROLLER_CANNOT_DISPATCH.
      *
-     * @param ViewModel $model            
+     * @param  ViewModel $model
      * @return void
      */
-    protected function injectNotFoundReason (ViewModel $model)
+    protected function injectNotFoundReason(ViewModel $model)
     {
-        if (! $this->displayNotFoundReason()) {
+        if (!$this->displayNotFoundReason()) {
             return;
         }
-        
+
         // no route match, controller not found, or controller invalid
         if ($this->reason) {
             $model->setVariable('reason', $this->reason);
             return;
         }
-        
+
         // otherwise, must be a case of the controller not being able to
         // dispatch itself.
-        $model->setVariable('reason', 
-                Application::ERROR_CONTROLLER_CANNOT_DISPATCH);
+        $model->setVariable('reason', Application::ERROR_CONTROLLER_CANNOT_DISPATCH);
     }
 
     /**
@@ -252,23 +237,23 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      * If $displayExceptions is enabled, and an exception is found in the
      * event, inject it into the model.
      *
-     * @param ViewModel $model            
-     * @param MvcEvent $e            
+     * @param  ViewModel $model
+     * @param  MvcEvent $e
      * @return void
      */
-    protected function injectException ($model, $e)
+    protected function injectException($model, $e)
     {
-        if (! $this->displayExceptions()) {
+        if (!$this->displayExceptions()) {
             return;
         }
-        
+
         $model->setVariable('display_exceptions', true);
-        
+
         $exception = $e->getParam('exception', false);
-        if (! $exception instanceof \Exception) {
+        if (!$exception instanceof \Exception) {
             return;
         }
-        
+
         $model->setVariable('exception', $exception);
     }
 
@@ -281,29 +266,29 @@ class RouteNotFoundStrategy extends AbstractListenerAggregate
      * the route match if present; if a controller is found, it injects it into
      * the model.
      *
-     * @param ViewModel $model            
-     * @param MvcEvent $e            
+     * @param  ViewModel $model
+     * @param  MvcEvent $e
      * @return void
      */
-    protected function injectController ($model, $e)
+    protected function injectController($model, $e)
     {
-        if (! $this->displayExceptions() && ! $this->displayNotFoundReason()) {
+        if (!$this->displayExceptions() && !$this->displayNotFoundReason()) {
             return;
         }
-        
+
         $controller = $e->getController();
         if (empty($controller)) {
             $routeMatch = $e->getRouteMatch();
             if (empty($routeMatch)) {
                 return;
             }
-            
+
             $controller = $routeMatch->getParam('controller', false);
-            if (! $controller) {
+            if (!$controller) {
                 return;
             }
         }
-        
+
         $controllerClass = $e->getControllerClass();
         $model->setVariable('controller', $controller);
         $model->setVariable('controller_class', $controllerClass);

@@ -3,16 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Tag;
+
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 
 class Cloud
 {
-
     /**
      * DecoratorInterface for the cloud
      *
@@ -47,16 +48,16 @@ class Cloud
      * @var array
      */
     protected $skipOptions = array(
-            'options',
-            'config'
+        'options',
+        'config',
     );
 
     /**
      * Create a new tag cloud with options
      *
-     * @param array|Traversable $options            
+     * @param  array|Traversable $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
@@ -69,23 +70,22 @@ class Cloud
     /**
      * Set options from array
      *
-     * @param array $options
-     *            Configuration for Cloud
+     * @param  array $options Configuration for Cloud
      * @return Cloud
      */
-    public function setOptions (array $options)
+    public function setOptions(array $options)
     {
         foreach ($options as $key => $value) {
             if (in_array(strtolower($key), $this->skipOptions)) {
                 continue;
             }
-            
+
             $method = 'set' . $key;
             if (method_exists($this, $method)) {
                 $this->$method($value);
             }
         }
-        
+
         return $this;
     }
 
@@ -98,11 +98,11 @@ class Cloud
      * parameter in the array is silently ignored and can be used by custom
      * decorators.
      *
-     * @param array $tags            
+     * @param  array $tags
      * @throws Exception\InvalidArgumentException
      * @return Cloud
      */
-    public function setTags (array $tags)
+    public function setTags(array $tags)
     {
         foreach ($tags as $tag) {
             $this->appendTag($tag);
@@ -113,39 +113,39 @@ class Cloud
     /**
      * Append a single tag to the cloud
      *
-     * @param TaggableInterface|array $tag            
+     * @param  TaggableInterface|array $tag
      * @throws Exception\InvalidArgumentException
      * @return Cloud
      */
-    public function appendTag ($tag)
+    public function appendTag($tag)
     {
         $tags = $this->getItemList();
-        
+
         if ($tag instanceof TaggableInterface) {
             $tags[] = $tag;
             return $this;
         }
-        
-        if (! is_array($tag)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Tag must be an instance of %s\TaggableInterface or an array; received "%s"', 
-                            __NAMESPACE__, 
-                            (is_object($tag) ? get_class($tag) : gettype($tag))));
+
+        if (!is_array($tag)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Tag must be an instance of %s\TaggableInterface or an array; received "%s"',
+                __NAMESPACE__,
+                (is_object($tag) ? get_class($tag) : gettype($tag))
+            ));
         }
-        
+
         $tags[] = new Item($tag);
-        
+
         return $this;
     }
 
     /**
      * Set the item list
      *
-     * @param ItemList $itemList            
+     * @param  ItemList $itemList
      * @return Cloud
      */
-    public function setItemList (ItemList $itemList)
+    public function setItemList(ItemList $itemList)
     {
         $this->tags = $itemList;
         return $this;
@@ -158,7 +158,7 @@ class Cloud
      *
      * @return ItemList
      */
-    public function getItemList ()
+    public function getItemList()
     {
         if (null === $this->tags) {
             $this->setItemList(new ItemList());
@@ -169,36 +169,34 @@ class Cloud
     /**
      * Set the decorator for the cloud
      *
-     * @param mixed $decorator            
+     * @param  mixed $decorator
      * @throws Exception\InvalidArgumentException
      * @return Cloud
      */
-    public function setCloudDecorator ($decorator)
+    public function setCloudDecorator($decorator)
     {
         $options = null;
-        
+
         if (is_array($decorator)) {
             if (isset($decorator['options'])) {
                 $options = $decorator['options'];
             }
-            
+
             if (isset($decorator['decorator'])) {
                 $decorator = $decorator['decorator'];
             }
         }
-        
+
         if (is_string($decorator)) {
-            $decorator = $this->getDecoratorPluginManager()->get($decorator, 
-                    $options);
+            $decorator = $this->getDecoratorPluginManager()->get($decorator, $options);
         }
-        
-        if (! ($decorator instanceof Cloud\Decorator\AbstractCloud)) {
-            throw new Exception\InvalidArgumentException(
-                    'DecoratorInterface is no instance of Cloud\Decorator\AbstractCloud');
+
+        if (!($decorator instanceof Cloud\Decorator\AbstractCloud)) {
+            throw new Exception\InvalidArgumentException('DecoratorInterface is no instance of Cloud\Decorator\AbstractCloud');
         }
-        
+
         $this->cloudDecorator = $decorator;
-        
+
         return $this;
     }
 
@@ -207,7 +205,7 @@ class Cloud
      *
      * @return Cloud\Decorator\AbstractCloud
      */
-    public function getCloudDecorator ()
+    public function getCloudDecorator()
     {
         if (null === $this->cloudDecorator) {
             $this->setCloudDecorator('htmlCloud');
@@ -218,36 +216,34 @@ class Cloud
     /**
      * Set the decorator for the tags
      *
-     * @param mixed $decorator            
+     * @param  mixed $decorator
      * @throws Exception\InvalidArgumentException
      * @return Cloud
      */
-    public function setTagDecorator ($decorator)
+    public function setTagDecorator($decorator)
     {
         $options = null;
-        
+
         if (is_array($decorator)) {
             if (isset($decorator['options'])) {
                 $options = $decorator['options'];
             }
-            
+
             if (isset($decorator['decorator'])) {
                 $decorator = $decorator['decorator'];
             }
         }
-        
+
         if (is_string($decorator)) {
-            $decorator = $this->getDecoratorPluginManager()->get($decorator, 
-                    $options);
+            $decorator = $this->getDecoratorPluginManager()->get($decorator, $options);
         }
-        
-        if (! ($decorator instanceof Cloud\Decorator\AbstractTag)) {
-            throw new Exception\InvalidArgumentException(
-                    'DecoratorInterface is no instance of Cloud\Decorator\AbstractTag');
+
+        if (!($decorator instanceof Cloud\Decorator\AbstractTag)) {
+            throw new Exception\InvalidArgumentException('DecoratorInterface is no instance of Cloud\Decorator\AbstractTag');
         }
-        
+
         $this->tagDecorator = $decorator;
-        
+
         return $this;
     }
 
@@ -256,7 +252,7 @@ class Cloud
      *
      * @return Cloud\Decorator\AbstractTag
      */
-    public function getTagDecorator ()
+    public function getTagDecorator()
     {
         if (null === $this->tagDecorator) {
             $this->setTagDecorator('htmlTag');
@@ -267,11 +263,10 @@ class Cloud
     /**
      * Set plugin manager for use with decorators
      *
-     * @param Cloud\DecoratorPluginManager $decorators            
+     * @param  Cloud\DecoratorPluginManager $decorators
      * @return Cloud
      */
-    public function setDecoratorPluginManager (
-            Cloud\DecoratorPluginManager $decorators)
+    public function setDecoratorPluginManager(Cloud\DecoratorPluginManager $decorators)
     {
         $this->decorators = $decorators;
         return $this;
@@ -282,12 +277,12 @@ class Cloud
      *
      * @return Cloud\DecoratorPluginManager
      */
-    public function getDecoratorPluginManager ()
+    public function getDecoratorPluginManager()
     {
         if ($this->decorators === null) {
             $this->decorators = new Cloud\DecoratorPluginManager();
         }
-        
+
         return $this->decorators;
     }
 
@@ -296,17 +291,17 @@ class Cloud
      *
      * @return string
      */
-    public function render ()
+    public function render()
     {
         $tags = $this->getItemList();
-        
+
         if (count($tags) === 0) {
             return '';
         }
-        
-        $tagsResult = $this->getTagDecorator()->render($tags);
+
+        $tagsResult  = $this->getTagDecorator()->render($tags);
         $cloudResult = $this->getCloudDecorator()->render($tagsResult);
-        
+
         return $cloudResult;
     }
 
@@ -315,14 +310,14 @@ class Cloud
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         try {
             $result = $this->render();
             return $result;
         } catch (\Exception $e) {
-            $message = "Exception caught by tag cloud: " . $e->getMessage() .
-                     "\nStack Trace:\n" . $e->getTraceAsString();
+            $message = "Exception caught by tag cloud: " . $e->getMessage()
+                     . "\nStack Trace:\n" . $e->getTraceAsString();
             trigger_error($message, E_USER_WARNING);
             return '';
         }

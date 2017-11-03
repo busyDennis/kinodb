@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Resolver;
+
 use SplFileInfo;
 use Traversable;
 use Zend\Stdlib\SplStack;
@@ -18,9 +20,7 @@ use Zend\View\Renderer\RendererInterface as Renderer;
  */
 class TemplatePathStack implements ResolverInterface
 {
-
-    const FAILURE_NO_PATHS = 'TemplatePathStack_Failure_No_Paths';
-
+    const FAILURE_NO_PATHS  = 'TemplatePathStack_Failure_No_Paths';
     const FAILURE_NOT_FOUND = 'TemplatePathStack_Failure_Not_Found';
 
     /**
@@ -33,7 +33,6 @@ class TemplatePathStack implements ResolverInterface
     protected $defaultSuffix = 'phtml';
 
     /**
-     *
      * @var SplStack
      */
     protected $paths;
@@ -46,43 +45,34 @@ class TemplatePathStack implements ResolverInterface
     protected $lastLookupFailure = false;
 
     /**
-     * Flag indicating whether or not LFI protection for rendering view scripts
-     * is enabled
-     *
+     * Flag indicating whether or not LFI protection for rendering view scripts is enabled
      * @var bool
      */
     protected $lfiProtectionOn = true;
 
-    /**
-     * @+
-     * Flags used to determine if a stream wrapper should be used for enabling
-     * short tags
-     *
+    /**@+
+     * Flags used to determine if a stream wrapper should be used for enabling short tags
      * @var bool
      */
-    protected $useViewStream = false;
-
+    protected $useViewStream    = false;
     protected $useStreamWrapper = false;
+    /**@-*/
 
-    /**
-     * @-
-     */
-    
     /**
      * Constructor
      *
-     * @param null|array|Traversable $options            
+     * @param  null|array|Traversable $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         $this->useViewStream = (bool) ini_get('short_open_tag');
         if ($this->useViewStream) {
-            if (! in_array('zend.view', stream_get_wrappers())) {
+            if (!in_array('zend.view', stream_get_wrappers())) {
                 stream_wrapper_register('zend.view', 'Zend\View\Stream');
             }
         }
-        
-        $this->paths = new SplStack();
+
+        $this->paths = new SplStack;
         if (null !== $options) {
             $this->setOptions($options);
         }
@@ -91,20 +81,19 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Configure object
      *
-     * @param array|Traversable $options            
+     * @param  array|Traversable $options
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function setOptions ($options)
+    public function setOptions($options)
     {
-        if (! is_array($options) && ! $options instanceof Traversable) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Expected array or Traversable object; received "%s"', 
-                            (is_object($options) ? get_class($options) : gettype(
-                                    $options))));
+        if (!is_array($options) && !$options instanceof Traversable) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Expected array or Traversable object; received "%s"',
+                (is_object($options) ? get_class($options) : gettype($options))
+            ));
         }
-        
+
         foreach ($options as $key => $value) {
             switch (strtolower($key)) {
                 case 'lfi_protection':
@@ -128,10 +117,10 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Set default file suffix
      *
-     * @param string $defaultSuffix            
+     * @param  string $defaultSuffix
      * @return TemplatePathStack
      */
-    public function setDefaultSuffix ($defaultSuffix)
+    public function setDefaultSuffix($defaultSuffix)
     {
         $this->defaultSuffix = (string) $defaultSuffix;
         $this->defaultSuffix = ltrim($this->defaultSuffix, '.');
@@ -143,7 +132,7 @@ class TemplatePathStack implements ResolverInterface
      *
      * @return string
      */
-    public function getDefaultSuffix ()
+    public function getDefaultSuffix()
     {
         return $this->defaultSuffix;
     }
@@ -151,10 +140,10 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Add many paths to the stack at once
      *
-     * @param array $paths            
+     * @param  array $paths
      * @return TemplatePathStack
      */
-    public function addPaths (array $paths)
+    public function addPaths(array $paths)
     {
         foreach ($paths as $path) {
             $this->addPath($path);
@@ -165,11 +154,11 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Rest the path stack to the paths provided
      *
-     * @param SplStack|array $paths            
+     * @param  SplStack|array $paths
      * @return TemplatePathStack
      * @throws Exception\InvalidArgumentException
      */
-    public function setPaths ($paths)
+    public function setPaths($paths)
     {
         if ($paths instanceof SplStack) {
             $this->paths = $paths;
@@ -178,19 +167,20 @@ class TemplatePathStack implements ResolverInterface
             $this->addPaths($paths);
         } else {
             throw new Exception\InvalidArgumentException(
-                    "Invalid argument provided for \$paths, expecting either an array or SplStack object");
+                "Invalid argument provided for \$paths, expecting either an array or SplStack object"
+            );
         }
-        
+
         return $this;
     }
 
     /**
      * Normalize a path for insertion in the stack
      *
-     * @param string $path            
+     * @param  string $path
      * @return string
      */
-    public static function normalizePath ($path)
+    public static function normalizePath($path)
     {
         $path = rtrim($path, '/');
         $path = rtrim($path, '\\');
@@ -201,17 +191,17 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Add a single path to the stack
      *
-     * @param string $path            
+     * @param  string $path
      * @return TemplatePathStack
      * @throws Exception\InvalidArgumentException
      */
-    public function addPath ($path)
+    public function addPath($path)
     {
-        if (! is_string($path)) {
-            throw new Exception\InvalidArgumentException(
-                    sprintf(
-                            'Invalid path provided; must be a string, received %s', 
-                            gettype($path)));
+        if (!is_string($path)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Invalid path provided; must be a string, received %s',
+                gettype($path)
+            ));
         }
         $this->paths[] = static::normalizePath($path);
         return $this;
@@ -222,9 +212,9 @@ class TemplatePathStack implements ResolverInterface
      *
      * @return void
      */
-    public function clearPaths ()
+    public function clearPaths()
     {
-        $this->paths = new SplStack();
+        $this->paths = new SplStack;
     }
 
     /**
@@ -232,7 +222,7 @@ class TemplatePathStack implements ResolverInterface
      *
      * @return SplStack
      */
-    public function getPaths ()
+    public function getPaths()
     {
         return $this->paths;
     }
@@ -240,10 +230,10 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Set LFI protection flag
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return TemplatePathStack
      */
-    public function setLfiProtection ($flag)
+    public function setLfiProtection($flag)
     {
         $this->lfiProtectionOn = (bool) $flag;
         return $this;
@@ -254,19 +244,18 @@ class TemplatePathStack implements ResolverInterface
      *
      * @return bool
      */
-    public function isLfiProtectionOn ()
+    public function isLfiProtectionOn()
     {
         return $this->lfiProtectionOn;
     }
 
     /**
-     * Set flag indicating if stream wrapper should be used if short_open_tag is
-     * off
+     * Set flag indicating if stream wrapper should be used if short_open_tag is off
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return TemplatePathStack
      */
-    public function setUseStreamWrapper ($flag)
+    public function setUseStreamWrapper($flag)
     {
         $this->useStreamWrapper = (bool) $flag;
         return $this;
@@ -280,7 +269,7 @@ class TemplatePathStack implements ResolverInterface
      *
      * @return bool
      */
-    public function useStreamWrapper ()
+    public function useStreamWrapper()
     {
         return ($this->useViewStream && $this->useStreamWrapper);
     }
@@ -288,41 +277,40 @@ class TemplatePathStack implements ResolverInterface
     /**
      * Retrieve the filesystem path to a view script
      *
-     * @param string $name            
-     * @param null|Renderer $renderer            
+     * @param  string $name
+     * @param  null|Renderer $renderer
      * @return string
      * @throws Exception\DomainException
      */
-    public function resolve ($name, Renderer $renderer = null)
+    public function resolve($name, Renderer $renderer = null)
     {
         $this->lastLookupFailure = false;
-        
+
         if ($this->isLfiProtectionOn() && preg_match('#\.\.[\\\/]#', $name)) {
             throw new Exception\DomainException(
-                    'Requested scripts may not include parent directory traversal ("../", "..\\" notation)');
+                'Requested scripts may not include parent directory traversal ("../", "..\\" notation)'
+            );
         }
-        
-        if (! count($this->paths)) {
+
+        if (!count($this->paths)) {
             $this->lastLookupFailure = static::FAILURE_NO_PATHS;
             return false;
         }
-        
+
         // Ensure we have the expected file extension
         $defaultSuffix = $this->getDefaultSuffix();
         if (pathinfo($name, PATHINFO_EXTENSION) == '') {
             $name .= '.' . $defaultSuffix;
         }
-        
+
         foreach ($this->paths as $path) {
             $file = new SplFileInfo($path . $name);
             if ($file->isReadable()) {
                 // Found! Return it.
-                if (($filePath = $file->getRealPath()) === false &&
-                         substr($path, 0, 7) === 'phar://') {
-                    // Do not try to expand phar paths (realpath + phars ==
-                    // fail)
+                if (($filePath = $file->getRealPath()) === false && substr($path, 0, 7) === 'phar://') {
+                    // Do not try to expand phar paths (realpath + phars == fail)
                     $filePath = $path . $name;
-                    if (! file_exists($filePath)) {
+                    if (!file_exists($filePath)) {
                         break;
                     }
                 }
@@ -333,7 +321,7 @@ class TemplatePathStack implements ResolverInterface
                 return $filePath;
             }
         }
-        
+
         $this->lastLookupFailure = static::FAILURE_NOT_FOUND;
         return false;
     }
@@ -343,7 +331,7 @@ class TemplatePathStack implements ResolverInterface
      *
      * @return false|string
      */
-    public function getLastLookupFailure ()
+    public function getLastLookupFailure()
     {
         return $this->lastLookupFailure;
     }

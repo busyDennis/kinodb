@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\XmlRpc\Generator;
 
 /**
@@ -13,7 +14,6 @@ namespace Zend\XmlRpc\Generator;
  */
 class XmlWriter extends AbstractGenerator
 {
-
     /**
      * XMLWriter instance
      *
@@ -26,7 +26,7 @@ class XmlWriter extends AbstractGenerator
      *
      * @return void
      */
-    protected function _init ()
+    protected function _init()
     {
         $this->xmlWriter = new \XMLWriter();
         $this->xmlWriter->openMemory();
@@ -36,11 +36,10 @@ class XmlWriter extends AbstractGenerator
     /**
      * Open a new XML element
      *
-     * @param string $name
-     *            XML element name
+     * @param string $name XML element name
      * @return void
      */
-    protected function _openElement ($name)
+    protected function _openElement($name)
     {
         $this->xmlWriter->startElement($name);
     }
@@ -48,25 +47,24 @@ class XmlWriter extends AbstractGenerator
     /**
      * Write XML text data into the currently opened XML element
      *
-     * @param string $text
-     *            XML text data
+     * @param string $text XML text data
      * @return void
      */
-    protected function _writeTextData ($text)
+    protected function _writeTextData($text)
     {
         $this->xmlWriter->text($text);
     }
 
     /**
-     * Close an previously opened XML element
+     * Close a previously opened XML element
      *
-     * @param string $name            
+     * @param string $name
      * @return XmlWriter
      */
-    protected function _closeElement ($name)
+    protected function _closeElement($name)
     {
         $this->xmlWriter->endElement();
-        
+
         return $this;
     }
 
@@ -75,7 +73,7 @@ class XmlWriter extends AbstractGenerator
      *
      * @return string
      */
-    public function saveXml ()
+    public function saveXml()
     {
         return $this->xmlWriter->flush(false);
     }

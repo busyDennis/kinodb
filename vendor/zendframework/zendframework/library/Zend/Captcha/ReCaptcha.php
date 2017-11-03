@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Captcha;
+
 use Traversable;
 use ZendService\ReCaptcha\ReCaptcha as ReCaptchaService;
 
@@ -19,21 +21,14 @@ use ZendService\ReCaptcha\ReCaptcha as ReCaptchaService;
  */
 class ReCaptcha extends AbstractAdapter
 {
-
-    /**
-     * @+
+    /**@+
      * ReCaptcha Field names
-     *
      * @var string
      */
     protected $CHALLENGE = 'recaptcha_challenge_field';
+    protected $RESPONSE  = 'recaptcha_response_field';
+    /**@-*/
 
-    protected $RESPONSE = 'recaptcha_response_field';
-
-    /**
-     * @-
-     */
-    
     /**
      * Recaptcha service object
      *
@@ -55,29 +50,22 @@ class ReCaptcha extends AbstractAdapter
      */
     protected $serviceOptions = array();
 
-    /**
-     * #@+
+    /**#@+
      * Error codes
      */
     const MISSING_VALUE = 'missingValue';
+    const ERR_CAPTCHA   = 'errCaptcha';
+    const BAD_CAPTCHA   = 'badCaptcha';
+    /**#@-*/
 
-    const ERR_CAPTCHA = 'errCaptcha';
-
-    const BAD_CAPTCHA = 'badCaptcha';
-
-    /**
-     * #@-
-     */
-    
     /**
      * Error messages
-     *
      * @var array
      */
     protected $messageTemplates = array(
-            self::MISSING_VALUE => 'Missing captcha fields',
-            self::ERR_CAPTCHA => 'Failed to validate captcha',
-            self::BAD_CAPTCHA => 'Captcha value is wrong: %value%'
+        self::MISSING_VALUE => 'Missing captcha fields',
+        self::ERR_CAPTCHA   => 'Failed to validate captcha',
+        self::BAD_CAPTCHA   => 'Captcha value is wrong: %value%',
     );
 
     /**
@@ -85,7 +73,7 @@ class ReCaptcha extends AbstractAdapter
      *
      * @return string
      */
-    public function getPrivkey ()
+    public function getPrivkey()
     {
         return $this->getService()->getPrivateKey();
     }
@@ -95,7 +83,7 @@ class ReCaptcha extends AbstractAdapter
      *
      * @return string
      */
-    public function getPubkey ()
+    public function getPubkey()
     {
         return $this->getService()->getPublicKey();
     }
@@ -103,10 +91,10 @@ class ReCaptcha extends AbstractAdapter
     /**
      * Set ReCaptcha Private key
      *
-     * @param string $privkey            
+     * @param  string $privkey
      * @return ReCaptcha
      */
-    public function setPrivkey ($privkey)
+    public function setPrivkey($privkey)
     {
         $this->getService()->setPrivateKey($privkey);
         return $this;
@@ -115,10 +103,10 @@ class ReCaptcha extends AbstractAdapter
     /**
      * Set ReCaptcha public key
      *
-     * @param string $pubkey            
+     * @param  string $pubkey
      * @return ReCaptcha
      */
-    public function setPubkey ($pubkey)
+    public function setPubkey($pubkey)
     {
         $this->getService()->setPublicKey($pubkey);
         return $this;
@@ -127,17 +115,23 @@ class ReCaptcha extends AbstractAdapter
     /**
      * Constructor
      *
-     * @param null|array|Traversable $options            
+     * @param  null|array|Traversable $options
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         $this->setService(new ReCaptchaService());
-        $this->serviceParams = $this->getService()->getParams();
+        $this->serviceParams  = $this->getService()->getParams();
         $this->serviceOptions = $this->getService()->getOptions();
-        
+
         parent::__construct($options);
-        
-        if (! empty($options)) {
+
+        if (!empty($options)) {
+            if (array_key_exists('private_key', $options)) {
+                $this->getService()->setPrivateKey($options['private_key']);
+            }
+            if (array_key_exists('public_key', $options)) {
+                $this->getService()->setPublicKey($options['public_key']);
+            }
             $this->setOptions($options);
         }
     }
@@ -145,10 +139,10 @@ class ReCaptcha extends AbstractAdapter
     /**
      * Set service object
      *
-     * @param ReCaptchaService $service            
+     * @param  ReCaptchaService $service
      * @return ReCaptcha
      */
-    public function setService (ReCaptchaService $service)
+    public function setService(ReCaptchaService $service)
     {
         $this->service = $service;
         return $this;
@@ -159,7 +153,7 @@ class ReCaptcha extends AbstractAdapter
      *
      * @return ReCaptchaService
      */
-    public function getService ()
+    public function getService()
     {
         return $this->service;
     }
@@ -170,11 +164,11 @@ class ReCaptcha extends AbstractAdapter
      * If option is a service parameter, proxies to the service. The same
      * goes for any service options (distinct from service params)
      *
-     * @param string $key            
-     * @param mixed $value            
+     * @param  string $key
+     * @param  mixed $value
      * @return ReCaptcha
      */
-    public function setOption ($key, $value)
+    public function setOption($key, $value)
     {
         $service = $this->getService();
         if (isset($this->serviceParams[$key])) {
@@ -194,7 +188,7 @@ class ReCaptcha extends AbstractAdapter
      * @see AbstractAdapter::generate()
      * @return string
      */
-    public function generate ()
+    public function generate()
     {
         return "";
     }
@@ -202,43 +196,42 @@ class ReCaptcha extends AbstractAdapter
     /**
      * Validate captcha
      *
-     * @see \Zend\Validator\ValidatorInterface::isValid()
-     * @param mixed $value            
-     * @param mixed $context            
+     * @see    \Zend\Validator\ValidatorInterface::isValid()
+     * @param  mixed $value
+     * @param  mixed $context
      * @return bool
      */
-    public function isValid ($value, $context = null)
+    public function isValid($value, $context = null)
     {
-        if (! is_array($value) && ! is_array($context)) {
+        if (!is_array($value) && !is_array($context)) {
             $this->error(self::MISSING_VALUE);
             return false;
         }
-        
-        if (! is_array($value) && is_array($context)) {
+
+        if (!is_array($value) && is_array($context)) {
             $value = $context;
         }
-        
+
         if (empty($value[$this->CHALLENGE]) || empty($value[$this->RESPONSE])) {
             $this->error(self::MISSING_VALUE);
             return false;
         }
-        
+
         $service = $this->getService();
-        
-        $res = $service->verify($value[$this->CHALLENGE], 
-                $value[$this->RESPONSE]);
-        
-        if (! $res) {
+
+        $res = $service->verify($value[$this->CHALLENGE], $value[$this->RESPONSE]);
+
+        if (!$res) {
             $this->error(self::ERR_CAPTCHA);
             return false;
         }
-        
-        if (! $res->isValid()) {
+
+        if (!$res->isValid()) {
             $this->error(self::BAD_CAPTCHA, $res->getErrorCode());
             $service->setParam('error', $res->getErrorCode());
             return false;
         }
-        
+
         return true;
     }
 
@@ -247,7 +240,7 @@ class ReCaptcha extends AbstractAdapter
      *
      * @return string
      */
-    public function getHelperName ()
+    public function getHelperName()
     {
         return "captcha/recaptcha";
     }

@@ -3,18 +3,18 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Validator;
+
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
 
 class Between extends AbstractValidator
 {
-
-    const NOT_BETWEEN = 'notBetween';
-
+    const NOT_BETWEEN        = 'notBetween';
     const NOT_BETWEEN_STRICT = 'notBetweenStrict';
 
     /**
@@ -23,8 +23,8 @@ class Between extends AbstractValidator
      * @var array
      */
     protected $messageTemplates = array(
-            self::NOT_BETWEEN => "The input is not between '%min%' and '%max%', inclusively",
-            self::NOT_BETWEEN_STRICT => "The input is not strictly between '%min%' and '%max%'"
+        self::NOT_BETWEEN        => "The input is not between '%min%' and '%max%', inclusively",
+        self::NOT_BETWEEN_STRICT => "The input is not strictly between '%min%' and '%max%'"
     );
 
     /**
@@ -33,12 +33,8 @@ class Between extends AbstractValidator
      * @var array
      */
     protected $messageVariables = array(
-            'min' => array(
-                    'options' => 'min'
-            ),
-            'max' => array(
-                    'options' => 'max'
-            )
+        'min' => array('options' => 'min'),
+        'max' => array('options' => 'max'),
     );
 
     /**
@@ -47,46 +43,47 @@ class Between extends AbstractValidator
      * @var array
      */
     protected $options = array(
-            'inclusive' => true, // Whether to do inclusive comparisons,
-                                 // allowing equivalence to min and/or max
-            'min' => 0,
-            'max' => PHP_INT_MAX
+        'inclusive' => true,  // Whether to do inclusive comparisons, allowing equivalence to min and/or max
+        'min'       => 0,
+        'max'       => PHP_INT_MAX,
     );
 
     /**
      * Sets validator options
      * Accepts the following option keys:
-     * 'min' => scalar, minimum border
-     * 'max' => scalar, maximum border
-     * 'inclusive' => boolean, inclusive border values
+     *   'min' => scalar, minimum border
+     *   'max' => scalar, maximum border
+     *   'inclusive' => boolean, inclusive border values
      *
-     * @param array|Traversable $options            
+     * @param  array|Traversable $options
+     *
+     * @throws Exception\InvalidArgumentException
      */
-    public function __construct ($options = null)
+    public function __construct($options = null)
     {
         if ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
         }
-        if (! is_array($options)) {
+        if (!is_array($options)) {
             $options = func_get_args();
             $temp['min'] = array_shift($options);
-            if (! empty($options)) {
+            if (!empty($options)) {
                 $temp['max'] = array_shift($options);
             }
-            
-            if (! empty($options)) {
+
+            if (!empty($options)) {
                 $temp['inclusive'] = array_shift($options);
             }
-            
+
             $options = $temp;
         }
-        
-        if (! array_key_exists('min', $options) ||
-                 ! array_key_exists('max', $options)) {
-            // throw new Exception\InvalidArgumentException("Missing option.
-            // 'min' and 'max' has to be given");
+
+        if (count($options) !== 2
+            && (!array_key_exists('min', $options) || !array_key_exists('max', $options))
+        ) {
+            throw new Exception\InvalidArgumentException("Missing option. 'min' and 'max' have to be given");
         }
-        
+
         parent::__construct($options);
     }
 
@@ -95,7 +92,7 @@ class Between extends AbstractValidator
      *
      * @return mixed
      */
-    public function getMin ()
+    public function getMin()
     {
         return $this->options['min'];
     }
@@ -103,10 +100,10 @@ class Between extends AbstractValidator
     /**
      * Sets the min option
      *
-     * @param mixed $min            
+     * @param  mixed $min
      * @return Between Provides a fluent interface
      */
-    public function setMin ($min)
+    public function setMin($min)
     {
         $this->options['min'] = $min;
         return $this;
@@ -117,7 +114,7 @@ class Between extends AbstractValidator
      *
      * @return mixed
      */
-    public function getMax ()
+    public function getMax()
     {
         return $this->options['max'];
     }
@@ -125,10 +122,10 @@ class Between extends AbstractValidator
     /**
      * Sets the max option
      *
-     * @param mixed $max            
+     * @param  mixed $max
      * @return Between Provides a fluent interface
      */
-    public function setMax ($max)
+    public function setMax($max)
     {
         $this->options['max'] = $max;
         return $this;
@@ -139,7 +136,7 @@ class Between extends AbstractValidator
      *
      * @return bool
      */
-    public function getInclusive ()
+    public function getInclusive()
     {
         return $this->options['inclusive'];
     }
@@ -147,27 +144,26 @@ class Between extends AbstractValidator
     /**
      * Sets the inclusive option
      *
-     * @param bool $inclusive            
+     * @param  bool $inclusive
      * @return Between Provides a fluent interface
      */
-    public function setInclusive ($inclusive)
+    public function setInclusive($inclusive)
     {
         $this->options['inclusive'] = $inclusive;
         return $this;
     }
 
     /**
-     * Returns true if and only if $value is between min and max options,
-     * inclusively
+     * Returns true if and only if $value is between min and max options, inclusively
      * if inclusive option is true.
      *
-     * @param mixed $value            
+     * @param  mixed $value
      * @return bool
      */
-    public function isValid ($value)
+    public function isValid($value)
     {
         $this->setValue($value);
-        
+
         if ($this->getInclusive()) {
             if ($this->getMin() > $value || $value > $this->getMax()) {
                 $this->error(self::NOT_BETWEEN);
@@ -179,7 +175,7 @@ class Between extends AbstractValidator
                 return false;
             }
         }
-        
+
         return true;
     }
 }

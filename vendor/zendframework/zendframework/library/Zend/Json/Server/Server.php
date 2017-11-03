@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Json\Server;
+
 use ReflectionFunction;
 use ReflectionMethod;
 use Zend\Server\AbstractServer;
@@ -16,22 +18,15 @@ use Zend\Server\Reflection;
 
 class Server extends AbstractServer
 {
-
-    /**
-     * #@+
+    /**#@+
      * Version Constants
      */
     const VERSION_1 = '1.0';
-
     const VERSION_2 = '2.0';
+    /**#@-*/
 
-    /**
-     * #@-
-     */
-    
     /**
      * Flag: whether or not to auto-emit the response
-     *
      * @var bool
      */
     protected $returnResponse = false;
@@ -39,35 +34,30 @@ class Server extends AbstractServer
     /**
      * Inherited from Zend\Server\AbstractServer
      *
-     * @var bool Flag; allow overwriting existing methods when creating server
-     *      definition
+     * @var bool Flag; allow overwriting existing methods when creating server definition
      */
     protected $overwriteExistingMethods = true;
 
     /**
      * Request object
-     *
      * @var Request
      */
     protected $request;
 
     /**
      * Response object
-     *
      * @var Response
      */
     protected $response;
 
     /**
      * SMD object
-     *
      * @var Smd
      */
     protected $serviceMap;
 
     /**
      * SMD class accessors
-     *
      * @var array
      */
     protected $smdMethods;
@@ -75,78 +65,71 @@ class Server extends AbstractServer
     /**
      * Attach a function or callback to the server
      *
-     * @param string|array|callable $function
-     *            Valid PHP callback
-     * @param string $namespace
-     *            Ignored
-     * @throws Exception\InvalidArgumentException if function invalid or not
-     *         callable
+     * @param  string|array|callable $function   Valid PHP callback
+     * @param  string                $namespace  Ignored
+     * @throws Exception\InvalidArgumentException if function invalid or not callable
      * @return Server
      */
-    public function addFunction ($function, $namespace = '')
+    public function addFunction($function, $namespace = '')
     {
-        if (! is_string($function) &&
-                 (! is_array($function) || (2 > count($function)))) {
-            throw new Exception\InvalidArgumentException(
-                    'Unable to attach function; invalid');
+        if (!is_string($function) && (!is_array($function) || (2 > count($function)))) {
+            throw new Exception\InvalidArgumentException('Unable to attach function; invalid');
         }
-        
-        if (! is_callable($function)) {
-            throw new Exception\InvalidArgumentException(
-                    'Unable to attach function; does not exist');
+
+        if (!is_callable($function)) {
+            throw new Exception\InvalidArgumentException('Unable to attach function; does not exist');
         }
-        
+
         $argv = null;
         if (2 < func_num_args()) {
             $argv = func_get_args();
             $argv = array_slice($argv, 2);
         }
-        
+
+        $class = null;
         if (is_string($function)) {
             $method = Reflection::reflectFunction($function, $argv, $namespace);
         } else {
-            $class = array_shift($function);
+            $class  = array_shift($function);
             $action = array_shift($function);
             $reflection = Reflection::reflectClass($class, $argv, $namespace);
             $methods = $reflection->getMethods();
-            $found = false;
+            $found   = false;
             foreach ($methods as $method) {
                 if ($action == $method->getName()) {
                     $found = true;
                     break;
                 }
             }
-            if (! $found) {
+            if (!$found) {
                 $this->fault('Method not found', Error::ERROR_INVALID_METHOD);
                 return $this;
             }
         }
-        
-        $definition = $this->_buildSignature($method);
+
+        $definition = $this->_buildSignature($method, $class);
         $this->_addMethodServiceMap($definition);
-        
+
         return $this;
     }
 
     /**
      * Register a class with the server
      *
-     * @param string $class            
-     * @param string $namespace
-     *            Ignored
-     * @param mixed $argv
-     *            Ignored
+     * @param  string $class
+     * @param  string $namespace Ignored
+     * @param  mixed $argv Ignored
      * @return Server
      */
-    public function setClass ($class, $namespace = '', $argv = null)
+    public function setClass($class, $namespace = '', $argv = null)
     {
         if (2 < func_num_args()) {
             $argv = func_get_args();
             $argv = array_slice($argv, 2);
         }
-        
+
         $reflection = Reflection::reflectClass($class, $argv, $namespace);
-        
+
         foreach ($reflection->getMethods() as $method) {
             $definition = $this->_buildSignature($method, $class);
             $this->_addMethodServiceMap($definition);
@@ -157,12 +140,12 @@ class Server extends AbstractServer
     /**
      * Indicate fault response
      *
-     * @param string $fault            
-     * @param int $code            
-     * @param mixed $data            
+     * @param  string $fault
+     * @param  int $code
+     * @param  mixed $data
      * @return Error
      */
-    public function fault ($fault = null, $code = 404, $data = null)
+    public function fault($fault = null, $code = 404, $data = null)
     {
         $error = new Error($fault, $code, $data);
         $this->getResponse()->setError($error);
@@ -172,31 +155,30 @@ class Server extends AbstractServer
     /**
      * Handle request
      *
-     * @param Request $request            
+     * @param  Request $request
      * @return null|Response
      * @throws Exception\InvalidArgumentException
      */
-    public function handle ($request = false)
+    public function handle($request = false)
     {
-        if ((false !== $request) && (! $request instanceof Request)) {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid request type provided; cannot handle');
+        if ((false !== $request) && (!$request instanceof Request)) {
+            throw new Exception\InvalidArgumentException('Invalid request type provided; cannot handle');
         } elseif ($request) {
             $this->setRequest($request);
         }
-        
+
         // Handle request
         $this->_handle();
-        
+
         // Get response
         $response = $this->_getReadyResponse();
-        
+
         // Emit response?
-        if (! $this->returnResponse) {
+        if (!$this->returnResponse) {
             echo $response;
             return;
         }
-        
+
         // or return it?
         return $response;
     }
@@ -204,33 +186,33 @@ class Server extends AbstractServer
     /**
      * Load function definitions
      *
-     * @param array|Definition $definition            
+     * @param  array|Definition $definition
      * @throws Exception\InvalidArgumentException
      * @return void
      */
-    public function loadFunctions ($definition)
+    public function loadFunctions($definition)
     {
-        if (! is_array($definition) && (! $definition instanceof Definition)) {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid definition provided to loadFunctions()');
+        if (!is_array($definition) && (!$definition instanceof Definition)) {
+            throw new Exception\InvalidArgumentException('Invalid definition provided to loadFunctions()');
         }
-        
+
         foreach ($definition as $key => $method) {
             $this->table->addMethod($method, $key);
             $this->_addMethodServiceMap($method);
         }
     }
 
-    public function setPersistence ($mode)
-    {}
+    public function setPersistence($mode)
+    {
+    }
 
     /**
      * Set request object
      *
-     * @param Request $request            
+     * @param  Request $request
      * @return Server
      */
-    public function setRequest (Request $request)
+    public function setRequest(Request $request)
     {
         $this->request = $request;
         return $this;
@@ -241,7 +223,7 @@ class Server extends AbstractServer
      *
      * @return Request
      */
-    public function getRequest ()
+    public function getRequest()
     {
         if (null === ($request = $this->request)) {
             $this->setRequest(new Request\Http());
@@ -252,10 +234,10 @@ class Server extends AbstractServer
     /**
      * Set response object
      *
-     * @param Response $response            
+     * @param  Response $response
      * @return Server
      */
-    public function setResponse (Response $response)
+    public function setResponse(Response $response)
     {
         $this->response = $response;
         return $this;
@@ -266,7 +248,7 @@ class Server extends AbstractServer
      *
      * @return Response
      */
-    public function getResponse ()
+    public function getResponse()
     {
         if (null === ($response = $this->response)) {
             $this->setResponse(new Response\Http());
@@ -282,12 +264,12 @@ class Server extends AbstractServer
      *
      * The response is always available via {@link getResponse()}.
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return Server
      */
-    public function setReturnResponse ($flag = true)
+    public function setReturnResponse($flag = true)
     {
-        $this->returnResponse = ($flag) ? true : false;
+        $this->returnResponse = (bool) $flag;
         return $this;
     }
 
@@ -296,20 +278,20 @@ class Server extends AbstractServer
      *
      * @return bool
      */
-    public function getReturnResponse ()
+    public function getReturnResponse()
     {
         return $this->returnResponse;
     }
-    
+
     // overloading for SMD metadata
     /**
      * Overload to accessors of SMD object
      *
-     * @param string $method            
-     * @param array $args            
+     * @param  string $method
+     * @param  array $args
      * @return mixed
      */
-    public function __call ($method, $args)
+    public function __call($method, $args)
     {
         if (preg_match('/^(set|get)/', $method, $matches)) {
             if (in_array($method, $this->_getSmdMethods())) {
@@ -322,7 +304,7 @@ class Server extends AbstractServer
                 }
             }
         }
-        return null;
+        return;
     }
 
     /**
@@ -330,7 +312,7 @@ class Server extends AbstractServer
      *
      * @return Smd
      */
-    public function getServiceMap ()
+    public function getServiceMap()
     {
         if (null === $this->serviceMap) {
             $this->serviceMap = new Smd();
@@ -341,14 +323,14 @@ class Server extends AbstractServer
     /**
      * Add service method to service map
      *
-     * @param Method\Definition $method            
+     * @param  Method\Definition $method
      * @return void
      */
-    protected function _addMethodServiceMap (Method\Definition $method)
+    protected function _addMethodServiceMap(Method\Definition $method)
     {
         $serviceInfo = array(
-                'name' => $method->getName(),
-                'return' => $this->_getReturnType($method)
+            'name'   => $method->getName(),
+            'return' => $this->_getReturnType($method),
         );
         $params = $this->_getParams($method);
         $serviceInfo['params'] = $params;
@@ -362,10 +344,10 @@ class Server extends AbstractServer
     /**
      * Translate PHP type to JSON type
      *
-     * @param string $type            
+     * @param  string $type
      * @return string
      */
-    protected function _fixType ($type)
+    protected function _fixType($type)
     {
         return $type;
     }
@@ -373,51 +355,68 @@ class Server extends AbstractServer
     /**
      * Get default params from signature
      *
-     * @param array $args            
-     * @param array $params            
+     * @param  array $args
+     * @param  array $params
      * @return array
      */
-    protected function _getDefaultParams (array $args, array $params)
+    protected function _getDefaultParams(array $args, array $params)
     {
-        $defaultParams = array_slice($params, count($args));
-        foreach ($defaultParams as $param) {
-            $value = null;
-            if (array_key_exists('default', $param)) {
-                $value = $param['default'];
-            }
-            $args[$param['name']] = $value;
+        if (false === $this->isAssociative($args)) {
+            $params = array_slice($params, count($args));
         }
+
+        foreach ($params as $param) {
+            if (isset($args[$param['name']]) || !array_key_exists('default', $param)) {
+                continue;
+            }
+
+            $args[$param['name']] = $param['default'];
+        }
+
         return $args;
+    }
+
+    /**
+     * check whether array is associative or not
+     *
+     * @param array $array
+     * @return bool
+     */
+    private function isAssociative(array $array)
+    {
+        $keys = array_keys($array);
+
+        return ($keys != array_keys($keys));
     }
 
     /**
      * Get method param type
      *
-     * @param Method\Definition $method            
+     * @param  Method\Definition $method
      * @return string|array
      */
-    protected function _getParams (Method\Definition $method)
+    protected function _getParams(Method\Definition $method)
     {
         $params = array();
         foreach ($method->getPrototypes() as $prototype) {
             foreach ($prototype->getParameterObjects() as $key => $parameter) {
-                if (! isset($params[$key])) {
+                if (!isset($params[$key])) {
                     $params[$key] = array(
-                            'type' => $parameter->getType(),
-                            'name' => $parameter->getName(),
-                            'optional' => $parameter->isOptional()
+                        'type'     => $parameter->getType(),
+                        'name'     => $parameter->getName(),
+                        'optional' => $parameter->isOptional(),
                     );
                     if (null !== ($default = $parameter->getDefaultValue())) {
                         $params[$key]['default'] = $default;
                     }
                     $description = $parameter->getDescription();
-                    if (! empty($description)) {
+                    if (!empty($description)) {
                         $params[$key]['description'] = $description;
                     }
                     continue;
                 }
                 $newType = $parameter->getType();
-                if (! is_array($params[$key]['type'])) {
+                if (!is_array($params[$key]['type'])) {
                     if ($params[$key]['type'] == $newType) {
                         continue;
                     }
@@ -436,11 +435,11 @@ class Server extends AbstractServer
      *
      * @return Response
      */
-    protected function _getReadyResponse ()
+    protected function _getReadyResponse()
     {
-        $request = $this->getRequest();
+        $request  = $this->getRequest();
         $response = $this->getResponse();
-        
+
         $response->setServiceMap($this->getServiceMap());
         if (null !== ($id = $request->getId())) {
             $response->setId($id);
@@ -448,17 +447,17 @@ class Server extends AbstractServer
         if (null !== ($version = $request->getVersion())) {
             $response->setVersion($version);
         }
-        
+
         return $response;
     }
 
     /**
      * Get method return type
      *
-     * @param Method\Definition $method            
+     * @param  Method\Definition $method
      * @return string|array
      */
-    protected function _getReturnType (Method\Definition $method)
+    protected function _getReturnType(Method\Definition $method)
     {
         $return = array();
         foreach ($method->getPrototypes() as $prototype) {
@@ -475,13 +474,13 @@ class Server extends AbstractServer
      *
      * @return array
      */
-    protected function _getSmdMethods ()
+    protected function _getSmdMethods()
     {
         if (null === $this->smdMethods) {
             $this->smdMethods = array();
             $methods = get_class_methods('Zend\\Json\\Server\\Smd');
             foreach ($methods as $method) {
-                if (! preg_match('/^(set|get)/', $method)) {
+                if (!preg_match('/^(set|get)/', $method)) {
                     continue;
                 }
                 if (strstr($method, 'Service')) {
@@ -498,44 +497,49 @@ class Server extends AbstractServer
      *
      * @return void
      */
-    protected function _handle ()
+    protected function _handle()
     {
         $request = $this->getRequest();
-        
-        if (! $request->isMethodError() && (null === $request->getMethod())) {
+
+        if ($request->isParseError()) {
+            return $this->fault('Parse error', Error::ERROR_PARSE);
+        }
+
+        if (!$request->isMethodError() && (null === $request->getMethod())) {
             return $this->fault('Invalid Request', Error::ERROR_INVALID_REQUEST);
         }
-        
+
         if ($request->isMethodError()) {
             return $this->fault('Invalid Request', Error::ERROR_INVALID_REQUEST);
         }
-        
+
         $method = $request->getMethod();
-        if (! $this->table->hasMethod($method)) {
+        if (!$this->table->hasMethod($method)) {
             return $this->fault('Method not found', Error::ERROR_INVALID_METHOD);
         }
-        
-        $params = $request->getParams();
-        $invokable = $this->table->getMethod($method);
-        $serviceMap = $this->getServiceMap();
-        $service = $serviceMap->getService($method);
+
+        $params        = $request->getParams();
+        $invokable     = $this->table->getMethod($method);
+        $serviceMap    = $this->getServiceMap();
+        $service       = $serviceMap->getService($method);
         $serviceParams = $service->getParams();
-        
+
         if (count($params) < count($serviceParams)) {
             $params = $this->_getDefaultParams($params, $serviceParams);
         }
-        
-        // Make sure named parameters are passed in correct order
+
+        //Make sure named parameters are passed in correct order
         if (is_string(key($params))) {
             $callback = $invokable->getCallback();
             if ('function' == $callback->getType()) {
                 $reflection = new ReflectionFunction($callback->getFunction());
             } else {
-                
-                $reflection = new ReflectionMethod($callback->getClass(), 
-                        $callback->getMethod());
+                $reflection = new ReflectionMethod(
+                    $callback->getClass(),
+                    $callback->getMethod()
+                );
             }
-            
+
             $orderedParams = array();
             foreach ($reflection->getParameters() as $refParam) {
                 if (array_key_exists($refParam->getName(), $params)) {
@@ -543,19 +547,18 @@ class Server extends AbstractServer
                 } elseif ($refParam->isOptional()) {
                     $orderedParams[$refParam->getName()] = null;
                 } else {
-                    return $this->fault('Invalid params', 
-                            Error::ERROR_INVALID_PARAMS);
+                    return $this->fault('Invalid params', Error::ERROR_INVALID_PARAMS);
                 }
             }
             $params = $orderedParams;
         }
-        
+
         try {
             $result = $this->_dispatch($invokable, $params);
         } catch (\Exception $e) {
             return $this->fault($e->getMessage(), $e->getCode(), $e);
         }
-        
+
         $this->getResponse()->setResult($result);
     }
 }

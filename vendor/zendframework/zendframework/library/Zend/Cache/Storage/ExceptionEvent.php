@@ -3,16 +3,17 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage;
+
 use ArrayObject;
 use Exception;
 
 class ExceptionEvent extends PostEvent
 {
-
     /**
      * The exception to be thrown
      *
@@ -32,14 +33,13 @@ class ExceptionEvent extends PostEvent
      *
      * Accept a target and its parameters.
      *
-     * @param string $name            
-     * @param StorageInterface $storage            
-     * @param ArrayObject $params            
-     * @param mixed $result            
-     * @param Exception $exception            
+     * @param  string $name
+     * @param  StorageInterface $storage
+     * @param  ArrayObject $params
+     * @param  mixed $result
+     * @param  Exception $exception
      */
-    public function __construct ($name, StorageInterface $storage, 
-            ArrayObject $params, & $result, Exception $exception)
+    public function __construct($name, StorageInterface $storage, ArrayObject $params, & $result, Exception $exception)
     {
         parent::__construct($name, $storage, $params, $result);
         $this->setException($exception);
@@ -48,10 +48,10 @@ class ExceptionEvent extends PostEvent
     /**
      * Set the exception to be thrown
      *
-     * @param Exception $exception            
+     * @param  Exception $exception
      * @return ExceptionEvent
      */
-    public function setException (Exception $exception)
+    public function setException(Exception $exception)
     {
         $this->exception = $exception;
         return $this;
@@ -62,7 +62,7 @@ class ExceptionEvent extends PostEvent
      *
      * @return Exception
      */
-    public function getException ()
+    public function getException()
     {
         return $this->exception;
     }
@@ -70,10 +70,10 @@ class ExceptionEvent extends PostEvent
     /**
      * Throw the exception or use the result
      *
-     * @param bool $flag            
+     * @param  bool $flag
      * @return ExceptionEvent
      */
-    public function setThrowException ($flag)
+    public function setThrowException($flag)
     {
         $this->throwException = (bool) $flag;
         return $this;
@@ -84,7 +84,7 @@ class ExceptionEvent extends PostEvent
      *
      * @return bool
      */
-    public function getThrowException ()
+    public function getThrowException()
     {
         return $this->throwException;
     }

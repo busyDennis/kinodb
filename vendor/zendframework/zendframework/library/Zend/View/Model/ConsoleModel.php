@@ -1,31 +1,16 @@
 <?php
 /**
- * Zend Framework
+ * Zend Framework (http://framework.zend.com/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://framework.zend.com/license/new-bsd
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@zend.com so we can send you a copy immediately.
- *
- * @copyright  Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @link      http://github.com/zendframework/zf2 for the canonical source repository
+ * @copyright  Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
+
 namespace Zend\View\Model;
 
-/**
- *
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc.
- *            (http://www.zend.com)
- * @license http://framework.zend.com/license/new-bsd New BSD License
- */
 class ConsoleModel extends ViewModel
 {
-
     const RESULT = 'result';
 
     /**
@@ -45,18 +30,17 @@ class ConsoleModel extends ViewModel
     /**
      * Set error level to return after the application ends.
      *
-     * @param int $errorLevel            
+     * @param int $errorLevel
      */
-    public function setErrorLevel ($errorLevel)
+    public function setErrorLevel($errorLevel)
     {
         $this->options['errorLevel'] = $errorLevel;
     }
 
     /**
-     *
      * @return int
      */
-    public function getErrorLevel ()
+    public function getErrorLevel()
     {
         if (array_key_exists('errorLevel', $this->options)) {
             return $this->options['errorLevel'];
@@ -66,10 +50,10 @@ class ConsoleModel extends ViewModel
     /**
      * Set result text.
      *
-     * @param string $text            
+     * @param string  $text
      * @return \Zend\View\Model\ConsoleModel
      */
-    public function setResult ($text)
+    public function setResult($text)
     {
         $this->setVariable(self::RESULT, $text);
         return $this;
@@ -80,7 +64,7 @@ class ConsoleModel extends ViewModel
      *
      * @return mixed
      */
-    public function getResult ()
+    public function getResult()
     {
         return $this->getVariable(self::RESULT);
     }

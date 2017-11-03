@@ -3,53 +3,127 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\InputFilter;
+
 use Zend\Filter\FilterChain;
 use Zend\Validator\ValidatorChain;
 
 interface InputInterface
 {
+    /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain and set this to `true`.
+     *
+     * @param bool $allowEmpty
+     * @return self
+     */
+    public function setAllowEmpty($allowEmpty);
 
-    public function setAllowEmpty ($allowEmpty);
+    /**
+     * @param bool $breakOnFailure
+     * @return self
+     */
+    public function setBreakOnFailure($breakOnFailure);
 
-    public function setBreakOnFailure ($breakOnFailure);
+    /**
+     * @param string|null $errorMessage
+     * @return self
+     */
+    public function setErrorMessage($errorMessage);
 
-    public function setErrorMessage ($errorMessage);
+    /**
+     * @param FilterChain $filterChain
+     * @return self
+     */
+    public function setFilterChain(FilterChain $filterChain);
 
-    public function setFilterChain (FilterChain $filterChain);
+    /**
+     * @param string $name
+     * @return self
+     */
+    public function setName($name);
 
-    public function setName ($name);
+    /**
+     * @param bool $required
+     * @return self
+     */
+    public function setRequired($required);
 
-    public function setRequired ($required);
+    /**
+     * @param ValidatorChain $validatorChain
+     * @return self
+     */
+    public function setValidatorChain(ValidatorChain $validatorChain);
 
-    public function setValidatorChain (ValidatorChain $validatorChain);
+    /**
+     * @param mixed $value
+     * @return self
+     */
+    public function setValue($value);
 
-    public function setValue ($value);
+    /**
+     * @param InputInterface $input
+     * @return self
+     */
+    public function merge(InputInterface $input);
 
-    public function merge (InputInterface $input);
+    /**
+     * @deprecated 2.4.8 Add Zend\Validator\NotEmpty validator to the ValidatorChain.
+     *
+     * @return bool
+     */
+    public function allowEmpty();
 
-    public function allowEmpty ();
+    /**
+     * @return bool
+     */
+    public function breakOnFailure();
 
-    public function breakOnFailure ();
+    /**
+     * @return string|null
+     */
+    public function getErrorMessage();
 
-    public function getErrorMessage ();
+    /**
+     * @return FilterChain
+     */
+    public function getFilterChain();
 
-    public function getFilterChain ();
+    /**
+     * @return string
+     */
+    public function getName();
 
-    public function getName ();
+    /**
+     * @return mixed
+     */
+    public function getRawValue();
 
-    public function getRawValue ();
+    /**
+     * @return bool
+     */
+    public function isRequired();
 
-    public function isRequired ();
+    /**
+     * @return ValidatorChain
+     */
+    public function getValidatorChain();
 
-    public function getValidatorChain ();
+    /**
+     * @return mixed
+     */
+    public function getValue();
 
-    public function getValue ();
+    /**
+     * @return bool
+     */
+    public function isValid();
 
-    public function isValid ();
-
-    public function getMessages ();
+    /**
+     * @return string[]
+     */
+    public function getMessages();
 }

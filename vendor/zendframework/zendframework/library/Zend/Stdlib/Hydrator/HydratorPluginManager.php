@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Stdlib\Hydrator;
+
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\Stdlib\Exception;
 
@@ -17,7 +19,6 @@ use Zend\Stdlib\Exception;
  */
 class HydratorPluginManager extends AbstractPluginManager
 {
-
     /**
      * Whether or not to share by default
      *
@@ -26,31 +27,48 @@ class HydratorPluginManager extends AbstractPluginManager
     protected $shareByDefault = false;
 
     /**
+     * Default aliases
+     *
+     * @var array
+     */
+    protected $aliases = array(
+        'delegatinghydrator' => 'Zend\Stdlib\Hydrator\DelegatingHydrator',
+    );
+
+    /**
      * Default set of adapters
      *
      * @var array
      */
     protected $invokableClasses = array(
-            'arrayserializable' => 'Zend\Stdlib\Hydrator\ArraySerializable',
-            'classmethods' => 'Zend\Stdlib\Hydrator\ClassMethods',
-            'objectproperty' => 'Zend\Stdlib\Hydrator\ObjectProperty',
-            'reflection' => 'Zend\Stdlib\Hydrator\Reflection'
+        'arrayserializable' => 'Zend\Stdlib\Hydrator\ArraySerializable',
+        'classmethods'      => 'Zend\Stdlib\Hydrator\ClassMethods',
+        'objectproperty'    => 'Zend\Stdlib\Hydrator\ObjectProperty',
+        'reflection'        => 'Zend\Stdlib\Hydrator\Reflection'
+    );
+
+    /**
+     * Default factory-based adapters
+     *
+     * @var array
+     */
+    protected $factories = array(
+        'Zend\Stdlib\Hydrator\DelegatingHydrator' => 'Zend\Stdlib\Hydrator\DelegatingHydratorFactory',
     );
 
     /**
      * {@inheritDoc}
      */
-    public function validatePlugin ($plugin)
+    public function validatePlugin($plugin)
     {
         if ($plugin instanceof HydratorInterface) {
             // we're okay
             return;
         }
-        
-        throw new Exception\RuntimeException(
-                sprintf(
-                        'Plugin of type %s is invalid; must implement Zend\Stdlib\Hydrator\HydratorInterface', 
-                        (is_object($plugin) ? get_class($plugin) : gettype(
-                                $plugin))));
+
+        throw new Exception\RuntimeException(sprintf(
+            'Plugin of type %s is invalid; must implement Zend\Stdlib\Hydrator\HydratorInterface',
+            (is_object($plugin) ? get_class($plugin) : gettype($plugin))
+        ));
     }
 }

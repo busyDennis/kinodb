@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\EventManager\Filter;
+
 use Zend\EventManager\ResponseCollection;
 use Zend\Stdlib\CallbackHandler;
 
@@ -15,50 +17,49 @@ use Zend\Stdlib\CallbackHandler;
  */
 interface FilterInterface
 {
-
     /**
      * Execute the filter chain
      *
-     * @param string|object $context            
-     * @param array $params            
+     * @param  string|object $context
+     * @param  array $params
      * @return mixed
      */
-    public function run ($context, array $params = array());
+    public function run($context, array $params = array());
 
     /**
      * Attach an intercepting filter
      *
-     * @param callable $callback            
+     * @param  callable $callback
      * @return CallbackHandler
      */
-    public function attach ($callback);
+    public function attach($callback);
 
     /**
      * Detach an intercepting filter
      *
-     * @param CallbackHandler $filter            
+     * @param  CallbackHandler $filter
      * @return bool
      */
-    public function detach (CallbackHandler $filter);
+    public function detach(CallbackHandler $filter);
 
     /**
      * Get all intercepting filters
      *
      * @return array
      */
-    public function getFilters ();
+    public function getFilters();
 
     /**
      * Clear all filters
      *
      * @return void
      */
-    public function clearFilters ();
+    public function clearFilters();
 
     /**
      * Get all filter responses
      *
      * @return ResponseCollection
      */
-    public function getResponses ();
+    public function getResponses();
 }

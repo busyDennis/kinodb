@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Renderer;
+
 use JsonSerializable;
 use Traversable;
 use Zend\Json\Json;
@@ -22,16 +24,13 @@ use Zend\View\Resolver\ResolverInterface as Resolver;
  */
 class JsonRenderer implements Renderer, TreeRendererInterface
 {
-
     /**
      * Whether or not to merge child models with no capture-to value set
-     *
      * @var bool
      */
     protected $mergeUnnamedChildren = false;
 
     /**
-     *
      * @var Resolver
      */
     protected $resolver;
@@ -52,20 +51,19 @@ class JsonRenderer implements Renderer, TreeRendererInterface
      *
      * @return mixed
      */
-    public function getEngine ()
+    public function getEngine()
     {
         return $this;
     }
 
     /**
-     * Set the resolver used to map a template name to a resource the renderer
-     * may consume.
+     * Set the resolver used to map a template name to a resource the renderer may consume.
      *
-     * @todo Determine use case for resolvers when rendering JSON
-     * @param Resolver $resolver            
+     * @todo   Determine use case for resolvers when rendering JSON
+     * @param  Resolver $resolver
      * @return Renderer
      */
-    public function setResolver (Resolver $resolver)
+    public function setResolver(Resolver $resolver)
     {
         $this->resolver = $resolver;
     }
@@ -73,10 +71,10 @@ class JsonRenderer implements Renderer, TreeRendererInterface
     /**
      * Set flag indicating whether or not to merge unnamed children
      *
-     * @param bool $mergeUnnamedChildren            
+     * @param  bool $mergeUnnamedChildren
      * @return JsonRenderer
      */
-    public function setMergeUnnamedChildren ($mergeUnnamedChildren)
+    public function setMergeUnnamedChildren($mergeUnnamedChildren)
     {
         $this->mergeUnnamedChildren = (bool) $mergeUnnamedChildren;
         return $this;
@@ -85,13 +83,13 @@ class JsonRenderer implements Renderer, TreeRendererInterface
     /**
      * Set the JSONP callback function name
      *
-     * @param string $callback            
+     * @param  string $callback
      * @return JsonRenderer
      */
-    public function setJsonpCallback ($callback)
+    public function setJsonpCallback($callback)
     {
         $callback = (string) $callback;
-        if (! empty($callback)) {
+        if (!empty($callback)) {
             $this->jsonpCallback = $callback;
         }
         return $this;
@@ -102,7 +100,7 @@ class JsonRenderer implements Renderer, TreeRendererInterface
      *
      * @return bool
      */
-    public function hasJsonpCallback ()
+    public function hasJsonpCallback()
     {
         return (null !== $this->jsonpCallback);
     }
@@ -112,7 +110,7 @@ class JsonRenderer implements Renderer, TreeRendererInterface
      *
      * @return bool
      */
-    public function mergeUnnamedChildren ()
+    public function mergeUnnamedChildren()
     {
         return $this->mergeUnnamedChildren;
     }
@@ -120,16 +118,13 @@ class JsonRenderer implements Renderer, TreeRendererInterface
     /**
      * Renders values as JSON
      *
-     * @todo Determine what use case exists for accepting both $nameOrModel and
-     *       $values
-     * @param string|Model $nameOrModel
-     *            The script/resource process, or a view model
-     * @param null|array|\ArrayAccess $values
-     *            Values to use during rendering
+     * @todo   Determine what use case exists for accepting both $nameOrModel and $values
+     * @param  string|Model $nameOrModel The script/resource process, or a view model
+     * @param  null|array|\ArrayAccess $values Values to use during rendering
      * @throws Exception\DomainException
      * @return string The script output.
      */
-    public function render ($nameOrModel, $values = null)
+    public function render($nameOrModel, $values = null)
     {
         // use case 1: View Models
         // Serialize variables in view model
@@ -142,18 +137,17 @@ class JsonRenderer implements Renderer, TreeRendererInterface
                 $values = $this->recurseModel($nameOrModel);
                 $values = Json::encode($values);
             }
-            
+
             if ($this->hasJsonpCallback()) {
                 $values = $this->jsonpCallback . '(' . $values . ');';
             }
             return $values;
         }
-        
+
         // use case 2: $nameOrModel is populated, $values is not
         // Serialize $nameOrModel
         if (null === $values) {
-            if (! is_object($nameOrModel) ||
-                     $nameOrModel instanceof JsonSerializable) {
+            if (!is_object($nameOrModel) || $nameOrModel instanceof JsonSerializable) {
                 $return = Json::encode($nameOrModel);
             } elseif ($nameOrModel instanceof Traversable) {
                 $nameOrModel = ArrayUtils::iteratorToArray($nameOrModel);
@@ -161,18 +155,18 @@ class JsonRenderer implements Renderer, TreeRendererInterface
             } else {
                 $return = Json::encode(get_object_vars($nameOrModel));
             }
-            
+
             if ($this->hasJsonpCallback()) {
                 $return = $this->jsonpCallback . '(' . $return . ');';
             }
             return $return;
         }
-        
+
         // use case 3: Both $nameOrModel and $values are populated
-        throw new Exception\DomainException(
-                sprintf(
-                        '%s: Do not know how to handle operation when both $nameOrModel and $values are populated', 
-                        __METHOD__));
+        throw new Exception\DomainException(sprintf(
+            '%s: Do not know how to handle operation when both $nameOrModel and $values are populated',
+            __METHOD__
+        ));
     }
 
     /**
@@ -182,44 +176,42 @@ class JsonRenderer implements Renderer, TreeRendererInterface
      *
      * @return true
      */
-    public function canRenderTrees ()
+    public function canRenderTrees()
     {
         return true;
     }
 
     /**
-     * Retrieve values from a model and recurse its children to build a data
-     * structure
+     * Retrieve values from a model and recurse its children to build a data structure
      *
-     * @param Model $model            
-     * @param bool $mergeWithVariables
-     *            Whether or not to merge children with
-     *            the variables of the $model
+     * @param  Model $model
+     * @param  bool $mergeWithVariables Whether or not to merge children with
+     *         the variables of the $model
      * @return array
      */
-    protected function recurseModel (Model $model, $mergeWithVariables = true)
+    protected function recurseModel(Model $model, $mergeWithVariables = true)
     {
         $values = array();
         if ($mergeWithVariables) {
             $values = $model->getVariables();
         }
-        
+
         if ($values instanceof Traversable) {
             $values = ArrayUtils::iteratorToArray($values);
         }
-        
-        if (! $model->hasChildren()) {
+
+        if (!$model->hasChildren()) {
             return $values;
         }
-        
+
         $mergeChildren = $this->mergeUnnamedChildren();
         foreach ($model as $child) {
             $captureTo = $child->captureTo();
-            if (! $captureTo && ! $mergeChildren) {
+            if (!$captureTo && !$mergeChildren) {
                 // We don't want to do anything with this child
                 continue;
             }
-            
+
             $childValues = $this->recurseModel($child);
             if ($captureTo) {
                 // Capturing to a specific key
@@ -237,15 +229,14 @@ class JsonRenderer implements Renderer, TreeRendererInterface
     /**
      * Inject discovered child model values into parent model
      *
-     * @todo detect collisions and decide whether to append and/or aggregate?
-     * @param Model $model            
-     * @param array $children            
+     * @todo   detect collisions and decide whether to append and/or aggregate?
+     * @param  Model $model
+     * @param  array $children
      */
-    protected function injectChildren (Model $model, array $children)
+    protected function injectChildren(Model $model, array $children)
     {
         foreach ($children as $child => $value) {
-            // TODO detect collisions and decide whether to append and/or
-            // aggregate?
+            // TODO detect collisions and decide whether to append and/or aggregate?
             $model->setVariable($child, $value);
         }
     }

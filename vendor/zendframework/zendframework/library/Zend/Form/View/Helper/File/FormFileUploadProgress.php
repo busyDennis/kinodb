@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form\View\Helper\File;
+
 use Zend\Form\ElementInterface;
 use Zend\Form\View\Helper\FormInput;
 
@@ -16,16 +18,15 @@ use Zend\Form\View\Helper\FormInput;
  */
 class FormFileUploadProgress extends FormInput
 {
-
     /**
      * Invoke helper as functor
      *
      * Proxies to {@link render()}.
      *
-     * @param ElementInterface|null $element            
+     * @param  ElementInterface|null $element
      * @return string
      */
-    public function __invoke (ElementInterface $element = null)
+    public function __invoke(ElementInterface $element = null)
     {
         return $this->renderHiddenId();
     }
@@ -35,33 +36,34 @@ class FormFileUploadProgress extends FormInput
      *
      * @return string
      */
-    public function renderHiddenId ()
+    public function renderHiddenId()
     {
-        $attributes = array();
-        $attributes['id'] = 'progress_key';
-        $attributes['name'] = $this->getName();
-        $attributes['type'] = 'hidden';
-        $attributes['value'] = $this->getValue();
-        
-        return sprintf('<input %s%s', 
-                $this->createAttributesString($attributes), 
-                $this->getInlineClosingBracket());
+        $attributes = array(
+            'id'    => 'progress_key',
+            'name'  => $this->getName(),
+            'type'  => 'hidden',
+            'value' => $this->getValue()
+        );
+
+        return sprintf(
+            '<input %s%s',
+            $this->createAttributesString($attributes),
+            $this->getInlineClosingBracket()
+        );
     }
 
     /**
-     *
      * @return string
      */
-    protected function getName ()
+    protected function getName()
     {
         return 'UPLOAD_IDENTIFIER';
     }
 
     /**
-     *
      * @return string
      */
-    protected function getValue ()
+    protected function getValue()
     {
         return uniqid();
     }

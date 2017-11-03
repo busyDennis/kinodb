@@ -3,9 +3,10 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Authentication\Storage;
 
 /**
@@ -17,7 +18,6 @@ namespace Zend\Authentication\Storage;
  */
 class NonPersistent implements StorageInterface
 {
-
     /**
      * Holds the actual auth data
      */
@@ -28,7 +28,7 @@ class NonPersistent implements StorageInterface
      *
      * @return bool
      */
-    public function isEmpty ()
+    public function isEmpty()
     {
         return empty($this->data);
     }
@@ -39,7 +39,7 @@ class NonPersistent implements StorageInterface
      *
      * @return mixed
      */
-    public function read ()
+    public function read()
     {
         return $this->data;
     }
@@ -47,10 +47,10 @@ class NonPersistent implements StorageInterface
     /**
      * Writes $contents to storage
      *
-     * @param mixed $contents            
+     * @param  mixed $contents
      * @return void
      */
-    public function write ($contents)
+    public function write($contents)
     {
         $this->data = $contents;
     }
@@ -60,7 +60,7 @@ class NonPersistent implements StorageInterface
      *
      * @return void
      */
-    public function clear ()
+    public function clear()
     {
         $this->data = null;
     }

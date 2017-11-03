@@ -3,47 +3,43 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Code\Reflection\DocBlock\Tag;
 
 class ThrowsTag implements TagInterface, PhpDocTypedTagInterface
 {
-
     /**
-     *
-     * @var string
+     * @var array
      */
-    protected $type = null;
+    protected $types = array();
 
     /**
-     *
      * @var string
      */
     protected $description = null;
 
     /**
-     *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return 'throws';
     }
 
     /**
-     *
-     * @param string $tagDocBlockLine            
+     * @param  string $tagDocBlockLine
      * @return void
      */
-    public function initialize ($tagDocBlockLine)
+    public function initialize($tagDocBlockLine)
     {
         $matches = array();
         preg_match('#([\w|\\\]+)(?:\s+(.*))?#', $tagDocBlockLine, $matches);
-        
-        $this->type = $matches[1];
-        
+
+        $this->types = explode('|', $matches[1]);
+
         if (isset($matches[2])) {
             $this->description = $matches[2];
         }
@@ -55,19 +51,23 @@ class ThrowsTag implements TagInterface, PhpDocTypedTagInterface
      * @return string
      * @deprecated 2.0.4 use getTypes instead
      */
-    public function getType ()
+    public function getType()
     {
-        return $this->type;
+        return implode('|', $this->getTypes());
     }
 
-    public function getTypes ()
+    /**
+     * @return array
+     */
+    public function getTypes()
     {
-        return array(
-                $this->type
-        );
+        return $this->types;
     }
 
-    public function getDescription ()
+    /**
+     * @return string
+     */
+    public function getDescription()
     {
         return $this->description;
     }

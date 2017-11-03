@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Form\Annotation;
+
 use Zend\EventManager\EventManagerInterface;
 
 /**
@@ -18,7 +20,7 @@ use Zend\EventManager\EventManagerInterface;
  * - Attributes
  * - Flags
  * - Hydrator
- * - Object
+ * - Object and Instance (the latter is preferred starting in 2.4)
  * - InputFilter
  * - Type
  * - ValidationGroup
@@ -29,66 +31,25 @@ use Zend\EventManager\EventManagerInterface;
  */
 class FormAnnotationsListener extends AbstractAnnotationsListener
 {
-
     /**
      * Attach listeners
      *
-     * @param EventManagerInterface $events            
+     * @param  EventManagerInterface $events
      * @return void
      */
-    public function attach (EventManagerInterface $events)
+    public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleAttributesAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleFlagsAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleHydratorAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleInputFilterAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleObjectAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleOptionsAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleTypeAnnotation'
-                ));
-        $this->listeners[] = $events->attach('configureForm', 
-                array(
-                        $this,
-                        'handleValidationGroupAnnotation'
-                ));
-        
-        $this->listeners[] = $events->attach('discoverName', 
-                array(
-                        $this,
-                        'handleNameAnnotation'
-                ));
-        $this->listeners[] = $events->attach('discoverName', 
-                array(
-                        $this,
-                        'discoverFallbackName'
-                ));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleAttributesAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleFlagsAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleHydratorAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleInputFilterAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleObjectAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleOptionsAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleTypeAnnotation'));
+        $this->listeners[] = $events->attach('configureForm', array($this, 'handleValidationGroupAnnotation'));
+
+        $this->listeners[] = $events->attach('discoverName', array($this, 'handleNameAnnotation'));
+        $this->listeners[] = $events->attach('discoverName', array($this, 'discoverFallbackName'));
     }
 
     /**
@@ -96,16 +57,16 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the attributes key of the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleAttributesAnnotation ($e)
+    public function handleAttributesAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof Attributes) {
+        if (!$annotation instanceof Attributes) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['attributes'] = $annotation->getAttributes();
     }
@@ -115,16 +76,16 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the flags key of the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleFlagsAnnotation ($e)
+    public function handleFlagsAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof Flags) {
+        if (!$annotation instanceof Flags) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['flags'] = $annotation->getFlags();
     }
@@ -134,16 +95,16 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the hydrator class to use in the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleHydratorAnnotation ($e)
+    public function handleHydratorAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof Hydrator) {
+        if (!$annotation instanceof Hydrator) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['hydrator'] = $annotation->getHydrator();
     }
@@ -153,35 +114,37 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the input filter class to use in the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleInputFilterAnnotation ($e)
+    public function handleInputFilterAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof InputFilter) {
+        if (!$annotation instanceof InputFilter) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['input_filter'] = $annotation->getInputFilter();
     }
 
     /**
-     * Handle the Object annotation
+     * Handle the Object and Instance annotations
      *
      * Sets the object to bind to the form or fieldset
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleObjectAnnotation ($e)
+    public function handleObjectAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof Object) {
+
+        // Only need to typehint on Instance, as Object extends it
+        if (! $annotation instanceof Instance) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['object'] = $annotation->getObject();
     }
@@ -191,16 +154,16 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the options key of the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleOptionsAnnotation ($e)
+    public function handleOptionsAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof Options) {
+        if (!$annotation instanceof Options) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['options'] = $annotation->getOptions();
     }
@@ -210,16 +173,16 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the form class to use in the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleTypeAnnotation ($e)
+    public function handleTypeAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof Type) {
+        if (!$annotation instanceof Type) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['type'] = $annotation->getType();
     }
@@ -229,16 +192,16 @@ class FormAnnotationsListener extends AbstractAnnotationsListener
      *
      * Sets the validation group to use in the form specification.
      *
-     * @param \Zend\EventManager\EventInterface $e            
+     * @param  \Zend\EventManager\EventInterface $e
      * @return void
      */
-    public function handleValidationGroupAnnotation ($e)
+    public function handleValidationGroupAnnotation($e)
     {
         $annotation = $e->getParam('annotation');
-        if (! $annotation instanceof ValidationGroup) {
+        if (!$annotation instanceof ValidationGroup) {
             return;
         }
-        
+
         $formSpec = $e->getParam('formSpec');
         $formSpec['validation_group'] = $annotation->getValidationGroup();
     }

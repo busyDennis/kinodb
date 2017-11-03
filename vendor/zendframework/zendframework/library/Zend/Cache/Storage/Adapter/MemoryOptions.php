@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Cache\Storage\Adapter;
+
 use Zend\Cache\Exception;
 
 /**
@@ -14,7 +16,6 @@ use Zend\Cache\Exception;
  */
 class MemoryOptions extends AdapterOptions
 {
-
     /**
      * memory limit
      *
@@ -26,24 +27,23 @@ class MemoryOptions extends AdapterOptions
      * Set memory limit
      *
      * - A number less or equal 0 will disable the memory limit
-     * - When a number is used, the value is measured in bytes. Shorthand
-     * notation may also be used.
+     * - When a number is used, the value is measured in bytes. Shorthand notation may also be used.
      * - If the used memory of PHP exceeds this limit an OutOfSpaceException
-     * will be thrown.
+     *   will be thrown.
      *
      * @link http://php.net/manual/faq.using.php#faq.using.shorthandbytes
-     * @param string|int $memoryLimit            
+     * @param  string|int $memoryLimit
      * @return MemoryOptions
      */
-    public function setMemoryLimit ($memoryLimit)
+    public function setMemoryLimit($memoryLimit)
     {
         $memoryLimit = $this->normalizeMemoryLimit($memoryLimit);
-        
+
         if ($this->memoryLimit != $memoryLimit) {
             $this->triggerOptionEvent('memory_limit', $memoryLimit);
             $this->memoryLimit = $memoryLimit;
         }
-        
+
         return $this;
     }
 
@@ -55,7 +55,7 @@ class MemoryOptions extends AdapterOptions
      *
      * @return int
      */
-    public function getMemoryLimit ()
+    public function getMemoryLimit()
     {
         if ($this->memoryLimit === null) {
             // By default use half of PHP's memory limit if possible
@@ -67,48 +67,46 @@ class MemoryOptions extends AdapterOptions
                 $this->memoryLimit = 0;
             }
         }
-        
+
         return $this->memoryLimit;
     }
 
     /**
      * Normalized a given value of memory limit into the number of bytes
      *
-     * @param string|int $value            
+     * @param string|int $value
      * @throws Exception\InvalidArgumentException
      * @return int
      */
-    protected function normalizeMemoryLimit ($value)
+    protected function normalizeMemoryLimit($value)
     {
         if (is_numeric($value)) {
             return (int) $value;
         }
-        
-        if (! preg_match('/(\-?\d+)\s*(\w*)/', ini_get('memory_limit'), 
-                $matches)) {
-            throw new Exception\InvalidArgumentException(
-                    "Invalid  memory limit '{$value}'");
+
+        if (!preg_match('/(\-?\d+)\s*(\w*)/', ini_get('memory_limit'), $matches)) {
+            throw new Exception\InvalidArgumentException("Invalid  memory limit '{$value}'");
         }
-        
+
         $value = (int) $matches[1];
         if ($value <= 0) {
             return 0;
         }
-        
+
         switch (strtoupper($matches[2])) {
             case 'G':
-                $value *= 1024;
-            // no break
-            
+                $value*= 1024;
+                // no break
+
             case 'M':
-                $value *= 1024;
-            // no break
-            
+                $value*= 1024;
+                // no break
+
             case 'K':
-                $value *= 1024;
-            // no break
+                $value*= 1024;
+                // no break
         }
-        
+
         return $value;
     }
 }

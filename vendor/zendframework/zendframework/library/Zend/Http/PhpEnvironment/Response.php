@@ -3,10 +3,12 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Http\PhpEnvironment;
+
 use Zend\Http\Header\MultipleHeaderInterface;
 use Zend\Http\Response as HttpResponse;
 
@@ -15,7 +17,6 @@ use Zend\Http\Response as HttpResponse;
  */
 class Response extends HttpResponse
 {
-
     /**
      * The current used version
      * (The value will be detected on getVersion)
@@ -25,7 +26,6 @@ class Response extends HttpResponse
     protected $version;
 
     /**
-     *
      * @var bool
      */
     protected $contentSent = false;
@@ -36,9 +36,9 @@ class Response extends HttpResponse
      * @return string
      * @see \Zend\Http\AbstractMessage::getVersion()
      */
-    public function getVersion ()
+    public function getVersion()
     {
-        if (! $this->version) {
+        if (!$this->version) {
             $this->version = $this->detectVersion();
         }
         return $this->version;
@@ -50,30 +50,27 @@ class Response extends HttpResponse
      *
      * @return string
      */
-    protected function detectVersion ()
+    protected function detectVersion()
     {
-        if (isset($_SERVER['SERVER_PROTOCOL']) &&
-                 $_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1') {
+        if (isset($_SERVER['SERVER_PROTOCOL']) && $_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1') {
             return self::VERSION_11;
         }
-        
+
         return self::VERSION_10;
     }
 
     /**
-     *
      * @return bool
      */
-    public function headersSent ()
+    public function headersSent()
     {
         return headers_sent();
     }
 
     /**
-     *
      * @return bool
      */
-    public function contentSent ()
+    public function contentSent()
     {
         return $this->contentSent;
     }
@@ -83,19 +80,16 @@ class Response extends HttpResponse
      *
      * @return Response
      */
-    public function sendHeaders ()
+    public function sendHeaders()
     {
         if ($this->headersSent()) {
             return $this;
         }
-        
-        $status = $this->renderStatusLine();
+
+        $status  = $this->renderStatusLine();
         header($status);
-        
-        /**
-         *
-         * @var \Zend\Http\Header\HeaderInterface $header
-         */
+
+        /** @var \Zend\Http\Header\HeaderInterface $header */
         foreach ($this->getHeaders() as $header) {
             if ($header instanceof MultipleHeaderInterface) {
                 header($header->toString(), false);
@@ -103,7 +97,7 @@ class Response extends HttpResponse
             }
             header($header->toString());
         }
-        
+
         $this->headersSent = true;
         return $this;
     }
@@ -113,12 +107,12 @@ class Response extends HttpResponse
      *
      * @return Response
      */
-    public function sendContent ()
+    public function sendContent()
     {
         if ($this->contentSent()) {
             return $this;
         }
-        
+
         echo $this->getContent();
         $this->contentSent = true;
         return $this;
@@ -129,9 +123,10 @@ class Response extends HttpResponse
      *
      * @return Response
      */
-    public function send ()
+    public function send()
     {
-        $this->sendHeaders()->sendContent();
+        $this->sendHeaders()
+             ->sendContent();
         return $this;
     }
 }

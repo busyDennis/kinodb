@@ -3,16 +3,16 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\View\Helper;
-use Zend\View\Helper\HelperInterface;
+
 use Zend\View\Renderer\RendererInterface as Renderer;
 
 abstract class AbstractHelper implements HelperInterface
 {
-
     /**
      * View object instance
      *
@@ -23,10 +23,10 @@ abstract class AbstractHelper implements HelperInterface
     /**
      * Set the View object
      *
-     * @param Renderer $view            
+     * @param  Renderer $view
      * @return AbstractHelper
      */
-    public function setView (Renderer $view)
+    public function setView(Renderer $view)
     {
         $this->view = $view;
         return $this;
@@ -37,7 +37,7 @@ abstract class AbstractHelper implements HelperInterface
      *
      * @return null|Renderer
      */
-    public function getView ()
+    public function getView()
     {
         return $this->view;
     }

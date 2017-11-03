@@ -3,14 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
+
 namespace Zend\Feed\PubSubHubbub;
 
 class HttpResponse
 {
-
     /**
      * The body of any response to the current callback request
      *
@@ -19,8 +19,7 @@ class HttpResponse
     protected $content = '';
 
     /**
-     * Array of headers.
-     * Each header is an array with keys 'name' and 'value'
+     * Array of headers. Each header is an array with keys 'name' and 'value'
      *
      * @var array
      */
@@ -38,7 +37,7 @@ class HttpResponse
      *
      * @return void
      */
-    public function send ()
+    public function send()
     {
         $this->sendHeaders();
         echo $this->getContent();
@@ -47,13 +46,12 @@ class HttpResponse
     /**
      * Send all headers
      *
-     * Sends any headers specified. If an {@link setHttpResponseCode() HTTP
-     * response code}
+     * Sends any headers specified. If an {@link setHttpResponseCode() HTTP response code}
      * has been specified, it is sent with the first header.
      *
      * @return void
      */
-    public function sendHeaders ()
+    public function sendHeaders()
     {
         if (count($this->headers) || (200 != $this->statusCode)) {
             $this->canSendHeaders(true);
@@ -62,16 +60,14 @@ class HttpResponse
         }
         $httpCodeSent = false;
         foreach ($this->headers as $header) {
-            if (! $httpCodeSent && $this->statusCode) {
-                header($header['name'] . ': ' . $header['value'], 
-                        $header['replace'], $this->statusCode);
+            if (!$httpCodeSent && $this->statusCode) {
+                header($header['name'] . ': ' . $header['value'], $header['replace'], $this->statusCode);
                 $httpCodeSent = true;
             } else {
-                header($header['name'] . ': ' . $header['value'], 
-                        $header['replace']);
+                header($header['name'] . ': ' . $header['value'], $header['replace']);
             }
         }
-        if (! $httpCodeSent) {
+        if (!$httpCodeSent) {
             header('HTTP/1.1 ' . $this->statusCode);
         }
     }
@@ -82,14 +78,14 @@ class HttpResponse
      * If $replace is true, replaces any headers already defined with that
      * $name.
      *
-     * @param string $name            
-     * @param string $value            
-     * @param bool $replace            
+     * @param  string $name
+     * @param  string $value
+     * @param  bool $replace
      * @return \Zend\Feed\PubSubHubbub\HttpResponse
      */
-    public function setHeader ($name, $value, $replace = false)
+    public function setHeader($name, $value, $replace = false)
     {
-        $name = $this->_normalizeHeader($name);
+        $name  = $this->_normalizeHeader($name);
         $value = (string) $value;
         if ($replace) {
             foreach ($this->headers as $key => $header) {
@@ -99,21 +95,21 @@ class HttpResponse
             }
         }
         $this->headers[] = array(
-                'name' => $name,
-                'value' => $value,
-                'replace' => $replace
+            'name'    => $name,
+            'value'   => $value,
+            'replace' => $replace,
         );
-        
+
         return $this;
     }
 
     /**
      * Check if a specific Header is set and return its value
      *
-     * @param string $name            
+     * @param  string $name
      * @return string|null
      */
-    public function getHeader ($name)
+    public function getHeader($name)
     {
         $name = $this->_normalizeHeader($name);
         foreach ($this->headers as $header) {
@@ -128,7 +124,7 @@ class HttpResponse
      *
      * @return array
      */
-    public function getHeaders ()
+    public function getHeaders()
     {
         return $this->headers;
     }
@@ -136,35 +132,31 @@ class HttpResponse
     /**
      * Can we send headers?
      *
-     * @param bool $throw
-     *            Whether or not to throw an exception if headers have been
-     *            sent; defaults to false
+     * @param  bool $throw Whether or not to throw an exception if headers have been sent; defaults to false
      * @return HttpResponse
      * @throws Exception\RuntimeException
      */
-    public function canSendHeaders ($throw = false)
+    public function canSendHeaders($throw = false)
     {
         $ok = headers_sent($file, $line);
         if ($ok && $throw) {
-            throw new Exception\RuntimeException(
-                    'Cannot send headers; headers already sent in ' . $file .
-                             ', line ' . $line);
+            throw new Exception\RuntimeException('Cannot send headers; headers already sent in ' . $file . ', line ' . $line);
         }
-        return ! $ok;
+        return !$ok;
     }
 
     /**
      * Set HTTP response code to use with headers
      *
-     * @param int $code            
+     * @param  int $code
      * @return HttpResponse
      * @throws Exception\InvalidArgumentException
      */
-    public function setStatusCode ($code)
+    public function setStatusCode($code)
     {
-        if (! is_int($code) || (100 > $code) || (599 < $code)) {
-            throw new Exception\InvalidArgumentException(
-                    'Invalid HTTP response' . ' code:' . $code);
+        if (!is_int($code) || (100 > $code) || (599 < $code)) {
+            throw new Exception\InvalidArgumentException('Invalid HTTP response'
+            . ' code:' . $code);
         }
         $this->statusCode = $code;
         return $this;
@@ -175,7 +167,7 @@ class HttpResponse
      *
      * @return int
      */
-    public function getStatusCode ()
+    public function getStatusCode()
     {
         return $this->statusCode;
     }
@@ -183,10 +175,10 @@ class HttpResponse
     /**
      * Set body content
      *
-     * @param string $content            
+     * @param  string $content
      * @return \Zend\Feed\PubSubHubbub\HttpResponse
      */
-    public function setContent ($content)
+    public function setContent($content)
     {
         $this->content = (string) $content;
         $this->setHeader('content-length', strlen($content));
@@ -198,7 +190,7 @@ class HttpResponse
      *
      * @return string
      */
-    public function getContent ()
+    public function getContent()
     {
         return $this->content;
     }
@@ -206,16 +198,12 @@ class HttpResponse
     /**
      * Normalizes a header name to X-Capitalized-Names
      *
-     * @param string $name            
+     * @param  string $name
      * @return string
      */
-    protected function _normalizeHeader ($name)
+    protected function _normalizeHeader($name)
     {
-        $filtered = str_replace(
-                array(
-                        '-',
-                        '_'
-                ), ' ', (string) $name);
+        $filtered = str_replace(array('-', '_'), ' ', (string) $name);
         $filtered = ucwords(strtolower($filtered));
         $filtered = str_replace(' ', '-', $filtered);
         return $filtered;
