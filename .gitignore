@@ -1,9 +1,6 @@
 # ignore local OMDb API config file - it is required only in 'development' application environment
 module/Kino/config/omdb.api.config.php
 
-# ignore vendor folder
-vendor/**/*
-
 #ignore 'aux' folder
 aux/**/*
 
