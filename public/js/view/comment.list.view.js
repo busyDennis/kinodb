@@ -1,5 +1,6 @@
 define(
-		[ 'jquery', 'underscore', 'backbone', 'moment', 'comment', 'commentView' ],
+		[ 'jquery', 'underscore', 'backbone', 'moment', 'comment',
+				'commentView' ],
 		function($, _, Backbone, moment, Comment, CommentView) {
 
 			var CommentListView = Backbone.View
@@ -39,8 +40,8 @@ define(
 
 							var newComment = new Comment({
 								imdbID : collection.imdbID,
-								heading : $("#comment-heading").val(),
-								comment : $("#comment-field").val(),
+								commentHeading : $("#comment-heading").val(),
+								commentText : $("#comment-field").val(),
 								rating : $("#rating").raty('score'),
 								created : moment()
 										.format("YYYY-MM-DD HH:mm:ss")
@@ -66,7 +67,7 @@ define(
 
 						submitKinoRating : function(imdbID, rating) {
 							$.ajax({
-								url : "http://kinodb/rating",
+								url : "/rating",
 								type : "POST",
 								data : {
 									imdbID : imdbID,
@@ -166,6 +167,7 @@ define(
 							$("#rating").raty(
 									{
 										number : 10,
+										path : '/lib/jquery.raty/images/',
 										score : 1,
 										hints : [ '1', '2', '3', '4', '5', '6',
 												'7', '8', '9', '10' ]

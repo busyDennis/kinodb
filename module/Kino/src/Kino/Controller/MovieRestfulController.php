@@ -1,18 +1,16 @@
 <?php
 namespace Kino\Controller;
+
+use Kino\Logger\CustomLoggerSingletonFactory;
+
 use \Zend\Config\Config;
 use \Zend\Http\Client;
 use \Zend\Http\Request;
-use \Zend\Log\Logger;
 use \Zend\View\Model\JsonModel;
-
-//error_reporting(E_ALL);
-//ini_set("display_errors", 1);
 
 
 if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
 define("FNAME_OMDb_API_CONFIG_DEV", "omdb.api.config.php");
-define("FNAME_CUSTOM_LOG", "custom.log");
 define("SAMPLE_SEARCH_STRING", "Star Trek");
 
 
@@ -41,28 +39,12 @@ class MovieRestfulController extends RestfulControllerTemplate
             fwrite(constant('STDERR'), getenv('OMDb_API_ROOT'));
             fwrite(constant('STDERR'), 'env variable \'OMDb_API_KEY\' takes value:  ');
             fwrite(constant('STDERR'), getenv('OMDb_API_KEY'));
-            
-            
         }
         
-        // ad hoc Eclipse IDE logger setup
-        $this->logger = new Logger();
-        
-        $logDir = $_SERVER['DOCUMENT_ROOT'].'/..'.'/log/';
-        // check if the log dir exists
-        if (!file_exists($logDir)) {
-            mkdir($logDir, 0777, true);
-        }
-        
-        $logWriteStream = fopen($logDir.constant("FNAME_CUSTOM_LOG"), "w+", false);
-        $this->logger->addWriter('stream', null,
-                array(
-                        'stream' => $logWriteStream
-                    )
-            );
+  
+        $this->logger = CustomLoggerSingletonFactory::Logger();
         
         // verifying that the logger is functional
-        $this->logger->debug("Logger successfully configured with custom output file '".constant("FNAME_CUSTOM_LOG")."'.");
         $this->logger->debug("Currently using environment '".$this->env."'.");
         
         

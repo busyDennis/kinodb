@@ -44,12 +44,9 @@ define([ 'jquery', 'backbone', 'movie', 'movieList', 'movieView',
 			}, 'slow');
 			$(".icon-loader").addClass("icon-refresh-animate");
 			$(".icon-loader").show();
-
 			
-			
-			console.log("Inside \'load_single_movie\' function:");
-			console.log(this.movieList);
-			
+//			console.log("Inside \'load_single_movie\' function:");
+//			console.log(this.movieList);			
 			
 			$('#movies').empty();
 			

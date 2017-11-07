@@ -5,11 +5,8 @@ class Rating
 {
 
     public $imdbID;
-
     public $avgRating;
-
     public $totalRating;
-
     public $timesRated;
 
     public function exchangeArray ($data)

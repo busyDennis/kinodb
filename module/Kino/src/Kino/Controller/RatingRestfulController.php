@@ -1,14 +1,15 @@
 <?php
 namespace Kino\Controller;
+
+use Kino\Model\Rating;
 use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
 
 class RatingRestfulController extends RestfulControllerTemplate
 {
 
     protected $ratingTable;
 
-    public function indexAction ()
+    public function indexAction()
     {
         return new JsonModel();
     }
@@ -18,7 +19,7 @@ class RatingRestfulController extends RestfulControllerTemplate
      *
      * @return mixed
      */
-    public function getList ()
+    public function getList()
     {
         $rset = $this->getRatingTable()->fetchAll();
         $ratings = array();
@@ -34,27 +35,27 @@ class RatingRestfulController extends RestfulControllerTemplate
      * @param mixed $id
      * @return mixed
      */
-    public function get ($imdb_id)
+    public function get($imdb_id)
     {
         if (! $this->getRatingTable()->entryExists($imdb_id))
             $response = array(
-                    'imdbID' => $imdb_id,
-                    'avgRating' => 0
+                'imdbID' => $imdb_id,
+                'avgRating' => 0
             ); // ,
-                   // 'total_rating'
-                   // =>
-                   // "0",
-                   // 'times_rated'
-                   // =>
-                   // "0");
+               // 'total_rating'
+               // =>
+               // "0",
+               // 'times_rated'
+               // =>
+               // "0");
         else {
             $response = (array) $this->getRatingTable()->getRating($imdb_id);
             unset($response['totalRating']);
             unset($response['timesRated']);
         }
-
+        
         // return $this->getResponse()->setContent(json_encode($response));
-
+        
         return new JsonModel($response);
     }
 
@@ -64,19 +65,19 @@ class RatingRestfulController extends RestfulControllerTemplate
      * @param mixed $data
      * @return mixed
      */
-    public function create ($data)
+    public function create($data)
     {
         var_dump($data);
-
+        
         $rating = new Rating();
         $rating->exchangeArray($data); // json_decode(key($data), true));
         $this->getRatingTable()->updateRating($rating);
-
+        
         $response = $this->getResponseWithHeader();
         return $response;
     }
 
-    public function getResponseWithHeader ()
+    public function getResponseWithHeader()
     {
         $response = $this->getResponse();
         $response->getHeaders()
@@ -86,11 +87,11 @@ class RatingRestfulController extends RestfulControllerTemplate
             ->
         // set allow methods
         addHeaderLine('Access-Control-Allow-Methods', 'POST PUT DELETE GET');
-
+        
         return $response;
     }
 
-    public function getRatingTable ()
+    public function getRatingTable()
     {
         if (! $this->ratingTable) {
             $sm = $this->getServiceLocator();
@@ -99,4 +100,5 @@ class RatingRestfulController extends RestfulControllerTemplate
         return $this->ratingTable;
     }
 }
+
 ?>

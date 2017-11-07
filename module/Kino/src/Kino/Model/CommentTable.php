@@ -1,5 +1,8 @@
 <?php
 namespace Kino\Model;
+
+use Kino\Logger\CustomEclipseLogger;
+
 use Zend\Db\TableGateway\TableGateway;
 
 
@@ -63,7 +66,7 @@ class CommentTable
                 'ip' => $_SERVER['REMOTE_ADDR']
         );
 
-        if(array_key_exists('commentID', $data)) {
+        if(array_key_exists('commentID', $data) && ! empty($data['commentID'])) {
             $sqlUpdateRetVal = $this->tableGateway->update($data,
                 array(
                         'commentID' => $commentID

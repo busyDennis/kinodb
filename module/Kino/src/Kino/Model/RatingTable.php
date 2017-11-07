@@ -1,5 +1,6 @@
 <?php
 namespace Kino\Model;
+
 use Zend\Db\TableGateway\TableGateway;
 
 class RatingTable
@@ -45,7 +46,7 @@ class RatingTable
     public function saveRating ($rating)
     {}
 
-    public function updateRating (Ratings $rating)
+    public function updateRating (Rating $rating)
     {
         $imdbID = $rating->imdbID;
         $entry = $this->tableGateway->select(

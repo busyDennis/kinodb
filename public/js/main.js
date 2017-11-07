@@ -12,7 +12,7 @@ requirejs.config({
 		underscore : 'underscore-min',
 
 		// app modules
-		
+
 		// models
 		movie : '../js/model/movie',
 		comment : '../js/model/comment',
@@ -32,7 +32,7 @@ requirejs.config({
 		movieRouter : '../js/router/movie.router'
 	},
 	shim : {
-		
+
 		// 3rd party dependencies
 		'backbone' : {
 			deps : [ 'underscore', 'jquery' ],
@@ -53,7 +53,7 @@ requirejs.config({
 		},
 
 		// app modules
-		
+
 		// models
 		'movie' : {
 			deps : [ 'backbone' ],
@@ -63,7 +63,7 @@ requirejs.config({
 			deps : [ 'backbone' ],
 			exports : 'Comment'
 		},
-		
+
 		// collections
 		'movieList' : {
 			deps : [ 'jquery', 'backbone', 'movie' ],
@@ -73,7 +73,7 @@ requirejs.config({
 			deps : [ 'jquery', 'backbone', 'comment' ],
 			exports : 'CommentList'
 		},
-		
+
 		// views
 		'movieView' : {
 			deps : [ 'jquery', 'underscore', 'backbone', 'raty', 'movie',
@@ -93,7 +93,8 @@ requirejs.config({
 			exports : 'CommentView'
 		},
 		'commentListView' : {
-			deps : [ 'jquery', 'underscore', 'backbone', 'moment', 'comment', 'commentView' ],
+			deps : [ 'jquery', 'underscore', 'backbone', 'moment', 'comment',
+					'commentView' ],
 			exports : 'CommentListView'
 		},
 
@@ -111,5 +112,4 @@ requirejs([ 'movieRouter' ], function(MovieRouter) {
 	$(document).ready(function() {
 		(new MovieRouter()).start();
 	});
-
 });

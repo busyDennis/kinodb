@@ -2,7 +2,7 @@
 return array(
         // This should be an array of module namespaces used in the application.
         'modules' => array(
-                'Kino'
+                'Kino',
         ),
 
         // These are various options for the listeners attached to the
@@ -16,7 +16,7 @@ return array(
                 // Module class.
                 'module_paths' => array(
                         './module',
-                        './vendor'
+                        './vendor',
                 ),
 
                 // An array of paths from which to glob configuration files
@@ -25,7 +25,7 @@ return array(
                 // provided by modules themselves. Paths may use GLOB_BRACE
                 // notation.
                 'config_glob_paths' => array(
-                        'config/autoload/{,*.}{global,local,movieApiConfig}.php'
+                        'config/autoload/{,*.}{global,local}.php',
                 )
         )
 );

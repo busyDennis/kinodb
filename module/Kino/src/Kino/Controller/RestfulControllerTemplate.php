@@ -1,8 +1,6 @@
 <?php
 namespace Kino\Controller;
-use Zend\Http\Response;
-use Zend\Mvc\Controller\AbstractRestfulController;
-use Zend\View\Model\JsonModel;
+use \Zend\Mvc\Controller\AbstractRestfulController;
 
 class RestfulControllerTemplate extends AbstractRestfulController
 {

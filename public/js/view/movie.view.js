@@ -46,12 +46,13 @@ define(
 											+ " .movie-rating")
 									.raty(
 											{
+											    hints : [ '1', '2', '3', '4',
+													'5', '6', '7', '8',
+													'9', '10' ],
 												number : 10,
+												path: '/lib/jquery.raty/images/',
 												readOnly : true,
-												score : this.model.attributes['rating'],
-												hints : [ '1', '2', '3', '4',
-														'5', '6', '7', '8',
-														'9', '10' ]
+												score : this.model.attributes['rating']
 											});
 
 							this.model.attributes["kinoRating"] = 0;
@@ -79,8 +80,9 @@ define(
 												+ " .kino-rating")
 										.raty(
 												{
-													score : this.model.attributes["kino_rating"],
+													score : this.model.attributes["kinoRating"],
 													number : 10,
+													path: '/lib/jquery.raty/images/',
 													readOnly : true,
 													hints : [ '1', '2', '3',
 															'4', '5', '6', '7',
@@ -91,5 +93,4 @@ define(
 					});
 
 			return MovieView;
-
 		});
