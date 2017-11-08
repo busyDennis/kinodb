@@ -12,9 +12,9 @@ class Rating
     public function exchangeArray ($data)
     {
         $this->imdbID = (! empty($data['imdbID'])) ? $data['imdbID'] : null;
-        $this->avgRating = (! empty($data['avgRating'])) ? $data['avgRating'] : null;
-        $this->totalRating = (! empty($data['totalRating'])) ? $data['totalRating'] : null;
-        $this->timesRated = (! empty($data['timesRated'])) ? $data['timesRated'] : null;
+        $this->avgRating = (! empty($data['avgRating'])) ? (float) $data['avgRating'] : null;
+        $this->totalRating = (! empty($data['totalRating'])) ? (int) $data['totalRating'] : null;
+        $this->timesRated = (! empty($data['timesRated'])) ? (int)  $data['timesRated'] : null;
     }
 }
 ?>

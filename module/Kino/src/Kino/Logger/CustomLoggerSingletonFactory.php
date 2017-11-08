@@ -36,8 +36,14 @@ final class CustomLoggerSingletonFactory extends Logger
         
         $logWriteStream = fopen($logDir . constant("FNAME_CUSTOM_LOG"), "w+", false);
         
+        // stream # 1: writing to an ad-hoc log file 'log/custom.log' for quick feedback in Eclipse IDE
         $this->addWriter('stream', null, array(
             'stream' => $logWriteStream
+        ));
+        
+        // stream # 2: writing to php://stderr
+        $this->addWriter('stream', null, array(
+            'stream' => fopen('php://stderr', 'w')
         ));
         
         $this->debug("Logger successfully configured with custom output file '" . constant("FNAME_CUSTOM_LOG") . "'.");

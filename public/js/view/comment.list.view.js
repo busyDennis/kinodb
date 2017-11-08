@@ -71,9 +71,9 @@ define(
 								type : "POST",
 								data : {
 									imdbID : imdbID,
-									total_rating : rating,
-									avg_rating : "0",
-									times_rated : "0",
+									totalRating : rating,
+									avgRating : "0",
+									timesRated : "0"
 								}
 							});
 						},
@@ -154,10 +154,10 @@ define(
 							}
 						},
 
-						render : function(flag) {
+						render : function(displayCommentForm) {
 							// console.log("comments
 							// form rendered");
-							if (flag)
+							if (displayCommentForm)
 								this.renderCommentForm();
 							this.renderComments();
 						},

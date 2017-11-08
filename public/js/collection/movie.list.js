@@ -90,7 +90,7 @@ define([ "jquery", "backbone", "movie" ], function($, Backbone, Movie) {
 		 */
 		emphasizeSortingPreference : function(newSortKey) {
 			var sortHashTable = {
-				rating : "#byRating",
+				imdbRating : "#byRating",
 				Title : "#byTitle",
 				Year : "#byYear"
 			};

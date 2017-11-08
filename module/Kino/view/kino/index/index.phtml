@@ -53,12 +53,12 @@
           	<dt><h3>Casting</h3></dt>
           	<dd><%= Actors %></dd>
 						<div class="row">
-							<div class="span6">
+							<div class="span6 imdb-rating-div hidden">
           			<dt>
 									<h3>IMDB Rating</h3>
 								</dt>
           			<dd>
-									<div id="hidden-rating" class="hidden hidden-rating"><%= rating %>
+									<div id="hidden-rating" class="hidden hidden-rating"><%= imdbRating %>
 									</div>
 									<span id="movie-rating" class="movie-rating">
 									</span>
@@ -78,7 +78,7 @@
       </div>
     </script>
 
-    <script type="text/template" id="template-comments-form">
+<script type="text/template" id="template-comments-form">
       <h3>Leave a comment</h3>
       <div>
         <div>
@@ -98,7 +98,7 @@
       <ul id="comments-list" class="media-list hidden"></ul>
     </script>
 
-    <script type="text/template" id="template-single-comment">
+<script type="text/template" id="template-single-comment">
       <div class='well well-small comment-single'>
       <li class="media">
         <a class="pull-left" href="#">

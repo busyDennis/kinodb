@@ -1,5 +1,6 @@
 define(
-		[ 'jquery', 'underscore', 'backbone', 'raty', 'movie', 'commentList', 'commentListView' ],
+		[ 'jquery', 'underscore', 'backbone', 'raty', 'movie', 'commentList',
+				'commentListView' ],
 		function($, _, Backbone, raty, Movie, CommentList, CommentListView) {
 
 			var MovieView = Backbone.View
@@ -9,7 +10,7 @@ define(
 						initialize : function() {
 							console.log("Movie view initialized with imdbID: "
 									+ this.model.attributes['imdbID']);
-							this.listenTo(this.model, 'change:kino_rating',
+							this.listenTo(this.model, 'change:kinoRating',
 									this.renderKinoRating);
 							this.template = _.template($('#template-movie')
 									.html());
@@ -21,7 +22,7 @@ define(
 							});
 						},
 
-						render : function(flag) {
+						render : function(displayCommentForm) {
 							// this.$el.hide();
 							this.$el.append(this
 									.template(this.model.attributes));
@@ -32,7 +33,7 @@ define(
 							this.commentListView.setElement("#"
 									+ this.model.attributes['imdbID']
 									+ " #comments");
-							this.commentListView.render(flag);
+							this.commentListView.render(displayCommentForm);
 
 							this.commentList.fetch().done(null,
 									function(response) {
@@ -41,19 +42,31 @@ define(
 								console.log(response);
 							});
 
-							$(
-									"#" + this.model.attributes['imdbID']
-											+ " .movie-rating")
-									.raty(
-											{
-											    hints : [ '1', '2', '3', '4',
-													'5', '6', '7', '8',
-													'9', '10' ],
-												number : 10,
-												path: '/lib/jquery.raty/images/',
-												readOnly : true,
-												score : this.model.attributes['rating']
-											});
+							if (this.model.has('imdbRating') && this.model.attributes['imdbRating'].length != 0) {
+								$(
+										"#" + this.model.attributes['imdbID']
+												+ " .imdb-rating-div")
+										.removeClass('hidden');
+
+								$(
+										"#" + this.model.attributes['imdbID']
+												+ " .movie-rating")
+										.raty(
+												{
+													hints : [ '1', '2', '3',
+															'4', '5', '6', '7',
+															'8', '9', '10' ],
+													number : 10,
+													path : '/lib/jquery.raty/images/',
+													readOnly : true,
+													score : this.model.attributes['imdbRating']
+												});
+							} else {
+								$(
+										"#" + this.model.attributes['imdbID']
+												+ " .imdb-rating-div")
+										.addClass('hidden');
+							}
 
 							this.model.attributes["kinoRating"] = 0;
 							this.model.updateKinoRating();
@@ -82,7 +95,7 @@ define(
 												{
 													score : this.model.attributes["kinoRating"],
 													number : 10,
-													path: '/lib/jquery.raty/images/',
+													path : '/lib/jquery.raty/images/',
 													readOnly : true,
 													hints : [ '1', '2', '3',
 															'4', '5', '6', '7',

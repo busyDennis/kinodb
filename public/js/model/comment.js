@@ -6,7 +6,9 @@ define([ "backbone" ], function(Backbone) {
 			imdbID : "",
 			commentHeading : "",
 			commentText : "",
-			rating : "",
+			rating : "", // user-defined rating value will be added
+			// to the
+			// database
 			created : "",
 			ip : ""
 		},
@@ -19,5 +21,4 @@ define([ "backbone" ], function(Backbone) {
 	});
 
 	return Comment;
-
 });

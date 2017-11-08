@@ -28,7 +28,7 @@ return array(
             'movie' => array(
                 'type' => 'segment',
                 'options' => array(
-                    'route' => '/movie[/[:id]]',
+                    'route' => '/movie[/[:imdbID]]',
                     'constraints' => array(
                         'id' => 'tt[0-9]{7}'
                     ),

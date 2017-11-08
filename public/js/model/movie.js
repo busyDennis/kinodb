@@ -4,13 +4,13 @@ define([ "backbone" ], function(Backbone) {
 	var Movie = Backbone.Model.extend({
 		defaults : {
 			imdbID : "",
-			Title : "",
+			Title : "", // Title is a sorting key
 			Poster : DEFAULT_IMG_FNAME,
 			Plot : "",
 			Actors : "",
-			rating : "",
+			imdbRating : "", // imdbRating is a sorting key
 			kinoRating : 0,
-			Year : ""
+			Year : "" // Year is a sorting key
 		},
 		idAttribute : "imdbID",
 		url : function() {
@@ -23,7 +23,7 @@ define([ "backbone" ], function(Backbone) {
 				type : "GET",
 				dataType : "json",
 				success : function(data, textStatus, jqXHR) {
-					if (data.avg_rating != 0) {
+					if (data.avgRating != 0) {
 						context.set({
 							kinoRating : data.avgRating
 						});

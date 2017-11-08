@@ -4,10 +4,7 @@ namespace Kino\Controller;
 use Kino\Model\Comment;
 use Zend\View\Model\JsonModel;
 use \Zend\Log\Logger;
-if (! defined('STDOUT'))
-    define('STDOUT', fopen('php://stdout', 'w'));
-if (! defined('STDERR'))
-    define('STDERR', fopen('php://stderr', 'w'));
+
 
 class CommentRestfulController extends RestfulControllerTemplate
 {
@@ -73,7 +70,6 @@ class CommentRestfulController extends RestfulControllerTemplate
     {
         $json_arr = json_decode(file_get_contents("php://input"), true, 512, JSON_UNESCAPED_UNICODE); //.[0];
         
-        $this->logger->debug("I am a cool little sentence hanging out here on my own");
         $this->logger->debug($json_arr);
         
         $comment = new Comment();

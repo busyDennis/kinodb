@@ -2,12 +2,16 @@
 namespace Kino\Controller;
 
 use Kino\Model\Rating;
-use Zend\View\Model\JsonModel;
+
+use \Zend\Http\Client;
+use \Zend\Http\Request;
+use \Zend\View\Model\JsonModel;
 
 class RatingRestfulController extends RestfulControllerTemplate
 {
 
     protected $ratingTable;
+    
 
     public function indexAction()
     {
@@ -22,10 +26,13 @@ class RatingRestfulController extends RestfulControllerTemplate
     public function getList()
     {
         $rset = $this->getRatingTable()->fetchAll();
+        
         $ratings = array();
+        
         foreach ($rset as $entry) {
             $ratings[] = $entry;
         }
+        
         return new JsonModel($ratings);
     }
 

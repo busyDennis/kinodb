@@ -9,7 +9,6 @@ class IndexRestfulController extends RestfulControllerTemplate
     {
         $view = new ViewModel();
         $view->setTemplate('application/index/index');
-        //$view->setTerminal(true);
 
         return $view;
     }
